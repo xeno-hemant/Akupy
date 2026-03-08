@@ -2,14 +2,12 @@ import { useEffect } from 'react';
 import Lenis from '@studio-freight/lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-import Hero from './components/Hero';
-import SocialProof from './components/SocialProof';
-import Features from './components/Features';
-import HowItWorks from './components/HowItWorks';
-import PhilosophyStack from './components/PhilosophyStack';
-import FinalCta from './components/FinalCta';
-import Footer from './components/Footer';
+import Home from './pages/Home';
+import Dashboard from './pages/Dashboard';
+import Discover from './pages/Discover';
+import BusinessProfile from './pages/BusinessProfile';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -112,15 +110,16 @@ function App() {
   }, []);
 
   return (
-    <main className="w-full bg-background overflow-hidden relative">
-      <Hero />
-      <SocialProof />
-      <Features />
-      <HowItWorks />
-      <PhilosophyStack />
-      <FinalCta />
-      <Footer />
-    </main>
+    <Router>
+      <main className="w-full bg-background overflow-hidden relative">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/discover" element={<Discover />} />
+          <Route path="/business/:id" element={<BusinessProfile />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Routes>
+      </main>
+    </Router>
   );
 }
 

@@ -1,38 +1,51 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import useAuthStore from '../store/useAuthStore';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function FinalCta() {
   const containerRef = useRef(null);
+  const navigate = useNavigate();
+  const { user, login } = useAuthStore();
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [status, setStatus] = useState('idle'); // idle, loading, success, error
+  const [status, setStatus] = useState('idle'); // idle, loading, error
 
-  const handleRegister = async (e) => {
+  // Simple handler to try and login OR register
+  const handleAuth = async (e) => {
     e.preventDefault();
     if (!email || !password) return;
     
     setStatus('loading');
     
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, role: 'business' })
-      });
-      
-      const data = await response.json();
-      
-      if (response.ok) {
-        setStatus('success');
-      } else {
+    // Attempt Login first through Zustand
+    const success = await login(email, password);
+    
+    if (success) {
+      navigate('/dashboard');
+    } else {
+      // If login fails, attempt to register them instead
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, role: 'business' })
+        });
+        
+        if (response.ok) {
+          // If register succeeds, log them in automatically
+          await login(email, password);
+          navigate('/dashboard');
+        } else {
+          setStatus('error');
+        }
+      } catch (err) {
         setStatus('error');
-        console.error(data.message);
       }
-    } catch (err) {
-      setStatus('error');
     }
   };
 
@@ -62,13 +75,20 @@ export default function FinalCta() {
           Join the platform where local businesses meet global reach without compromising privacy.
         </p>
 
-        {status === 'success' ? (
-          <div className="bg-[#080808] text-white rounded-2xl px-10 py-8 text-center animate-fade-in shadow-xl">
-            <h3 className="text-2xl font-semibold mb-2">Welcome to Akupy!</h3>
-            <p className="text-white/80">Your business profile has been requested. Check your email to verify.</p>
+        {user ? (
+          <div className="flex flex-col items-center gap-6 animate-fade-in">
+            <div className="bg-white/10 px-6 py-3 rounded-full text-[#080808] font-medium border border-black/10">
+              Logged in as <span className="font-bold">{user.email}</span>
+            </div>
+            <button 
+              onClick={() => navigate('/dashboard')}
+              className="bg-[#080808] text-white rounded-full px-12 py-5 text-xl font-semibold hover:bg-[#080808]/90 transition-transform hover:scale-105 active:scale-95 duration-200 shadow-xl"
+            >
+              Go to Dashboard
+            </button>
           </div>
         ) : (
-          <form onSubmit={handleRegister} className="flex flex-col md:flex-row gap-4 w-full justify-center max-w-xl">
+          <form onSubmit={handleAuth} className="flex flex-col md:flex-row gap-4 w-full justify-center max-w-xl">
             <input 
               type="email" 
               placeholder="Business Email" 
@@ -90,7 +110,7 @@ export default function FinalCta() {
               disabled={status === 'loading'}
               className="bg-[#080808] text-white rounded-full px-10 py-4 font-semibold hover:bg-[#080808]/90 transition-transform active:scale-95 duration-200 disabled:opacity-70 flex items-center justify-center min-w-[160px]"
             >
-              {status === 'loading' ? 'Joining...' : status === 'error' ? 'Failed - Try Again' : 'Register Now'}
+              {status === 'loading' ? 'Authenticating...' : status === 'error' ? 'Failed - Try Again' : 'Login / Register'}
             </button>
           </form>
         )}
