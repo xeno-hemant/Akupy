@@ -73,10 +73,10 @@ export default function BusinessProfile() {
       <div className="max-w-4xl mx-auto">
         
         {/* Profile Card */}
-        <div className="bg-white rounded-[2.5rem] p-10 md:p-16 border border-black/5 shadow-sm mb-12 relative overflow-hidden">
+        <div className="bg-white rounded-[2.5rem] p-8 md:p-16 border border-black/5 shadow-sm mb-12 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
           
-          <Link to="/discover" className="text-sm font-semibold text-gray-400 hover:text-[#080808] transition-colors mb-8 inline-block">← Back to Discover</Link>
+          <Link to="/discover" className="text-sm font-semibold text-gray-400 hover:text-[#080808] transition-colors mb-8 inline-block relative z-10">← Back to Discover</Link>
           
           <div className="inline-block px-4 py-2 bg-green-50 text-primary rounded-full text-sm font-semibold mb-6">
             {business.category || 'Local Service'}
@@ -103,11 +103,11 @@ export default function BusinessProfile() {
         </div>
 
         {/* Reviews Section */}
-        <div className="bg-white rounded-[2.5rem] p-10 md:p-16 border border-black/5 shadow-sm">
-          <h2 className="text-3xl font-heading font-medium text-[#080808] mb-8">Community Reviews</h2>
+        <div className="bg-white rounded-[2.5rem] p-8 md:p-16 border border-black/5 shadow-sm">
+          <h2 className="text-2xl md:text-3xl font-heading font-medium text-[#080808] mb-8">Community Reviews</h2>
           
           {user ? (
-            <form onSubmit={handleReviewSubmit} className="bg-gray-50 rounded-2xl p-8 mb-12 border border-black/5">
+            <form onSubmit={handleReviewSubmit} className="bg-gray-50 rounded-2xl p-6 md:p-8 mb-12 border border-black/5">
               <h3 className="font-semibold text-lg mb-4">Write a Review</h3>
               
               <div className="mb-4">

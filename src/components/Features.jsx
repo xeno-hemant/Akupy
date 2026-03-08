@@ -160,8 +160,8 @@ export default function Features() {
   }, []);
 
   return (
-    <section ref={containerRef} className="py-32 px-6 md:px-16 max-w-7xl mx-auto">
-      <div className="mb-16">
+    <section ref={containerRef} className="py-20 md:py-32 px-6 md:px-16 max-w-7xl mx-auto">
+      <div className="mb-12 md:mb-16">
         <h2 className="text-4xl md:text-5xl font-heading font-bold text-foreground feature-card">
           Purpose-Built Tools.
         </h2>

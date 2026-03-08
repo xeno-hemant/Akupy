@@ -35,7 +35,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section ref={containerRef} className="relative w-full min-h-[calc(100vh-80px)] bg-background flex flex-col md:grid md:grid-cols-2 lg:grid-cols-[1.2fr,1fr] px-6 lg:px-16 overflow-hidden pt-12 md:pt-0">
+    <section ref={containerRef} className="relative w-full min-h-[calc(100vh-80px)] bg-background flex flex-col md:grid md:grid-cols-2 lg:grid-cols-[1.2fr,1fr] px-6 lg:px-16 overflow-hidden pt-6 md:pt-0">
       <GlobeCanvas />
 
       {/* Gradient Overlay for Text Readability */}
@@ -68,14 +68,14 @@ export default function Hero() {
             </div>
             <input 
               type="text" 
-              placeholder="Search local businesses or categories..." 
+              placeholder="Search shops or services..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-grow bg-transparent outline-none px-2 py-3 text-[#080808] font-medium placeholder:text-gray-400"
+              className="flex-grow min-w-0 bg-transparent outline-none px-2 py-3 text-[#080808] font-medium placeholder:text-gray-400"
             />
             <button 
               type="submit" 
-              className="bg-primary text-[#080808] rounded-full px-6 py-3 font-semibold hover:bg-primary/90 transition-transform active:scale-95 duration-200"
+              className="bg-primary text-[#080808] rounded-full px-5 md:px-6 py-2 md:py-3 font-semibold hover:bg-primary/90 transition-transform active:scale-95 duration-200"
             >
               Search
             </button>

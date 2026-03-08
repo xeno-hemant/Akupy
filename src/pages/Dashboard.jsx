@@ -73,21 +73,21 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F0FDF4] p-8 md:p-16">
-      <div className="max-w-4xl mx-auto bg-white rounded-[2.5rem] shadow-sm border border-black/5 p-12">
-        <div className="flex justify-between items-center mb-12">
-          <h1 className="text-4xl font-heading font-medium text-[#080808]">Business Dashboard</h1>
+    <div className="min-h-screen bg-[#F0FDF4] p-6 pt-28 md:p-16 md:pt-32">
+      <div className="max-w-4xl mx-auto bg-white rounded-[2.5rem] shadow-sm border border-black/5 p-8 md:p-12">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+          <h1 className="text-3xl md:text-4xl font-heading font-medium text-[#080808]">Business Dashboard</h1>
           <button 
             onClick={logout}
-            className="px-6 py-3 rounded-full border border-black/20 hover:bg-black/5 transition-colors font-medium"
+            className="px-6 py-3 rounded-full border border-black/20 hover:bg-black/5 transition-colors font-medium w-full md:w-auto"
           >
             Logout
           </button>
         </div>
         
-        <div className="bg-gray-50 rounded-2xl p-8 mb-8 border border-black/5">
+        <div className="bg-gray-50 rounded-2xl p-6 md:p-8 mb-8 border border-black/5">
           <h2 className="text-xl font-semibold mb-2 text-[#080808]">Account Details</h2>
-          <div className="flex gap-8 mt-4 text-sm">
+          <div className="flex flex-col md:flex-row gap-4 md:gap-8 mt-4 text-sm break-all">
             <div><span className="text-gray-400 block">Email</span><span className="font-mono text-black">{user.email}</span></div>
             <div><span className="text-gray-400 block">Account Type</span><span className="capitalize text-primary font-medium">{user.role === 'user' ? 'Shopper' : 'Business'}</span></div>
           </div>

@@ -64,7 +64,7 @@ export default function HowItWorks() {
   ];
 
   return (
-    <section ref={containerRef} className="py-32 bg-background relative overflow-hidden">
+    <section ref={containerRef} className="py-20 md:py-32 bg-background relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 md:px-16 relative">
         <h2 className="text-4xl md:text-5xl font-heading font-bold text-foreground mb-24 text-center md:text-left">
           The Process.

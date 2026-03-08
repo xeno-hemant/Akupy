@@ -57,7 +57,7 @@ export default function Discover() {
         </h1>
 
         <form 
-          className="mb-12 flex gap-4 max-w-2xl"
+          className="mb-12 flex flex-col md:flex-row gap-4 max-w-2xl"
           onSubmit={(e) => {
             e.preventDefault();
             const val = e.target.search.value;
@@ -68,9 +68,9 @@ export default function Discover() {
             name="search"
             defaultValue={query}
             placeholder="Search by name or category..." 
-            className="flex-grow px-6 py-4 rounded-full border border-black/20 focus:border-black outline-none bg-white text-black font-medium transition-colors"
+            className="flex-grow min-w-0 px-6 py-4 rounded-full border border-black/20 focus:border-black outline-none bg-white text-black font-medium transition-colors"
           />
-          <button type="submit" className="bg-[#080808] text-white rounded-full px-8 py-4 font-semibold hover:bg-[#080808]/90 transition-colors">
+          <button type="submit" className="bg-[#080808] text-white rounded-full px-8 py-4 font-semibold hover:bg-[#080808]/90 transition-colors w-full md:w-auto">
             Search
           </button>
         </form>
