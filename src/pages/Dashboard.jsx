@@ -92,6 +92,34 @@ export default function Dashboard() {
     setFormData(prev => ({ ...prev, products: updatedProducts }));
   };
 
+  const handleImageUpload = async (index, file) => {
+    if (!file) return;
+    
+    const uploadData = new FormData();
+    uploadData.append('image', file);
+
+    try {
+      // Show uploading state here if desired (e.g. by setting a temporary string 'Uploading...')
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/upload`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${user.token}` },
+        body: uploadData
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+        // handleProductChange updates the state
+        handleProductChange(index, 'imageUrl', baseUrl + data.imageUrl);
+      } else {
+        alert("Image upload failed");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error uploading image");
+    }
+  };
+
   if (!user) {
     return <Navigate to="/" replace />;
   }
@@ -229,14 +257,30 @@ export default function Dashboard() {
                     </div>
                     
                     <div className="space-y-1 mb-4">
-                      <label className="text-xs font-semibold text-gray-500 uppercase">Image URL</label>
-                      <input
-                        type="url"
-                        value={product.imageUrl}
-                        onChange={(e) => handleProductChange(index, 'imageUrl', e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary outline-none transition-colors text-sm"
-                        placeholder="https://images.unsplash.com/..."
-                      />
+                      <label className="text-xs font-semibold text-gray-500 uppercase">Image</label>
+                      <div className="flex flex-col md:flex-row gap-3">
+                        <input
+                          type="url"
+                          value={product.imageUrl}
+                          onChange={(e) => handleProductChange(index, 'imageUrl', e.target.value)}
+                          className="flex-grow px-3 py-2 rounded-lg border border-gray-200 focus:border-primary outline-none transition-colors text-sm"
+                          placeholder="Paste URL or upload file..."
+                        />
+                        <div className="relative">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleImageUpload(index, e.target.files[0])}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          />
+                          <button
+                            type="button"
+                            className="w-full md:w-auto px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium text-sm rounded-lg transition-colors"
+                          >
+                            Upload File
+                          </button>
+                        </div>
+                      </div>
                     </div>
 
                     <div className="space-y-1">

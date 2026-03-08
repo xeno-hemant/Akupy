@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import useAuthStore from '../store/useAuthStore';
+import useCartStore from '../store/useCartStore';
 
 export default function BusinessProfile() {
   const { id } = useParams();
   const { user } = useAuthStore();
+  const { addToCart } = useCartStore();
   
   const [business, setBusiness] = useState(null);
   const [reviews, setReviews] = useState([]);
@@ -122,13 +124,14 @@ export default function BusinessProfile() {
                     )}
                   </div>
                   <div className="p-6 flex flex-col flex-grow">
-                    <h3 className="text-lg font-bold text-[#080808] mb-2">{product.name}</h3>
-                    <p className="text-gray-500 text-sm mb-6 flex-grow">{product.description}</p>
+                    <h3 className="text-lg font-bold text-[#080808] mb-2 line-clamp-1">{product.name}</h3>
+                    <p className="text-gray-500 text-sm mb-6 line-clamp-2 min-h-[2.5rem]">{product.description}</p>
                     <div className="flex items-center justify-between border-t border-gray-100 pt-4 mt-auto">
                       <span className="text-xl font-bold text-primary">${Number(product.price).toFixed(2)}</span>
                       <button 
                         disabled={!product.inStock}
-                        className="bg-[#080808] text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-black/80 transition-colors disabled:opacity-50"
+                        onClick={() => addToCart(product, business)}
+                        className="bg-[#080808] text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-black/80 transition-colors disabled:opacity-50 active:scale-95"
                       >
                         {product.inStock ? 'Add to Cart' : 'Unavailable'}
                       </button>
