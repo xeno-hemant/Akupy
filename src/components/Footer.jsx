@@ -1,0 +1,43 @@
+export default function Footer() {
+  const currentYear = new Date().getFullYear();
+
+  return (
+    <footer className="w-full bg-[#080808] text-white rounded-t-[3.5rem] px-6 md:px-16 pt-24 pb-12 mt-12 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 border-b border-white/10 pb-16">
+        
+        {/* Brand Left */}
+        <div className="md:col-span-4 flex flex-col items-start">
+          <h2 className="text-4xl font-heading font-bold mb-4 tracking-tight">akupy</h2>
+          <p className="text-white/60 font-body text-sm max-w-xs mb-8">
+            The smart discovery platform bridging the physical and digital marketplace.
+          </p>
+          <div className="flex items-center gap-3 bg-white/5 rounded-full px-4 py-2 border border-white/10">
+             <span className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_var(--primary)]" />
+             <span className="font-mono text-xs uppercase tracking-widest text-white/80">System Operational</span>
+          </div>
+        </div>
+
+        {/* Links Center */}
+        <div className="md:col-span-3 md:col-start-7 flex flex-col gap-4">
+          <span className="font-mono text-xs text-secondary/50 uppercase tracking-widest mb-2">Explore</span>
+          <a href="#" className="text-white/80 hover:text-primary transition-colors text-sm">Find Shops</a>
+          <a href="#" className="text-white/80 hover:text-primary transition-colors text-sm">Try-On Gallery</a>
+          <a href="#" className="text-white/80 hover:text-primary transition-colors text-sm">Global Map</a>
+        </div>
+
+        {/* Legal Right */}
+        <div className="md:col-span-3 flex flex-col gap-4">
+           <span className="font-mono text-xs text-secondary/50 uppercase tracking-widest mb-2">Company</span>
+           <a href="#" className="text-white/80 hover:text-primary transition-colors text-sm">For Businesses</a>
+           <a href="#" className="text-white/80 hover:text-primary transition-colors text-sm">Privacy Commitment</a>
+           <a href="#" className="text-white/80 hover:text-primary transition-colors text-sm">Terms of Service</a>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-white/40 font-mono">
+        <span>© {currentYear} Akupy Inc. All rights reserved.</span>
+        <span className="mt-4 md:mt-0">Designed in stealth.</span>
+      </div>
+    </footer>
+  );
+}
