@@ -13,7 +13,8 @@ export default function Dashboard() {
     category: '',
     address: '',
     operatingHours: '',
-    description: ''
+    description: '',
+    products: []
   });
 
   useEffect(() => {
@@ -31,7 +32,8 @@ export default function Dashboard() {
             category: data.category || '',
             address: data.address || '',
             operatingHours: data.operatingHours || '',
-            description: data.description || ''
+            description: data.description || '',
+            products: data.products || []
           });
         }
       } catch (err) {
@@ -66,6 +68,28 @@ export default function Dashboard() {
     } catch (err) {
       setSaveStatus('error');
     }
+  };
+
+  const handleAddProduct = () => {
+    setFormData(prev => ({
+      ...prev,
+      products: [...prev.products, { name: '', description: '', price: '', imageUrl: '', inStock: true }]
+    }));
+  };
+
+  const handleProductChange = (index, field, value) => {
+    const updatedProducts = [...formData.products];
+    if (field === 'price') {
+      updatedProducts[index][field] = Number(value) || 0;
+    } else {
+      updatedProducts[index][field] = value;
+    }
+    setFormData(prev => ({ ...prev, products: updatedProducts }));
+  };
+
+  const handleRemoveProduct = (index) => {
+    const updatedProducts = formData.products.filter((_, i) => i !== index);
+    setFormData(prev => ({ ...prev, products: updatedProducts }));
   };
 
   if (!user) {
@@ -156,7 +180,85 @@ export default function Dashboard() {
               />
             </div>
 
-            <div className="pt-6 flex items-center gap-4 border-t border-gray-100">
+            {/* Product Catalog Management */}
+            <div className="pt-8 border-t border-gray-100">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-semibold text-[#080808]">Product Catalog</h3>
+                <button
+                  type="button"
+                  onClick={handleAddProduct}
+                  className="bg-green-50 text-primary px-4 py-2 rounded-xl text-sm font-semibold hover:bg-green-100 transition-colors"
+                >
+                  + Add Product
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {formData.products.map((product, index) => (
+                  <div key={index} className="bg-gray-50 border border-gray-200 rounded-2xl p-6 relative">
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveProduct(index)}
+                      className="absolute top-4 right-4 text-red-400 hover:text-red-600 text-sm font-medium"
+                    >
+                      Remove
+                    </button>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-gray-500 uppercase">Product Name</label>
+                        <input
+                          type="text"
+                          value={product.name}
+                          onChange={(e) => handleProductChange(index, 'name', e.target.value)}
+                          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary outline-none transition-colors text-sm"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-gray-500 uppercase">Price ($)</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={product.price}
+                          onChange={(e) => handleProductChange(index, 'price', e.target.value)}
+                          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary outline-none transition-colors text-sm"
+                          required
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-1 mb-4">
+                      <label className="text-xs font-semibold text-gray-500 uppercase">Image URL</label>
+                      <input
+                        type="url"
+                        value={product.imageUrl}
+                        onChange={(e) => handleProductChange(index, 'imageUrl', e.target.value)}
+                        className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary outline-none transition-colors text-sm"
+                        placeholder="https://images.unsplash.com/..."
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-gray-500 uppercase">Description</label>
+                      <textarea
+                        value={product.description}
+                        onChange={(e) => handleProductChange(index, 'description', e.target.value)}
+                        className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary outline-none transition-colors text-sm min-h-[60px] resize-y"
+                      />
+                    </div>
+                  </div>
+                ))}
+                
+                {formData.products.length === 0 && (
+                  <div className="text-center py-8 text-gray-400 text-sm border-2 border-dashed border-gray-200 rounded-2xl">
+                    No products added yet. Click "+ Add Product" to build your catalog.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="pt-6 flex items-center gap-4 border-t border-gray-100 mt-8">
               <button 
                 type="submit"
                 disabled={saveStatus === 'saving'}

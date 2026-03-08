@@ -102,6 +102,44 @@ export default function BusinessProfile() {
           </div>
         </div>
 
+        {/* Products Section */}
+        {business.products && business.products.length > 0 && (
+          <div className="bg-white rounded-[2.5rem] p-8 md:p-16 border border-black/5 shadow-sm mb-12">
+            <h2 className="text-2xl md:text-3xl font-heading font-medium text-[#080808] mb-8">Products & Services</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {business.products.map((product) => (
+                <div key={product._id || product.name} className="border border-gray-100 rounded-3xl overflow-hidden group hover:border-primary/30 transition-colors shadow-sm relative flex flex-col">
+                  <div className="aspect-square bg-gray-50 overflow-hidden relative">
+                    {product.imageUrl ? (
+                      <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-300">No Image</div>
+                    )}
+                    {!product.inStock && (
+                      <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-red-500 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                        Out of Stock
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-6 flex flex-col flex-grow">
+                    <h3 className="text-lg font-bold text-[#080808] mb-2">{product.name}</h3>
+                    <p className="text-gray-500 text-sm mb-6 flex-grow">{product.description}</p>
+                    <div className="flex items-center justify-between border-t border-gray-100 pt-4 mt-auto">
+                      <span className="text-xl font-bold text-primary">${Number(product.price).toFixed(2)}</span>
+                      <button 
+                        disabled={!product.inStock}
+                        className="bg-[#080808] text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-black/80 transition-colors disabled:opacity-50"
+                      >
+                        {product.inStock ? 'Add to Cart' : 'Unavailable'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Reviews Section */}
         <div className="bg-white rounded-[2.5rem] p-8 md:p-16 border border-black/5 shadow-sm">
           <h2 className="text-2xl md:text-3xl font-heading font-medium text-[#080808] mb-8">Community Reviews</h2>
