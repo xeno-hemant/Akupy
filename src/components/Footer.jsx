@@ -1,3 +1,5 @@
+import { Instagram, Mail } from 'lucide-react';
+
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
@@ -27,16 +29,21 @@ export default function Footer() {
 
         {/* Legal Right */}
         <div className="md:col-span-3 flex flex-col gap-4">
-           <span className="font-mono text-xs text-secondary/50 uppercase tracking-widest mb-2">Company</span>
-           <a href="#" className="text-white/80 hover:text-primary transition-colors text-sm">For Businesses</a>
-           <a href="#" className="text-white/80 hover:text-primary transition-colors text-sm">Privacy Commitment</a>
-           <a href="#" className="text-white/80 hover:text-primary transition-colors text-sm">Terms of Service</a>
+           <span className="font-mono text-xs text-secondary/50 uppercase tracking-widest mb-2">Creator</span>
+           <a href="https://www.instagram.com/xeno._hemant?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer" className="text-white/80 hover:text-primary transition-colors text-sm flex items-center gap-2">
+             <Instagram className="w-4 h-4" /> Instagram
+           </a>
+           <a href="mailto:xeno.hemant@gmail.com" className="text-white/80 hover:text-primary transition-colors text-sm flex items-center gap-2">
+             <Mail className="w-4 h-4" /> Email
+           </a>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-white/40 font-mono">
+      <div className="max-w-7xl mx-auto pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-white/60 font-mono gap-4 text-center md:text-left">
         <span>© {currentYear} Akupy Inc. All rights reserved.</span>
-        <span className="mt-4 md:mt-0">Designed in stealth.</span>
+        <span className="flex items-center gap-2">
+          Created with ♥ by <span className="text-primary font-bold tracking-wider">Hemant Gurjar</span>
+        </span>
       </div>
     </footer>
   );
