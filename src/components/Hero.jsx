@@ -35,10 +35,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section 
-      ref={containerRef} 
-      className="relative w-full h-[100dvh] flex items-end pb-20 pl-6 md:pl-16 overflow-hidden bg-background"
-    >
+    <section ref={containerRef} className="relative w-full min-h-[calc(100vh-80px)] bg-background flex flex-col md:grid md:grid-cols-2 lg:grid-cols-[1.2fr,1fr] px-6 lg:px-16 overflow-hidden pt-12 md:pt-0">
       <GlobeCanvas />
 
       {/* Gradient Overlay for Text Readability */}

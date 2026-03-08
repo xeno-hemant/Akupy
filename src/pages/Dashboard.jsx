@@ -89,15 +89,16 @@ export default function Dashboard() {
           <h2 className="text-xl font-semibold mb-2 text-[#080808]">Account Details</h2>
           <div className="flex gap-8 mt-4 text-sm">
             <div><span className="text-gray-400 block">Email</span><span className="font-mono text-black">{user.email}</span></div>
-            <div><span className="text-gray-400 block">Role</span><span className="capitalize text-primary font-medium">{user.role}</span></div>
+            <div><span className="text-gray-400 block">Account Type</span><span className="capitalize text-primary font-medium">{user.role === 'user' ? 'Shopper' : 'Business'}</span></div>
           </div>
         </div>
 
-        {loading ? (
-          <div className="py-12 text-center text-gray-500">Loading profile data...</div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <h2 className="text-2xl font-semibold mb-6 text-[#080808]">Public Profile</h2>
+        {user.role === 'business' && (
+          loading ? (
+            <div className="py-12 text-center text-gray-500">Loading profile data...</div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
+              <h2 className="text-2xl font-semibold mb-6 text-[#080808]">Public Storefront</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
@@ -168,6 +169,34 @@ export default function Dashboard() {
               {saveStatus === 'error' && <span className="text-red-600 font-medium">Error saving profile.</span>}
             </div>
           </form>
+          )
+        )}
+
+        {user.role === 'user' && (
+          <div className="space-y-8 animate-fade-in">
+            <h2 className="text-2xl font-semibold text-[#080808]">My Activity</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white border border-gray-100 rounded-3xl p-8 shadow-sm">
+                <div className="w-12 h-12 bg-green-50 text-primary rounded-full flex items-center justify-center mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Saved Stores</h3>
+                <p className="text-gray-500 text-sm">You haven't saved any stores to your favorites yet.</p>
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <a href="/discover" className="text-primary font-medium text-sm hover:underline">Explore businesses →</a>
+                </div>
+              </div>
+
+              <div className="bg-white border border-gray-100 rounded-3xl p-8 shadow-sm">
+                <div className="w-12 h-12 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                </div>
+                <h3 className="text-lg font-semibold mb-2">My Reviews</h3>
+                <p className="text-gray-500 text-sm">Your past reviews and ratings will appear here.</p>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

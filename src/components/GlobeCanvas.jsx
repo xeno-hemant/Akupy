@@ -1,11 +1,17 @@
-import { Suspense, useEffect, useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Suspense, useEffect, useRef, useState } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useGLTF, Environment } from '@react-three/drei';
 import * as THREE from 'three';
 
 // 3D Geometric Globe representing 'Global Discovery'
 function GeoGlobe(props) {
   const meshRef = useRef();
+  const { viewport } = useThree();
+  const isMobile = viewport.width < 5; // Roughly typical mobile width in Three.js units
+
+  // Adjust scale and position based on mobile
+  const scale = isMobile ? 0.7 : 1;
+  const position = isMobile ? [0, -2, -2] : [1.5, 0, 0];
 
   useFrame((state) => {
     if (meshRef.current) {
@@ -22,7 +28,7 @@ function GeoGlobe(props) {
   });
 
   return (
-    <mesh ref={meshRef} {...props}>
+    <mesh ref={meshRef} position={position} scale={scale} {...props}>
       <icosahedronGeometry args={[2, 4]} />
       <meshStandardMaterial 
         color="#ffffff" 
@@ -46,7 +52,7 @@ export default function GlobeCanvas() {
         <directionalLight position={[10, 10, 5]} intensity={1} color="#4ADE80" />
         <directionalLight position={[-10, -10, 5]} intensity={0.5} />
         <Suspense fallback={null}>
-          <GeoGlobe position={[1.5, 0, 0]} />
+          <GeoGlobe />
         </Suspense>
       </Canvas>
     </div>

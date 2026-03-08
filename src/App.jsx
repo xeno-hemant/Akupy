@@ -8,6 +8,7 @@ import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import Discover from './pages/Discover';
 import BusinessProfile from './pages/BusinessProfile';
+import Navbar from './components/Navbar';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -111,7 +112,8 @@ function App() {
 
   return (
     <Router>
-      <main className="w-full bg-background overflow-hidden relative">
+      <main className="w-full bg-background min-h-screen relative pt-20">
+        <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/discover" element={<Discover />} />
