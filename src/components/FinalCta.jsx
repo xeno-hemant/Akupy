@@ -27,9 +27,7 @@ export default function FinalCta() {
   const [showOtpField, setShowOtpField] = useState(false);
   const [otp, setOtp] = useState('');
 
-  const apiUrl = import.meta.env.VITE_API_URL !== 'http://localhost:5000' 
-    ? import.meta.env.VITE_API_URL 
-    : `http://${window.location.hostname}:5000`;
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   const handleAuth = async (e) => {
     e.preventDefault();
