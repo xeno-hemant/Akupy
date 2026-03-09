@@ -26,8 +26,33 @@ export default function FinalCta() {
   // OTP States
   const [showOtpField, setShowOtpField] = useState(false);
   const [otp, setOtp] = useState('');
+  const [isWakingUp, setIsWakingUp] = useState(false); // true when Render is cold-starting
 
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  const isProdHost = window.location.hostname.includes('akupy.in');
+  const fallbackUrl = isProdHost ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
+  const apiUrl = import.meta.env.VITE_API_URL || fallbackUrl;
+
+  // On Render free tier, the server can take 50s to wake up from sleep.
+  // This helper adds a 65s timeout and shows a wakeup message after 4s.
+  const fetchWithTimeout = async (url, options) => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 65000); // 65 second timeout
+    let wakeupTimer = null;
+    
+    if (isProdHost) {
+      // After 4 seconds show the "Server waking up" message
+      wakeupTimer = setTimeout(() => setIsWakingUp(true), 4000);
+    }
+    
+    try {
+      const response = await fetch(url, { ...options, signal: controller.signal });
+      return response;
+    } finally {
+      clearTimeout(timeoutId);
+      clearTimeout(wakeupTimer);
+      setIsWakingUp(false);
+    }
+  };
 
   const handleAuth = async (e) => {
     e.preventDefault();
@@ -62,7 +87,7 @@ export default function FinalCta() {
   const requestOtp = async () => {
     setStatus('loading');
     try {
-      const response = await fetch(`${apiUrl}/api/auth/send-otp`, {
+      const response = await fetchWithTimeout(`${apiUrl}/api/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -78,8 +103,13 @@ export default function FinalCta() {
         setShowPricingModal(false);
       }
     } catch (err) {
-      useAuthStore.setState({ error: 'Server error. Please check your connection.' });
+      if (err.name === 'AbortError') {
+        useAuthStore.setState({ error: 'Server took too long to respond. Please try again.' });
+      } else {
+        useAuthStore.setState({ error: 'Server error. Please check your connection.' });
+      }
       setStatus('error');
+      setIsWakingUp(false);
       setShowPricingModal(false);
     }
   };
@@ -256,7 +286,7 @@ export default function FinalCta() {
                 className="bg-[#080808] text-white rounded-xl md:rounded-full px-8 md:px-10 py-3 md:py-4 font-semibold hover:bg-[#080808]/90 transition-transform active:scale-95 duration-200 disabled:opacity-70 flex items-center justify-center min-w-[140px] text-sm md:text-base"
               >
                 {status === 'loading' 
-                  ? 'Processing...' 
+                  ? (isWakingUp ? '🌐 Connecting...' : 'Processing...')
                   : showOtpField 
                     ? 'Verify & Register'
                     : status === 'error' 
@@ -265,6 +295,13 @@ export default function FinalCta() {
               </button>
             </form>
             
+            {isWakingUp && (
+              <div className="mt-4 p-3 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-sm font-medium animate-fade-in flex items-center gap-2">
+                <span>⏳</span>
+                <span>Server is waking up from sleep mode (Render free tier). This may take up to 30-60 seconds — please wait, do not click again!</span>
+              </div>
+            )}
+
             {showOtpField && (
               <p className="text-sm font-medium text-[#080808]/60 mt-4 animate-fade-in">
                 We've sent a code to <span className="font-bold text-[#080808]">{email}</span>. Valid for 5 minutes.

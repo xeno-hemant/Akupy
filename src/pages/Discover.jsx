@@ -14,10 +14,14 @@ export default function Discover() {
   useEffect(() => {
     const fetchResults = async () => {
       setLoading(true);
+      const isProd = window.location.hostname.includes('akupy.in');
+      const rootUrl = isProd ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
+      const apiUrl = import.meta.env.VITE_API_URL || rootUrl;
+      
       try {
         const url = query 
-          ? `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/businesses/search?query=${query}`
-          : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/businesses`; // fetch all if no query
+          ? `${apiUrl}/api/businesses/search?query=${query}`
+          : `${apiUrl}/api/businesses`; // fetch all if no query
         
         const res = await fetch(url);
         if (res.ok) {

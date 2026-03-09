@@ -13,7 +13,11 @@ export default function HomeFeed() {
   useEffect(() => {
     const fetchFeed = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/businesses`);
+        const isProd = window.location.hostname.includes('akupy.in');
+        const rootUrl = isProd ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
+        const apiUrl = import.meta.env.VITE_API_URL || rootUrl;
+        
+        const res = await fetch(`${apiUrl}/api/businesses`);
         if (res.ok) {
           const businesses = await res.json();
           // Extract all products into a flat array

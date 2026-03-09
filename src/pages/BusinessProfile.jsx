@@ -21,10 +21,14 @@ export default function BusinessProfile() {
 
   useEffect(() => {
     const fetchData = async () => {
+      const isProd = window.location.hostname.includes('akupy.in');
+      const rootUrl = isProd ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
+      const apiUrl = import.meta.env.VITE_API_URL || rootUrl;
+      
       try {
         const [bizRes, revRes] = await Promise.all([
-          fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/businesses/${id}`),
-          fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/businesses/${id}/reviews`)
+          fetch(`${apiUrl}/api/businesses/${id}`),
+          fetch(`${apiUrl}/api/businesses/${id}/reviews`)
         ]);
 
         if (bizRes.ok) setBusiness(await bizRes.json());
@@ -44,7 +48,11 @@ export default function BusinessProfile() {
     setReviewStatus('submitting');
     
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/businesses/${id}/reviews`, {
+      const isProd = window.location.hostname.includes('akupy.in');
+      const rootUrl = isProd ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
+      const apiUrl = import.meta.env.VITE_API_URL || rootUrl;
+      
+      const res = await fetch(`${apiUrl}/api/businesses/${id}/reviews`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
