@@ -22,6 +22,14 @@ export default function FinalCta() {
 
   const [monetizationPlan, setMonetizationPlan] = useState(''); // 'commission' or 'subscription'
   const [showPricingModal, setShowPricingModal] = useState(false);
+  
+  // OTP States
+  const [showOtpField, setShowOtpField] = useState(false);
+  const [otp, setOtp] = useState('');
+
+  const apiUrl = import.meta.env.VITE_API_URL !== 'http://localhost:5000' 
+    ? import.meta.env.VITE_API_URL 
+    : `http://${window.location.hostname}:5000`;
 
   const handleAuth = async (e) => {
     e.preventDefault();
@@ -34,51 +42,91 @@ export default function FinalCta() {
       return;
     }
 
-    executeAuth();
+    if (authMode === 'login') {
+      executeLogin();
+    } else if (!showOtpField) {
+      requestOtp();
+    } else {
+      verifyOtpAndRegister();
+    }
   };
 
-  const executeAuth = async () => {
+  const executeLogin = async () => {
     setStatus('loading');
-    
-    if (authMode === 'login') {
-      const success = await login(email, password);
-      if (success) {
+    const success = await login(email, password);
+    if (success) {
+      navigate('/dashboard');
+    } else {
+      setStatus('error');
+    }
+  };
+
+  const requestOtp = async () => {
+    setStatus('loading');
+    try {
+      const response = await fetch(`${apiUrl}/api/auth/send-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      if (response.ok) {
+        setShowOtpField(true);
+        setStatus('idle');
+        if (showPricingModal) setShowPricingModal(false); // Hide pricing modal if it was open
+      } else {
+        const errData = await response.json();
+        useAuthStore.setState({ error: errData.message || 'Error sending OTP' });
+        setStatus('error');
+        setShowPricingModal(false);
+      }
+    } catch (err) {
+      useAuthStore.setState({ error: 'Server error. Please check your connection.' });
+      setStatus('error');
+      setShowPricingModal(false);
+    }
+  };
+
+  const verifyOtpAndRegister = async () => {
+    setStatus('loading');
+    try {
+      // 1. Verify OTP
+      const otpRes = await fetch(`${apiUrl}/api/auth/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp })
+      });
+      
+      if (!otpRes.ok) {
+        const errData = await otpRes.json();
+        useAuthStore.setState({ error: errData.message || 'Invalid OTP' });
+        setStatus('error');
+        return;
+      }
+
+      // 2. Proceed to Registration
+      const payload = { email, password, role };
+      if (role === 'business' && monetizationPlan) {
+        payload.monetizationPlan = monetizationPlan;
+      }
+
+      const response = await fetch(`${apiUrl}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      if (response.ok) {
+        await login(email, password);
+        setShowOtpField(false);
         navigate('/dashboard');
       } else {
+        const errData = await response.json();
+        useAuthStore.setState({ error: errData.message || 'User already exists or invalid data' });
         setStatus('error');
       }
-    } else {
-      // Register logic
-      try {
-        const payload = { email, password, role };
-        if (role === 'business' && monetizationPlan) {
-          payload.monetizationPlan = monetizationPlan;
-        }
-
-        const apiUrl = import.meta.env.VITE_API_URL !== 'http://localhost:5000' 
-          ? import.meta.env.VITE_API_URL 
-          : `http://${window.location.hostname}:5000`;
-
-        const response = await fetch(`${apiUrl}/api/auth/register`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        
-        if (response.ok) {
-          // If register succeeds, log them in automatically
-          await login(email, password);
-          setShowPricingModal(false);
-          navigate('/dashboard');
-        } else {
-          const errData = await response.json();
-          useAuthStore.setState({ error: errData.message || 'User already exists or invalid data' });
-          setStatus('error');
-        }
-      } catch (err) {
-        useAuthStore.setState({ error: 'Server error. Please check your connection.' });
-        setStatus('error');
-      }
+    } catch (err) {
+      useAuthStore.setState({ error: 'Server error. Please check your connection.' });
+      setStatus('error');
     }
   };
 
@@ -144,7 +192,7 @@ export default function FinalCta() {
               </button>
               <button 
                 type="button"
-                onClick={() => { setAuthMode('login'); clearError(); setStatus('idle'); }}
+                onClick={() => { setAuthMode('login'); clearError(); setStatus('idle'); setShowOtpField(false); }}
                 className={`text-base md:text-lg font-bold transition-colors pb-1 border-b-2 ${authMode === 'login' ? 'border-[#080808] text-[#080808]' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
               >
                 Log In
@@ -172,30 +220,58 @@ export default function FinalCta() {
             )}
 
             <form onSubmit={handleAuth} className="flex flex-col md:flex-row gap-3 md:gap-4 w-full justify-center">
-              <input 
-                type="email" 
-                placeholder="Email address" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="px-4 py-3 md:px-6 md:py-4 rounded-xl md:rounded-full border border-black/20 focus:border-black outline-none bg-white text-black font-medium transition-colors w-full md:w-auto flex-grow text-sm md:text-base"
-                required
-              />
-              <input 
-                type="password" 
-                placeholder="Password" 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="px-4 py-3 md:px-6 md:py-4 rounded-xl md:rounded-full border border-black/20 focus:border-black outline-none bg-white text-black font-medium transition-colors w-full md:w-auto flex-grow text-sm md:text-base"
-                required
-              />
+              {showOtpField ? (
+                // OTP Input Field
+                <input 
+                  type="text" 
+                  placeholder="Enter 6-digit OTP" 
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  className="px-4 py-3 md:px-6 md:py-4 rounded-xl md:rounded-full border border-black/20 focus:border-black outline-none bg-white text-black font-medium transition-colors w-full md:w-auto flex-grow text-center tracking-[0.5em] text-lg font-mono"
+                  required
+                />
+              ) : (
+                // Email & Password Fields
+                <>
+                  <input 
+                    type="email" 
+                    placeholder="Email address" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="px-4 py-3 md:px-6 md:py-4 rounded-xl md:rounded-full border border-black/20 focus:border-black outline-none bg-white text-black font-medium transition-colors w-full md:w-auto flex-grow text-sm md:text-base"
+                    required
+                  />
+                  <input 
+                    type="password" 
+                    placeholder="Password" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="px-4 py-3 md:px-6 md:py-4 rounded-xl md:rounded-full border border-black/20 focus:border-black outline-none bg-white text-black font-medium transition-colors w-full md:w-auto flex-grow text-sm md:text-base"
+                    required
+                  />
+                </>
+              )}
+              
               <button 
                 type="submit" 
                 disabled={status === 'loading'}
                 className="bg-[#080808] text-white rounded-xl md:rounded-full px-8 md:px-10 py-3 md:py-4 font-semibold hover:bg-[#080808]/90 transition-transform active:scale-95 duration-200 disabled:opacity-70 flex items-center justify-center min-w-[140px] text-sm md:text-base"
               >
-                {status === 'loading' ? 'Authenticating...' : status === 'error' ? 'Retry' : 'Continue'}
+                {status === 'loading' 
+                  ? 'Processing...' 
+                  : showOtpField 
+                    ? 'Verify & Register'
+                    : status === 'error' 
+                      ? 'Retry' 
+                      : 'Continue'}
               </button>
             </form>
+            
+            {showOtpField && (
+              <p className="text-sm font-medium text-[#080808]/60 mt-4 animate-fade-in">
+                We've sent a code to <span className="font-bold text-[#080808]">{email}</span>. Valid for 5 minutes.
+              </p>
+            )}
 
             {/* Display Backend Authentication Errors */}
             {(authError || status === 'error') && (
@@ -230,7 +306,7 @@ export default function FinalCta() {
                   className="border-2 border-gray-200 hover:border-black rounded-2xl p-6 md:p-8 cursor-pointer transition-all duration-300 relative group flex flex-col items-center text-center"
                   onClick={() => {
                     setMonetizationPlan('commission');
-                    setTimeout(() => executeAuth(), 0);
+                    setTimeout(() => requestOtp(), 0);
                   }}
                 >
                   <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mb-4 md:mb-6">
@@ -255,7 +331,7 @@ export default function FinalCta() {
                   className="border-2 border-primary bg-[#F0FDF4] hover:shadow-lg rounded-2xl p-6 md:p-8 cursor-pointer transition-all duration-300 relative group flex flex-col items-center text-center mt-2 md:mt-0"
                   onClick={() => {
                     setMonetizationPlan('subscription');
-                    setTimeout(() => executeAuth(), 0);
+                    setTimeout(() => requestOtp(), 0);
                   }}
                 >
                   <div className="absolute -top-3 right-4 md:right-6 bg-black text-white text-[10px] md:text-xs font-bold px-3 py-1 rounded-full shadow-sm">RECOMMENDED</div>

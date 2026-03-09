@@ -1,19 +1,18 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { Search, User, Menu, X, ShoppingCart, Trash2, Plus, Minus, EyeOff } from 'lucide-react';
+import { Search, User, Menu, X, ShoppingCart, Trash2, Plus, Minus, EyeOff, Globe } from 'lucide-react';
 import useAuthStore from '../store/useAuthStore';
 import useCartStore from '../store/useCartStore';
 import useFeatureStore from '../store/useFeatureStore';
-import CheckoutModal from './CheckoutModal';
+import GlobalMapViewer from './GlobalMapViewer';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [isGlobeMapOpen, setIsGlobeMapOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { user, logout } = useAuthStore();
   const { cart, removeFromCart, updateQuantity, getTotalItems, getTotalPrice } = useCartStore();
-  const { isIncognitoActive } = useFeatureStore();
+  const { isIncognitoActive, setIncognito, isGlobeShopActive } = useFeatureStore();
   const navigate = useNavigate();
 
   const handleSearch = (e) => {
@@ -81,8 +80,17 @@ export default function Navbar() {
               placeholder={isIncognitoActive ? "Incognito search active..." : "Search local businesses..."}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className={`w-full border focus:border-primary/50 text-sm rounded-full py-2.5 pl-12 pr-4 outline-none transition-all ${isIncognitoActive ? 'bg-white/10 border-transparent text-white placeholder-gray-400 focus:bg-white/20 focus:border-blue-500/50' : 'bg-gray-100/50 border-transparent text-[#080808] focus:bg-white'}`}
+              className={`w-full border focus:border-primary/50 text-sm rounded-full py-2.5 pl-12 pr-12 outline-none transition-all ${isIncognitoActive ? 'bg-white/10 border-transparent text-white placeholder-gray-400 focus:bg-white/20 focus:border-blue-500/50' : 'bg-gray-100/50 border-transparent text-[#080808] focus:bg-white'}`}
             />
+            <button 
+              type="button" 
+              onClick={() => setIsGlobeMapOpen(true)} 
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full hover:bg-gray-200/50 text-gray-400 hover:text-primary transition-colors focus:outline-none group" 
+              title="Open Global 3D Map"
+            >
+               <Globe className={`w-5 h-5 ${isGlobeShopActive ? 'text-primary' : ''}`} />
+               <span className="absolute -top-8 right-0 bg-black text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity">Global Map</span>
+            </button>
           </form>
         </div>
 
@@ -92,10 +100,14 @@ export default function Navbar() {
           {user ? (
             <div className="flex items-center gap-4">
               {isIncognitoActive ? (
-                <div className="flex items-center gap-2 text-sm font-semibold bg-white/10 px-4 py-2 rounded-full text-blue-400 border border-blue-500/30">
+                <button 
+                  onClick={() => setIncognito(false)}
+                  className="flex items-center gap-2 text-sm font-semibold bg-white/10 px-4 py-2 rounded-full text-blue-400 border border-blue-500/30 hover:bg-red-500/20 hover:text-red-400 transition-colors cursor-pointer group"
+                >
                   <EyeOff className="w-4 h-4" />
-                  Anonymous
-                </div>
+                  <span className="group-hover:hidden">Anonymous</span>
+                  <span className="hidden group-hover:inline">Disable Privacy</span>
+                </button>
               ) : (
                 <NavLink to="/dashboard" className="flex items-center gap-2 text-sm font-semibold bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full transition-colors text-[#080808]">
                   <User className="w-4 h-4" />
@@ -147,8 +159,14 @@ export default function Navbar() {
           
           {/* Cart Icon */}
           <button 
-            onClick={() => setIsCartOpen(true)}
-            className="relative p-2 text-[#080808] hover:text-primary transition-colors cursor-pointer"
+            onClick={() => {
+              if (isSubdomain) {
+                window.location.href = `${rootUrl}/cart`;
+              } else {
+                navigate('/cart');
+              }
+            }}
+            className="relative p-2 text-[#080808] hover:text-primary transition-colors cursor-pointer group"
           >
             <ShoppingCart className="w-6 h-6" />
             {getTotalItems() > 0 && (
@@ -162,7 +180,13 @@ export default function Navbar() {
         {/* Mobile Menu Toggle & Cart */}
         <div className="md:hidden flex items-center gap-4">
           <button 
-            onClick={() => setIsCartOpen(true)}
+            onClick={() => {
+              if (isSubdomain) {
+                window.location.href = `${rootUrl}/cart`;
+              } else {
+                navigate('/cart');
+              }
+            }}
             className="relative p-2 text-[#080808] hover:text-primary transition-colors cursor-pointer"
           >
             <ShoppingCart className="w-6 h-6" />
@@ -192,8 +216,15 @@ export default function Navbar() {
               placeholder="Search local businesses..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-gray-100 border border-transparent focus:bg-white focus:border-primary/50 text-[#080808] rounded-full py-3 pl-12 pr-4 outline-none transition-all"
+              className="w-full bg-gray-100 border border-transparent focus:bg-white focus:border-primary/50 text-[#080808] rounded-full py-3 pl-12 pr-12 outline-none transition-all"
             />
+            <button 
+              type="button" 
+              onClick={() => { setIsGlobeMapOpen(true); setIsMenuOpen(false); }} 
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-gray-200 text-gray-400 hover:text-primary transition-colors focus:outline-none" 
+            >
+               <Globe className="w-5 h-5" />
+            </button>
           </form>
 
           <NavLink to="/discover" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium text-[#080808]">Discover Stores</NavLink>
@@ -233,88 +264,10 @@ export default function Navbar() {
         </div>
       )}
 
-      {/* Cart Drawer */}
-      {isCartOpen && (
-        <>
-          <div 
-            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 animate-fade-in"
-            onClick={() => setIsCartOpen(false)}
-          />
-          <div className="fixed top-0 right-0 h-full w-full md:w-[400px] bg-white z-50 shadow-2xl flex flex-col transform transition-transform duration-300 ease-in-out translate-x-0">
-            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-              <h2 className="text-xl font-heading font-bold text-[#080808] flex items-center gap-2">
-                <ShoppingCart className="w-5 h-5" /> Your Cart
-              </h2>
-              <button onClick={() => setIsCartOpen(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="flex-grow overflow-y-auto p-6 flex flex-col gap-6">
-              {cart.length === 0 ? (
-                <div className="text-center text-gray-400 mt-20">
-                  <ShoppingCart className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                  <p>Your cart is empty.</p>
-                </div>
-              ) : (
-                cart.map((item) => (
-                  <div key={item._id || item.name} className="flex gap-4 border-b border-gray-100 pb-6 last:border-0 last:pb-0">
-                    <div className="w-20 h-20 bg-gray-50 rounded-xl overflow-hidden flex-shrink-0">
-                      {item.imageUrl ? (
-                        <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">No Img</div>
-                      )}
-                    </div>
-                    <div className="flex flex-col flex-grow">
-                      <div className="flex justify-between items-start mb-1">
-                        <div>
-                          <h4 className="font-semibold text-[#080808] text-sm line-clamp-2">{item.name}</h4>
-                          <span className="text-xs text-gray-500 block">{item.businessName}</span>
-                        </div>
-                        <button 
-                          onClick={() => removeFromCart(item._id || item.name)}
-                          className="text-red-400 hover:text-red-500 p-1"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                      <div className="mt-auto flex items-center justify-between">
-                        <span className="font-bold text-primary">${Number(item.price).toFixed(2)}</span>
-                        <div className="flex items-center gap-3 bg-gray-50 rounded-full px-2 py-1">
-                          <button onClick={() => updateQuantity(item._id || item.name, item.quantity - 1)} className="p-1 hover:text-primary"><Minus className="w-3 h-3" /></button>
-                          <span className="text-sm font-semibold w-4 text-center">{item.quantity}</span>
-                          <button onClick={() => updateQuantity(item._id || item.name, item.quantity + 1)} className="p-1 hover:text-primary"><Plus className="w-3 h-3" /></button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-
-            {cart.length > 0 && (
-              <div className="p-6 border-t border-gray-100 bg-gray-50/50">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-gray-500 font-medium">Total</span>
-                  <span className="text-2xl font-bold text-[#080808]">${getTotalPrice().toFixed(2)}</span>
-                </div>
-                <button 
-                  className="w-full bg-[#080808] text-white py-4 rounded-xl font-semibold hover:bg-black/80 transition-transform active:scale-95 flex justify-center items-center gap-2"
-                  onClick={() => setIsCheckoutOpen(true)}
-                >
-                  Proceed to Checkout
-                </button>
-              </div>
-            )}
-          </div>
-          
-          <CheckoutModal 
-            isOpen={isCheckoutOpen} 
-            onClose={() => setIsCheckoutOpen(false)} 
-          />
-        </>
-      )}
+      <GlobalMapViewer 
+        isOpen={isGlobeMapOpen} 
+        onClose={() => setIsGlobeMapOpen(false)} 
+      />
     </nav>
   );
 }

@@ -13,6 +13,8 @@ import SellLanding from './pages/SellLanding';
 import Navbar from './components/Navbar';
 import CustomCursor from './components/CustomCursor';
 import ShopSubdomain from './pages/ShopSubdomain';
+import CartPage from './pages/CartPage';
+import CheckoutPage from './pages/CheckoutPage';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -82,6 +84,9 @@ function App() {
             <Route path="/discover" element={<Discover />} />
             <Route path="/business/:id" element={<BusinessProfile />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/:shopId" element={<ShopSubdomain />} />
           </Routes>
         )}
       </main>

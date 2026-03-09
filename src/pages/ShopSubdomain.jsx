@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import useCartStore from '../store/useCartStore';
+import useFeatureStore from '../store/useFeatureStore';
 
 const getApiUrl = () => {
   if (import.meta.env.VITE_API_URL && import.meta.env.VITE_API_URL !== 'http://localhost:5000') {
@@ -8,11 +10,15 @@ const getApiUrl = () => {
   return `http://${window.location.hostname}:5000`;
 };
 
-export default function ShopSubdomain({ shopId }) {
+export default function ShopSubdomain({ shopId: propShopId }) {
+  const { shopId: paramShopId } = useParams();
+  const shopId = propShopId || paramShopId;
+
   const [business, setBusiness] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const { addToCart } = useCartStore();
+  const { isIncognitoActive } = useFeatureStore();
 
   useEffect(() => {
     const fetchBusiness = async () => {
@@ -50,10 +56,20 @@ export default function ShopSubdomain({ shopId }) {
   return (
     <div className="min-h-screen bg-white">
       {/* Dynamic Header specific to this shop */}
-      <header className="w-full bg-[#080808] text-white py-10 md:py-16 px-6 text-center">
-        <h1 className="text-3xl md:text-5xl font-heading font-bold mb-4">{business.name}</h1>
-        <p className="text-gray-400 text-sm md:text-base max-w-xl mx-auto">{business.description || 'Welcome to our official Akupy store.'}</p>
-        {business.category && <span className="inline-block mt-4 px-3 py-1 bg-white/10 rounded-full text-xs font-medium uppercase tracking-wider">{business.category}</span>}
+      <header className={`w-full ${isIncognitoActive ? 'bg-black text-white' : 'bg-[#080808] text-white'} py-10 md:py-16 px-6 text-center`}>
+        <h1 className="text-3xl md:text-5xl font-heading font-bold mb-4">
+          {isIncognitoActive ? 'Anonymous Store' : business.name}
+        </h1>
+        <p className="text-gray-400 text-sm md:text-base max-w-xl mx-auto">
+          {isIncognitoActive 
+            ? 'Store details are hidden while browsing in Incognito mode.' 
+            : (business.description || 'Welcome to our official Akupy store.')}
+        </p>
+        {!isIncognitoActive && business.category && (
+          <span className="inline-block mt-4 px-3 py-1 bg-white/10 rounded-full text-xs font-medium uppercase tracking-wider">
+            {business.category}
+          </span>
+        )}
       </header>
 
       {/* Catalog Render */}
@@ -63,9 +79,9 @@ export default function ShopSubdomain({ shopId }) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {business.products.map((product, index) => (
               <div key={index} className="bg-white border rounded-2xl overflow-hidden hover:shadow-lg transition flex flex-col">
-                <div className="aspect-square bg-gray-50 flex items-center justify-center text-gray-300 relative">
+                <div className="aspect-square bg-gray-50 flex items-center justify-center text-gray-300 relative overflow-hidden">
                   {product.imageUrl ? (
-                    <img src={product.imageUrl} className="w-full h-full object-cover" alt={product.name} />
+                    <img src={product.imageUrl} className={`w-full h-full object-cover transition-transform duration-500 ${isIncognitoActive ? 'blur-md scale-110' : 'hover:scale-105'}`} alt={product.name} />
                   ) : 'No Image'}
                   {!product.inStock && (
                     <div className="absolute top-2 right-2 bg-white/90 text-red-500 text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wider">Out of Stock</div>

@@ -71,12 +71,12 @@ export default function CustomCursor() {
     <>
       <div 
         ref={cursorRef}
-        className={`fixed top-0 left-0 w-2 h-2 -ml-1 -mt-1 rounded-full bg-[#080808] pointer-events-none z-[999999] will-change-transform shadow-lg ${isHovering ? 'scale-[4] bg-primary' : 'scale-100'} transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]`}
+        className={`fixed top-0 left-0 w-2 h-2 -ml-1 -mt-1 rounded-full bg-[#080808] pointer-events-none z-[9999999] will-change-transform shadow-lg ${isHovering ? 'scale-[4] bg-primary' : 'scale-100'} transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]`}
       />
       
       <div 
         ref={orbitalRef}
-        className={`fixed top-0 left-0 w-12 h-12 -ml-6 -mt-6 rounded-full border border-black/30 pointer-events-none z-[999998] will-change-transform flex items-center justify-center ${isHovering ? 'scale-0 opacity-0' : 'scale-100 opacity-100'} transition-all duration-500 ease-out`}
+        className={`fixed top-0 left-0 w-12 h-12 -ml-6 -mt-6 rounded-full border border-black/30 pointer-events-none z-[9999998] will-change-transform flex items-center justify-center ${isHovering ? 'scale-0 opacity-0' : 'scale-100 opacity-100'} transition-all duration-500 ease-out`}
       >
         {/* Satellites */}
         <div className="absolute -top-[2px] w-2 h-2 bg-primary rounded-full shadow-[0_0_10px_var(--primary)]" />

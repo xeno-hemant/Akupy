@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import useAuthStore from '../store/useAuthStore';
 import useCartStore from '../store/useCartStore';
+import useFeatureStore from '../store/useFeatureStore';
 
 export default function BusinessProfile() {
   const { id } = useParams();
   const { user } = useAuthStore();
   const { addToCart } = useCartStore();
+  const { isIncognitoActive } = useFeatureStore();
   
   const [business, setBusiness] = useState(null);
   const [reviews, setReviews] = useState([]);
@@ -85,11 +87,13 @@ export default function BusinessProfile() {
           </div>
           
           <h1 className="text-4xl md:text-6xl font-heading font-medium text-[#080808] tracking-tight mb-4">
-            {business.name}
+            {isIncognitoActive ? 'Anonymous Store' : business.name}
           </h1>
           
           <p className="text-gray-500 text-lg mb-8 max-w-2xl text-balance">
-            {business.description || 'This business has not provided a detailed description yet.'}
+            {isIncognitoActive 
+              ? 'Store details are hidden while browsing in Incognito mode to protect your privacy and ensure unbiased shopping.' 
+              : (business.description || 'This business has not provided a detailed description yet.')}
           </p>
 
           <div className="flex flex-col md:flex-row gap-8 py-8 border-t border-b border-gray-100 mb-8">
@@ -99,7 +103,7 @@ export default function BusinessProfile() {
             </div>
             <div>
               <span className="block text-sm text-gray-400 font-medium mb-1">Address</span>
-              <span className="text-[#080808] font-medium">{business.address || 'Address pending'}</span>
+              <span className="text-[#080808] font-medium">{isIncognitoActive ? 'Hidden in Incognito' : (business.address || 'Address pending')}</span>
             </div>
           </div>
         </div>
@@ -113,7 +117,7 @@ export default function BusinessProfile() {
                 <div key={product._id || product.name} className="border border-gray-100 rounded-3xl overflow-hidden group hover:border-primary/30 transition-colors shadow-sm relative flex flex-col">
                   <div className="aspect-square bg-gray-50 overflow-hidden relative">
                     {product.imageUrl ? (
-                      <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img src={product.imageUrl} alt={product.name} className={`w-full h-full object-cover transition-transform duration-500 ${isIncognitoActive ? 'blur-md scale-110' : 'group-hover:scale-105'}`} />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-300">No Image</div>
                     )}
