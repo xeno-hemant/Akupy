@@ -85,12 +85,6 @@ export default function Hero() {
         <p className="hero-text text-lg md:text-xl text-secondary max-w-lg mb-8 font-body font-medium text-balance">
           The smart discovery platform where businesses flourish and customers explore freely with incognito mode and virtual try-ons.
         </p>
-        
-        <div className="hero-text">
-          <button className="primary-btn relative overflow-hidden bg-primary text-black font-semibold rounded-full px-8 py-4 text-lg hover:bg-primary/90 transition-colors">
-            Register Your Business
-          </button>
-        </div>
       </div>
     </section>
   );

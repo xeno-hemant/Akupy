@@ -1,33 +1,59 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { Search, User, Menu, X, ShoppingCart, Trash2, Plus, Minus } from 'lucide-react';
+import { Search, User, Menu, X, ShoppingCart, Trash2, Plus, Minus, EyeOff } from 'lucide-react';
 import useAuthStore from '../store/useAuthStore';
 import useCartStore from '../store/useCartStore';
+import useFeatureStore from '../store/useFeatureStore';
+import CheckoutModal from './CheckoutModal';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { user, logout } = useAuthStore();
   const { cart, removeFromCart, updateQuantity, getTotalItems, getTotalPrice } = useCartStore();
+  const { isIncognitoActive } = useFeatureStore();
   const navigate = useNavigate();
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/discover?q=${encodeURIComponent(searchQuery)}`);
+      if (isSubdomain) {
+        window.location.href = `${rootUrl}/discover?q=${encodeURIComponent(searchQuery)}`;
+      } else {
+        navigate(`/discover?q=${encodeURIComponent(searchQuery)}`);
+      }
       setIsMenuOpen(false);
     }
   };
 
+  // Subdomain Detection to break out of Shop Subdomains
+  const hostname = window.location.hostname;
+  let isSubdomain = false;
+  if (hostname.includes('localhost') && hostname !== 'localhost') isSubdomain = true;
+  else if (hostname.includes('akupy.in')) {
+    const parts = hostname.split('.');
+    if (parts.length > 2 && parts[0] !== 'www') isSubdomain = true;
+  }
+  const rootUrl = hostname.includes('localhost') ? 'http://localhost:5173' : 'https://akupy.in';
+
+  // Helper to render <Link> or <a>
+  const NavLink = ({ to, className, children, onClick }) => {
+    if (isSubdomain) {
+      return <a href={`${rootUrl}${to}`} className={className} onClick={onClick}>{children}</a>;
+    }
+    return <Link to={to} className={className} onClick={onClick}>{children}</Link>;
+  };
+
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-black/5">
+    <nav className={`fixed top-0 left-0 w-full z-50 backdrop-blur-md border-b transition-colors duration-500 ${isIncognitoActive ? 'bg-[#080808]/90 border-transparent text-white' : 'bg-white/80 border-black/5 text-[#080808]'}`}>
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between h-20">
         
         {/* Logo */}
-        <Link to="/" className="text-2xl font-heading font-black tracking-tighter text-[#080808]">
-          akupy<span className="text-primary text-3xl leading-none">.</span>
-        </Link>
+        <NavLink to="/" className={`text-2xl font-heading font-black tracking-tighter ${isIncognitoActive ? 'text-white' : 'text-[#080808]'}`}>
+          akupy<span className={isIncognitoActive ? 'text-blue-500 text-3xl leading-none' : 'text-primary text-3xl leading-none'}>.</span>
+        </NavLink>
 
         {/* Desktop Search Bar (Mid) */}
         <div className="hidden md:block flex-grow max-w-xl mx-8">
@@ -35,34 +61,45 @@ export default function Navbar() {
             <Search className="absolute left-4 w-5 h-5 text-gray-400" />
             <input 
               type="text" 
-              placeholder="Search local businesses..."
+              placeholder={isIncognitoActive ? "Incognito search active..." : "Search local businesses..."}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-gray-100/50 border border-transparent focus:bg-white focus:border-primary/50 text-[#080808] text-sm rounded-full py-2.5 pl-12 pr-4 outline-none transition-all"
+              className={`w-full border focus:border-primary/50 text-sm rounded-full py-2.5 pl-12 pr-4 outline-none transition-all ${isIncognitoActive ? 'bg-white/10 border-transparent text-white placeholder-gray-400 focus:bg-white/20 focus:border-blue-500/50' : 'bg-gray-100/50 border-transparent text-[#080808] focus:bg-white'}`}
             />
           </form>
         </div>
 
         {/* Desktop Auth / Nav (Right) */}
         <div className="hidden md:flex items-center gap-6">
-          <Link to="/discover" className="text-sm font-medium text-gray-600 hover:text-[#080808] transition-colors">Discover</Link>
+          <NavLink to="/discover" className={`text-sm font-medium transition-colors ${isIncognitoActive ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-[#080808]'}`}>Discover</NavLink>
           {user ? (
             <div className="flex items-center gap-4">
-              <Link to="/dashboard" className="flex items-center gap-2 text-sm font-semibold bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full transition-colors text-[#080808]">
-                <User w-4 h-4 />
-                {user.role === 'business' ? 'Dashboard' : 'Profile'}
-              </Link>
+              {isIncognitoActive ? (
+                <div className="flex items-center gap-2 text-sm font-semibold bg-white/10 px-4 py-2 rounded-full text-blue-400 border border-blue-500/30">
+                  <EyeOff className="w-4 h-4" />
+                  Anonymous
+                </div>
+              ) : (
+                <NavLink to="/dashboard" className="flex items-center gap-2 text-sm font-semibold bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full transition-colors text-[#080808]">
+                  <User className="w-4 h-4" />
+                  {user.role === 'business' ? 'Dashboard' : 'Profile'}
+                </NavLink>
+              )}
               <button onClick={logout} className="text-sm font-medium text-gray-400 hover:text-red-500 transition-colors">Logout</button>
             </div>
           ) : (
             <div className="flex items-center gap-4">
               <button 
                 onClick={() => {
+                  if (isSubdomain) {
+                    window.location.href = `${rootUrl}/shop#register-section`;
+                    return;
+                  }
                   const el = document.querySelector('#register-section');
                   if (el) {
                     el.scrollIntoView({ behavior: 'smooth' });
                   } else {
-                    navigate('/');
+                    navigate('/shop');
                     setTimeout(() => document.querySelector('#register-section')?.scrollIntoView({ behavior: 'smooth' }), 500);
                   }
                 }}
@@ -72,11 +109,15 @@ export default function Navbar() {
               </button>
               <button 
                 onClick={() => {
+                  if (isSubdomain) {
+                    window.location.href = `${rootUrl}/shop#register-section`;
+                    return;
+                  }
                   const el = document.querySelector('#register-section');
                   if (el) {
                     el.scrollIntoView({ behavior: 'smooth' });
                   } else {
-                    navigate('/');
+                    navigate('/shop');
                     setTimeout(() => document.querySelector('#register-section')?.scrollIntoView({ behavior: 'smooth' }), 500);
                   }
                 }}
@@ -138,15 +179,15 @@ export default function Navbar() {
             />
           </form>
 
-          <Link to="/discover" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium text-[#080808]">Discover Stores</Link>
+          <NavLink to="/discover" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium text-[#080808]">Discover Stores</NavLink>
           
           <div className="h-px w-full bg-gray-100"></div>
 
           {user ? (
             <div className="flex flex-col gap-4">
-              <Link to="/dashboard" onClick={() => setIsMenuOpen(false)} className="text-lg font-semibold text-primary flex items-center gap-2">
+              <NavLink to="/dashboard" onClick={() => setIsMenuOpen(false)} className="text-lg font-semibold text-primary flex items-center gap-2">
                 <User /> {user.role === 'business' ? 'Business Dashboard' : 'My Profile'}
-              </Link>
+              </NavLink>
               <button onClick={() => { logout(); setIsMenuOpen(false); }} className="text-lg font-medium text-gray-500 text-left">Logout</button>
             </div>
           ) : (
@@ -154,8 +195,17 @@ export default function Navbar() {
               <button 
                 onClick={() => {
                   setIsMenuOpen(false);
-                  navigate('/');
-                  setTimeout(() => document.querySelector('#register-section')?.scrollIntoView({ behavior: 'smooth' }), 500);
+                  if (isSubdomain) {
+                    window.location.href = `${rootUrl}/shop#register-section`;
+                    return;
+                  }
+                  const el = document.querySelector('#register-section');
+                  if (el) {
+                    el.scrollIntoView({ behavior: 'smooth' });
+                  } else {
+                    navigate('/shop');
+                    setTimeout(() => document.querySelector('#register-section')?.scrollIntoView({ behavior: 'smooth' }), 500);
+                  }
                 }}
                 className="text-lg font-semibold bg-[#080808] text-white px-6 py-3 rounded-full text-center"
               >
@@ -234,13 +284,18 @@ export default function Navbar() {
                 </div>
                 <button 
                   className="w-full bg-[#080808] text-white py-4 rounded-xl font-semibold hover:bg-black/80 transition-transform active:scale-95 flex justify-center items-center gap-2"
-                  onClick={() => alert('Checkout functionality would connect to Stripe/Razorpay here.')}
+                  onClick={() => setIsCheckoutOpen(true)}
                 >
                   Proceed to Checkout
                 </button>
               </div>
             )}
           </div>
+          
+          <CheckoutModal 
+            isOpen={isCheckoutOpen} 
+            onClose={() => setIsCheckoutOpen(false)} 
+          />
         </>
       )}
     </nav>

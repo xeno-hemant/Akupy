@@ -5,7 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 // Micro UI - Card 1: Diagnostic Shuffler
-function DiagnosticShuffler() {
+function DiagnosticShuffler({ onClick }) {
   const items = ["Shop Globally", "Search Locally", "Discover Anywhere"];
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -17,10 +17,16 @@ function DiagnosticShuffler() {
   }, []);
 
   return (
-    <div className="flex-1 min-h-[300px] bg-card rounded-[2rem] p-8 shadow-xl border border-primary/10 flex flex-col justify-between overflow-hidden relative group">
+    <div 
+      onClick={onClick}
+      className="flex-1 min-h-[300px] bg-card rounded-[2rem] p-8 shadow-xl border border-primary/10 flex flex-col justify-between overflow-hidden relative group cursor-pointer hover:-translate-y-2 hover:shadow-2xl transition-all duration-300"
+    >
       <div>
-        <h3 className="text-xl font-heading font-bold text-foreground">Smart Business Discovery</h3>
-        <p className="text-sm text-secondary mt-2">Find shops and services locally or globally.</p>
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-xl font-heading font-bold text-foreground">Globe Shop</h3>
+          <span className="bg-primary/10 text-primary text-xs font-bold px-3 py-1 rounded-full border border-primary/20">₹99/mo</span>
+        </div>
+        <p className="text-sm text-secondary mt-2">Shop globally from any registered store. (Higher delivery & import charges apply)</p>
       </div>
 
       <div className="mt-8 flex flex-col gap-3 relative h-32" style={{ perspective: '800px' }}>
@@ -45,7 +51,7 @@ function DiagnosticShuffler() {
 }
 
 // Micro UI - Card 2: Telemetry Typewriter
-function TelemetryTypewriter() {
+function TelemetryTypewriter({ onClick }) {
   const [text, setText] = useState("");
   const fullText = "Privacy enabled. Incognito search active.";
   const [isTyping, setIsTyping] = useState(true);
@@ -74,10 +80,16 @@ function TelemetryTypewriter() {
   }, []);
 
   return (
-    <div className="flex-1 min-h-[300px] bg-card rounded-[2rem] p-8 shadow-xl border border-primary/10 flex flex-col justify-between">
+    <div 
+      onClick={onClick}
+      className="flex-1 min-h-[300px] bg-card rounded-[2rem] p-8 shadow-xl border border-primary/10 flex flex-col justify-between cursor-pointer hover:-translate-y-2 hover:shadow-2xl transition-all duration-300"
+    >
       <div>
-        <h3 className="text-xl font-heading font-bold text-foreground">Incognito Exploration</h3>
-        <p className="text-sm text-secondary mt-2">Browse businesses privately without saving activity.</p>
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-xl font-heading font-bold text-foreground">Incognito Mode</h3>
+          <span className="bg-primary/10 text-primary text-xs font-bold px-3 py-1 rounded-full border border-primary/20">₹99/mo</span>
+        </div>
+        <p className="text-sm text-secondary mt-2">Absolute anonymity. Identity completely hidden, nothing stored in DB.</p>
       </div>
 
       <div className="mt-8 bg-black/5 rounded-xl p-4 font-mono text-sm leading-relaxed text-foreground/80 h-24">
@@ -95,7 +107,7 @@ function TelemetryTypewriter() {
 }
 
 // Micro UI - Card 3: Interactive SVG Graph
-function InteractiveTryOnGraph() {
+function InteractiveTryOnGraph({ onClick }) {
   const pathRef = useRef(null);
 
   useEffect(() => {
@@ -114,10 +126,16 @@ function InteractiveTryOnGraph() {
   }, []);
 
   return (
-    <div className="flex-1 min-h-[300px] bg-card rounded-[2rem] p-8 shadow-xl border border-primary/10 flex flex-col justify-between col-span-1 md:col-span-2 lg:col-span-1">
+    <div 
+      onClick={onClick}
+      className="flex-1 min-h-[300px] bg-card rounded-[2rem] p-8 shadow-xl border border-primary/10 flex flex-col justify-between col-span-1 md:col-span-2 lg:col-span-1 cursor-pointer hover:-translate-y-2 hover:shadow-2xl transition-all duration-300"
+    >
       <div>
-        <h3 className="text-xl font-heading font-bold text-foreground">Try-On Mode</h3>
-        <p className="text-sm text-secondary mt-2">Preview products interactively before buying.</p>
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-xl font-heading font-bold text-foreground">360° Try-On</h3>
+          <span className="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full border border-green-200">Free</span>
+        </div>
+        <p className="text-sm text-secondary mt-2">Scan or enter details to create your body clone. Try clothes virtually before buying.</p>
       </div>
 
       <div className="mt-8 relative h-32 w-full flex items-end">
@@ -138,7 +156,11 @@ function InteractiveTryOnGraph() {
   );
 }
 
-export default function Features() {
+export default function Features({ 
+  onGlobeShopClick = () => console.log('Globe Shop clicked'),
+  onIncognitoClick = () => console.log('Incognito clicked'),
+  onTryOnClick = () => console.log('Try On clicked')
+}) {
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -166,14 +188,14 @@ export default function Features() {
           Purpose-Built Tools.
         </h2>
         <p className="text-lg text-secondary mt-4 max-w-xl feature-card">
-          Everything designed to connect people with products faster, smarter, and more securely.
+          Everything designed to connect people with products faster, smarter, and more securely. Click on any feature to activate or learn more.
         </p>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 feature-card">
-        <DiagnosticShuffler />
-        <TelemetryTypewriter />
-        <InteractiveTryOnGraph />
+        <DiagnosticShuffler onClick={onGlobeShopClick} />
+        <TelemetryTypewriter onClick={onIncognitoClick} />
+        <InteractiveTryOnGraph onClick={onTryOnClick} />
       </div>
     </section>
   );
