@@ -3,6 +3,15 @@ import { create } from 'zustand';
 // Check local storage for initial state
 const storedUser = JSON.parse(localStorage.getItem('akupy_user') || 'null');
 
+// Dynamic API URL for local network testing
+const getApiUrl = () => {
+  if (import.meta.env.VITE_API_URL && import.meta.env.VITE_API_URL !== 'http://localhost:5000') {
+    return import.meta.env.VITE_API_URL;
+  }
+  // If we are on a mobile device on local network, point to the current computer's IP
+  return `http://${window.location.hostname}:5000`;
+};
+
 const useAuthStore = create((set) => ({
   user: storedUser,
   isLoading: false,
@@ -11,7 +20,7 @@ const useAuthStore = create((set) => ({
   login: async (email, password) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+      const response = await fetch(`${getApiUrl()}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

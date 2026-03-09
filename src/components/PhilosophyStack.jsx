@@ -53,13 +53,13 @@ const protocols = [
 
 export default function PhilosophyStack() {
   return (
-    <section className="bg-[#F0FDF4] relative pb-32">
-      <div className="max-w-7xl mx-auto px-6 md:px-12 pt-32 mb-12">
-        <h2 className="text-4xl md:text-5xl font-heading font-black tracking-tighter text-[#080808]">Our Protocols.</h2>
+    <section className="bg-[#F0FDF4] relative pb-16 md:pb-32">
+      <div className="max-w-7xl mx-auto px-4 md:px-12 pt-16 md:pt-32 mb-8 md:mb-12">
+        <h2 className="text-3xl md:text-5xl font-heading font-black tracking-tighter text-[#080808]">Our Protocols.</h2>
         <p className="text-xl text-gray-600 font-medium mt-4 max-w-xl">The foundational pillars that guarantee a seamless, private, and boundless shopping experience.</p>
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-6 md:px-12 pb-24">
+      <div className="relative max-w-7xl mx-auto px-4 md:px-12 pb-12 md:pb-24">
         {protocols.map((card, idx) => {
           return (
             <div 
@@ -72,19 +72,19 @@ export default function PhilosophyStack() {
                 minHeight: '500px'
               }}
             >
-              <div className="w-full h-full flex flex-col md:flex-row items-center bg-white rounded-[3rem] shadow-[0_-15px_40px_rgba(0,0,0,0.08)] border border-black/10 overflow-hidden transition-all duration-500">
+              <div className="w-full flex flex-col md:flex-row shadow-[0_-15px_40px_rgba(0,0,0,0.08)] bg-white rounded-[2rem] md:rounded-[3rem] border border-black/10 overflow-hidden transition-all duration-500">
                 
-                <div className="flex-1 p-10 md:p-20 flex flex-col justify-center bg-white">
-                  <span className="font-mono text-primary font-bold tracking-widest uppercase mb-6 block text-sm bg-green-50 w-max px-4 py-2 rounded-full border border-green-100">Protocol_{card.num}</span>
-                  <h2 className="text-4xl md:text-6xl font-heading font-bold tracking-tight mb-6 text-[#080808]">{card.title}</h2>
-                  <p className="text-xl text-gray-600 font-body leading-relaxed max-w-md">
+                <div className="flex-1 p-6 md:p-20 flex flex-col justify-center bg-white order-2 md:order-1">
+                  <span className="font-mono text-primary font-bold tracking-widest uppercase mb-4 md:mb-6 block text-xs md:text-sm bg-green-50 w-max px-3 md:px-4 py-1.5 md:py-2 rounded-full border border-green-100">Protocol_{card.num}</span>
+                  <h2 className="text-3xl md:text-6xl font-heading font-bold tracking-tight mb-3 md:mb-6 text-[#080808]">{card.title}</h2>
+                  <p className="text-base md:text-xl text-gray-600 font-body leading-relaxed max-w-md">
                     {card.desc}
                   </p>
                 </div>
 
-                <div className="flex-1 w-full h-1/2 md:h-full flex items-center justify-center bg-gray-50 p-8 md:p-16 border-l border-black/5 relative overflow-hidden group">
+                <div className="w-full md:flex-1 h-48 md:h-full flex items-center justify-center bg-gray-50 p-6 md:p-16 border-b md:border-b-0 md:border-l border-black/5 relative overflow-hidden group order-1 md:order-2">
                   <div className="absolute inset-0 bg-gradient-to-br from-green-50/50 to-transparent pointer-events-none" />
-                  <div className="w-full max-w-xs md:max-w-sm aspect-square relative z-10 transition-transform duration-700 group-hover:scale-105">
+                  <div className="w-full max-w-[120px] md:max-w-sm aspect-square relative z-10 transition-transform duration-700 group-hover:scale-105 flex items-center justify-center">
                     {card.visual()}
                   </div>
                 </div>

@@ -10,7 +10,7 @@ export default function FinalCta() {
   const containerRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, login } = useAuthStore();
+  const { user, login, error: authError, clearError } = useAuthStore();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,6 +25,7 @@ export default function FinalCta() {
 
   const handleAuth = async (e) => {
     e.preventDefault();
+    clearError();
     if (!email || !password) return;
     
     // If registering as a business and no plan selected yet, show modal first
@@ -54,7 +55,11 @@ export default function FinalCta() {
           payload.monetizationPlan = monetizationPlan;
         }
 
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/auth/register`, {
+        const apiUrl = import.meta.env.VITE_API_URL !== 'http://localhost:5000' 
+          ? import.meta.env.VITE_API_URL 
+          : `http://${window.location.hostname}:5000`;
+
+        const response = await fetch(`${apiUrl}/api/auth/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
@@ -66,10 +71,12 @@ export default function FinalCta() {
           setShowPricingModal(false);
           navigate('/dashboard');
         } else {
-          // Maybe it failed because user already exists. Fall back to error.
+          const errData = await response.json();
+          useAuthStore.setState({ error: errData.message || 'User already exists or invalid data' });
           setStatus('error');
         }
       } catch (err) {
+        useAuthStore.setState({ error: 'Server error. Please check your connection.' });
         setStatus('error');
       }
     }
@@ -103,12 +110,12 @@ export default function FinalCta() {
   }, []);
 
   return (
-    <section id="register-section" ref={containerRef} className="w-full bg-background px-6 md:px-16 py-32">
-      <div className="cta-content max-w-5xl mx-auto bg-primary rounded-[2.5rem] p-12 md:p-24 text-center flex flex-col items-center justify-center">
-        <h2 className="text-5xl md:text-7xl font-heading font-medium text-[#080808] mb-6 tracking-tight">
+    <section id="register-section" ref={containerRef} className="w-full bg-background px-4 md:px-16 py-12 md:py-32">
+      <div className="cta-content max-w-5xl mx-auto bg-primary rounded-3xl md:rounded-[2.5rem] p-6 py-12 md:p-24 text-center flex flex-col items-center justify-center">
+        <h2 className="text-3xl md:text-7xl font-heading font-medium text-[#080808] mb-3 md:mb-6 tracking-tight">
           Join the Platform
         </h2>
-        <p className="text-[#080808]/80 text-lg md:text-2xl font-body max-w-2xl mb-12">
+        <p className="text-[#080808]/80 text-sm md:text-2xl font-body max-w-2xl mb-8 md:mb-12">
           Whether you're exploring local gems or listing your store, Akupy is your ultimate connection.
         </p>
 
@@ -137,8 +144,8 @@ export default function FinalCta() {
               </button>
               <button 
                 type="button"
-                onClick={() => setAuthMode('login')}
-                className={`text-lg font-bold transition-colors pb-1 border-b-2 ${authMode === 'login' ? 'border-[#080808] text-[#080808]' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
+                onClick={() => { setAuthMode('login'); clearError(); setStatus('idle'); }}
+                className={`text-base md:text-lg font-bold transition-colors pb-1 border-b-2 ${authMode === 'login' ? 'border-[#080808] text-[#080808]' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
               >
                 Log In
               </button>
@@ -164,13 +171,13 @@ export default function FinalCta() {
             </div>
             )}
 
-            <form onSubmit={handleAuth} className="flex flex-col md:flex-row gap-4 w-full justify-center">
+            <form onSubmit={handleAuth} className="flex flex-col md:flex-row gap-3 md:gap-4 w-full justify-center">
               <input 
                 type="email" 
                 placeholder="Email address" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="px-6 py-4 rounded-full border border-black/20 focus:border-black outline-none bg-white text-black font-medium transition-colors w-full md:w-auto flex-grow"
+                className="px-4 py-3 md:px-6 md:py-4 rounded-xl md:rounded-full border border-black/20 focus:border-black outline-none bg-white text-black font-medium transition-colors w-full md:w-auto flex-grow text-sm md:text-base"
                 required
               />
               <input 
@@ -178,87 +185,95 @@ export default function FinalCta() {
                 placeholder="Password" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="px-6 py-4 rounded-full border border-black/20 focus:border-black outline-none bg-white text-black font-medium transition-colors w-full md:w-auto flex-grow"
+                className="px-4 py-3 md:px-6 md:py-4 rounded-xl md:rounded-full border border-black/20 focus:border-black outline-none bg-white text-black font-medium transition-colors w-full md:w-auto flex-grow text-sm md:text-base"
                 required
               />
               <button 
                 type="submit" 
                 disabled={status === 'loading'}
-                className="bg-[#080808] text-white rounded-full px-10 py-4 font-semibold hover:bg-[#080808]/90 transition-transform active:scale-95 duration-200 disabled:opacity-70 flex items-center justify-center min-w-[160px]"
+                className="bg-[#080808] text-white rounded-xl md:rounded-full px-8 md:px-10 py-3 md:py-4 font-semibold hover:bg-[#080808]/90 transition-transform active:scale-95 duration-200 disabled:opacity-70 flex items-center justify-center min-w-[140px] text-sm md:text-base"
               >
-                {status === 'loading' ? 'Authenticating...' : status === 'error' ? 'Failed - Try Again' : 'Continue'}
+                {status === 'loading' ? 'Authenticating...' : status === 'error' ? 'Retry' : 'Continue'}
               </button>
             </form>
+
+            {/* Display Backend Authentication Errors */}
+            {(authError || status === 'error') && (
+              <div className="mt-4 p-3 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm font-medium animate-fade-in">
+                {authError || 'An unexpected error occurred. Please try again.'}
+              </div>
+            )}
           </div>
         )}
       </div>
 
       {/* Pricing Modal for Sellers */}
       {showPricingModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-4xl w-full p-8 md:p-12 shadow-2xl relative overflow-hidden">
-            <button 
-              onClick={() => setShowPricingModal(false)}
-              className="absolute top-6 right-6 text-gray-400 hover:text-black transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </button>
-            
-            <div className="text-center mb-10">
-              <h3 className="text-3xl font-heading font-bold text-[#080808] mb-4">Choose Your Selling Plan</h3>
-              <p className="text-gray-500 max-w-xl mx-auto">Select how you want to grow your business on Akupy. You can change this later in your dashboard.</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Option 1: Commission */}
-              <div 
-                className="border-2 border-gray-200 hover:border-black rounded-2xl p-8 cursor-pointer transition-all duration-300 relative group flex flex-col items-center text-center"
-                onClick={() => {
-                  setMonetizationPlan('commission');
-                  // Give state a moment to update before executing
-                  setTimeout(() => executeAuth(), 0);
-                }}
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/40 backdrop-blur-sm">
+          <div className="flex min-h-full items-center justify-center p-4 py-12 md:p-8 animate-fade-in">
+            <div className="bg-white rounded-3xl max-w-4xl w-full p-6 md:p-12 shadow-2xl relative text-left flex flex-col">
+              <button 
+                onClick={() => setShowPricingModal(false)}
+                className="absolute top-4 right-4 md:top-6 md:right-6 text-gray-400 hover:text-black transition-colors"
               >
-                <div className="w-12 h-12 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mb-6">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 18V6"></path></svg>
-                </div>
-                <h4 className="text-2xl font-bold mb-2">Pay as you earn</h4>
-                <div className="text-4xl font-heading font-black text-black mb-4">2% <span className="text-lg text-gray-400 font-medium">/ sale</span></div>
-                <p className="text-gray-500 text-sm mb-6 max-w-[250px]">Perfect for small businesses or new sellers testing the waters.</p>
-                
-                <ul className="space-y-3 text-sm text-gray-600 w-full text-left pl-4">
-                  <li className="flex items-center gap-2"><svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> No upfront costs</li>
-                  <li className="flex items-center gap-2"><svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> Unlimited product listings</li>
-                  <li className="flex items-center gap-2"><svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> Basic analytics</li>
-                </ul>
-                <div className="mt-8 w-full bg-black text-white py-3 rounded-xl font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-                  {status === 'loading' ? 'Processing...' : 'Select Plan'}
-                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+              
+              <div className="text-center mb-6 md:mb-10 pt-4 md:pt-0">
+                <h3 className="text-2xl md:text-3xl font-heading font-bold text-[#080808] mb-2 md:mb-4">Choose Your Selling Plan</h3>
+                <p className="text-sm md:text-base text-gray-500 max-w-xl mx-auto">Select how you want to grow your business on Akupy. You can change this later in your dashboard.</p>
               </div>
 
-              {/* Option 2: Subscription */}
-              <div 
-                className="border-2 border-primary bg-[#F0FDF4] hover:shadow-lg rounded-2xl p-8 cursor-pointer transition-all duration-300 relative group flex flex-col items-center text-center"
-                onClick={() => {
-                  setMonetizationPlan('subscription');
-                  setTimeout(() => executeAuth(), 0);
-                }}
-              >
-                <div className="absolute top-0 right-6 -translate-y-1/2 bg-black text-white text-xs font-bold px-3 py-1 rounded-full">RECOMMENDED</div>
-                <div className="w-12 h-12 bg-white text-primary rounded-full flex items-center justify-center mb-6 shadow-sm">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 flex-grow">
+                {/* Option 1: Commission */}
+                <div 
+                  className="border-2 border-gray-200 hover:border-black rounded-2xl p-6 md:p-8 cursor-pointer transition-all duration-300 relative group flex flex-col items-center text-center"
+                  onClick={() => {
+                    setMonetizationPlan('commission');
+                    setTimeout(() => executeAuth(), 0);
+                  }}
+                >
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mb-4 md:mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 18V6"></path></svg>
+                  </div>
+                  <h4 className="text-xl md:text-2xl font-bold mb-1 md:mb-2">Pay as you earn</h4>
+                  <div className="text-3xl md:text-4xl font-heading font-black text-black mb-2 md:mb-4">2% <span className="text-sm md:text-lg text-gray-400 font-medium">/ sale</span></div>
+                  <p className="text-gray-500 text-xs md:text-sm mb-4 md:mb-6 max-w-[250px]">Perfect for small businesses or new sellers testing the waters.</p>
+                  
+                  <ul className="space-y-2 md:space-y-3 text-xs md:text-sm text-gray-600 w-full text-left pl-2 md:pl-4">
+                    <li className="flex items-center gap-2"><svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> No upfront costs</li>
+                    <li className="flex items-center gap-2"><svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> Unlimited product listings</li>
+                    <li className="flex items-center gap-2"><svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> Basic analytics</li>
+                  </ul>
+                  <div className="mt-6 md:mt-8 w-full bg-black text-white py-2 md:py-3 rounded-xl font-semibold opacity-0 group-hover:opacity-100 transition-opacity text-sm md:text-base">
+                    {status === 'loading' ? 'Processing...' : 'Select Plan'}
+                  </div>
                 </div>
-                <h4 className="text-2xl font-bold mb-2">High Volume</h4>
-                <div className="text-4xl font-heading font-black text-black mb-4">₹6,000 <span className="text-lg text-gray-500 font-medium">/ mo</span></div>
-                <p className="text-gray-600 text-sm mb-6 max-w-[250px]">Keep 100% of your profits. Best for established stores making {'>'} ₹300k/mo.</p>
-                
-                <ul className="space-y-3 text-sm text-gray-700 w-full text-left pl-4">
-                  <li className="flex items-center gap-2"><svg className="w-4 h-4 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> 0% transaction fees</li>
-                  <li className="flex items-center gap-2"><svg className="w-4 h-4 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> Priority placement ranking</li>
-                  <li className="flex items-center gap-2"><svg className="w-4 h-4 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> Advanced analytics & insights</li>
-                </ul>
-                <div className="mt-8 w-full bg-primary text-black py-3 rounded-xl font-bold opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
-                  {status === 'loading' ? 'Processing...' : 'Select Priority Plan'}
+
+                {/* Option 2: Subscription */}
+                <div 
+                  className="border-2 border-primary bg-[#F0FDF4] hover:shadow-lg rounded-2xl p-6 md:p-8 cursor-pointer transition-all duration-300 relative group flex flex-col items-center text-center mt-2 md:mt-0"
+                  onClick={() => {
+                    setMonetizationPlan('subscription');
+                    setTimeout(() => executeAuth(), 0);
+                  }}
+                >
+                  <div className="absolute -top-3 right-4 md:right-6 bg-black text-white text-[10px] md:text-xs font-bold px-3 py-1 rounded-full shadow-sm">RECOMMENDED</div>
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-white text-primary rounded-full flex items-center justify-center mb-4 md:mb-6 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                  </div>
+                  <h4 className="text-xl md:text-2xl font-bold mb-1 md:mb-2">High Volume</h4>
+                  <div className="text-3xl md:text-4xl font-heading font-black text-black mb-2 md:mb-4">₹6,000 <span className="text-sm md:text-lg text-gray-500 font-medium">/ mo</span></div>
+                  <p className="text-gray-600 text-xs md:text-sm mb-4 md:mb-6 max-w-[250px]">Keep 100% of your profits. Best for established stores making {'>'} ₹300k/mo.</p>
+                  
+                  <ul className="space-y-2 md:space-y-3 text-xs md:text-sm text-gray-700 w-full text-left pl-2 md:pl-4">
+                    <li className="flex items-center gap-2"><svg className="w-4 h-4 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> 0% transaction fees</li>
+                    <li className="flex items-center gap-2"><svg className="w-4 h-4 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> Priority placement ranking</li>
+                    <li className="flex items-center gap-2"><svg className="w-4 h-4 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> Advanced analytics & insights</li>
+                  </ul>
+                  <div className="mt-6 md:mt-8 w-full bg-primary text-black py-2 md:py-3 rounded-xl font-bold opacity-0 group-hover:opacity-100 transition-opacity shadow-sm text-sm md:text-base">
+                    {status === 'loading' ? 'Processing...' : 'Select Priority Plan'}
+                  </div>
                 </div>
               </div>
             </div>

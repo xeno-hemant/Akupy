@@ -1,4 +1,5 @@
 import { Instagram, Mail } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -7,9 +8,29 @@ export default function Footer() {
     <footer className="w-full bg-[#080808] text-white rounded-t-[3.5rem] px-6 md:px-16 pt-24 pb-12 mt-12 relative overflow-hidden">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 border-b border-white/10 pb-16">
         
-        {/* Brand Left */}
+        {/* Brand */}
         <div className="md:col-span-4 flex flex-col items-start">
-          <h2 className="text-4xl font-heading font-bold mb-4 tracking-tight">akupy</h2>
+          <Link to="/" className="inline-block mb-4 hover:opacity-80 transition-opacity">
+            {/* Custom SVG Logo matching the user's provided design */}
+            <svg viewBox="0 0 400 120" className="h-10 md:h-12 w-auto grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+              {/* Speed Lines */}
+              <line x1="10" y1="50" x2="40" y2="50" stroke="#8DE86A" strokeWidth="6" strokeLinecap="round" />
+              <line x1="0" y1="65" x2="35" y2="65" stroke="#8DE86A" strokeWidth="6" strokeLinecap="round" />
+              <line x1="20" y1="80" x2="40" y2="80" stroke="#8DE86A" strokeWidth="6" strokeLinecap="round" />
+              
+              {/* Shopping Cart Body */}
+              <path d="M 35 45 L 85 45 L 75 80 L 45 80 Z" fill="#8DE86A" />
+              
+              {/* Cart Wheels */}
+              <circle cx="50" cy="90" r="7" fill="#1EB854" />
+              <circle cx="70" cy="90" r="7" fill="#1EB854" />
+              
+              {/* akupy Text with Green Dot */}
+            <text x="100" y="80" fontFamily="sans-serif" fontWeight="900" fontSize="55" fill="#FFFFFF" letterSpacing="-2">
+              akupy<tspan fill="#8DE86A">.</tspan>
+            </text>
+          </svg>
+          </Link>
           <p className="text-white/60 font-body text-sm max-w-xs mb-8">
             The smart discovery platform bridging the physical and digital marketplace.
           </p>
@@ -40,7 +61,7 @@ export default function Footer() {
       </div>
 
       <div className="max-w-7xl mx-auto pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-white/60 font-mono gap-4 text-center md:text-left">
-        <span>© {currentYear} Akupy Inc. All rights reserved.</span>
+        <span>© {currentYear} akupy. Founder and CEO Hemant Gurjar.</span>
         <span className="flex items-center gap-2">
           Created with ♥ by <span className="text-primary font-bold tracking-wider">Hemant Gurjar</span>
         </span>

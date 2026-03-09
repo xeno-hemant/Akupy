@@ -35,23 +35,31 @@ export default function Hero() {
   }, []);
 
   return (
-    <section ref={containerRef} className="relative w-full min-h-[calc(100vh-80px)] bg-background flex flex-col md:grid md:grid-cols-2 lg:grid-cols-[1.2fr,1fr] px-6 lg:px-16 overflow-hidden pt-6 md:pt-0">
+    <section ref={containerRef} className="relative w-full min-h-[60vh] md:min-h-[calc(100vh-80px)] bg-background flex flex-col md:grid md:grid-cols-2 lg:grid-cols-[1.2fr,1fr] px-4 md:px-6 lg:px-16 overflow-hidden pt-4 md:pt-0 pb-10 md:pb-0">
       <GlobeCanvas />
 
       {/* Gradient Overlay for Text Readability */}
       <div className="absolute inset-0 z-10 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none" />
 
       {/* Content */}
-      <div className="relative z-20 max-w-4xl">
-        <h1 className="hero-text text-[clamp(2.5rem,6vw,6rem)] font-heading font-bold text-foreground leading-[1.1] tracking-tight mb-2">
-          Akupy
-        </h1>
-        <h2 className="hero-text text-[clamp(2rem,5vw,5rem)] font-heading font-medium text-foreground/90 leading-[1.1] tracking-tight mb-6">
+      <div className="relative z-20 max-w-4xl pt-8 md:pt-0">
+        <svg viewBox="0 0 400 120" className="hero-text h-12 md:h-24 w-auto mb-4 md:mb-6 -ml-2">
+          <line x1="10" y1="50" x2="40" y2="50" stroke="#8DE86A" strokeWidth="6" strokeLinecap="round" />
+          <line x1="0" y1="65" x2="35" y2="65" stroke="#8DE86A" strokeWidth="6" strokeLinecap="round" />
+          <line x1="20" y1="80" x2="40" y2="80" stroke="#8DE86A" strokeWidth="6" strokeLinecap="round" />
+          <path d="M 35 45 L 85 45 L 75 80 L 45 80 Z" fill="#8DE86A" />
+          <circle cx="50" cy="90" r="7" fill="#1EB854" />
+          <circle cx="70" cy="90" r="7" fill="#1EB854" />
+          <text x="100" y="80" fontFamily="sans-serif" fontWeight="900" fontSize="55" fill="#080808" letterSpacing="-2">
+            akupy<tspan fill="#8DE86A">.</tspan>
+          </text>
+        </svg>
+        <h2 className="hero-text text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-heading font-medium text-foreground/90 leading-[1.1] tracking-tight mb-4 md:mb-6">
           Global Discovery, <span className="text-primary italic font-light">Locally.</span>
         </h2>
         
         {/* Global Search Bar */}
-        <div className="hero-element max-w-xl w-full mb-8">
+        <div className="hero-element max-w-xl w-full mb-6 md:mb-8">
           <form 
             onSubmit={(e) => {
               e.preventDefault();
@@ -82,7 +90,7 @@ export default function Hero() {
           </form>
         </div>
 
-        <p className="hero-text text-lg md:text-xl text-secondary max-w-lg mb-8 font-body font-medium text-balance">
+        <p className="hero-text text-base md:text-xl text-secondary max-w-lg mb-4 md:mb-8 font-body font-medium text-balance">
           The smart discovery platform where businesses flourish and customers explore freely with incognito mode and virtual try-ons.
         </p>
       </div>

@@ -19,7 +19,7 @@ function DiagnosticShuffler({ onClick }) {
   return (
     <div 
       onClick={onClick}
-      className="flex-1 min-h-[300px] bg-card rounded-[2rem] p-8 shadow-xl border border-primary/10 flex flex-col justify-between overflow-hidden relative group cursor-pointer hover:-translate-y-2 hover:shadow-2xl transition-all duration-300"
+      className="flex-1 min-h-[250px] md:min-h-[300px] bg-card rounded-3xl md:rounded-[2rem] p-6 md:p-8 shadow-xl border border-primary/10 flex flex-col justify-between overflow-hidden relative group cursor-pointer hover:-translate-y-2 hover:shadow-2xl transition-all duration-300"
     >
       <div>
         <div className="flex items-center justify-between mb-2">
@@ -82,7 +82,7 @@ function TelemetryTypewriter({ onClick }) {
   return (
     <div 
       onClick={onClick}
-      className="flex-1 min-h-[300px] bg-card rounded-[2rem] p-8 shadow-xl border border-primary/10 flex flex-col justify-between cursor-pointer hover:-translate-y-2 hover:shadow-2xl transition-all duration-300"
+      className="flex-1 min-h-[250px] md:min-h-[300px] bg-card rounded-3xl md:rounded-[2rem] p-6 md:p-8 shadow-xl border border-primary/10 flex flex-col justify-between cursor-pointer hover:-translate-y-2 hover:shadow-2xl transition-all duration-300"
     >
       <div>
         <div className="flex items-center justify-between mb-2">
@@ -128,7 +128,7 @@ function InteractiveTryOnGraph({ onClick }) {
   return (
     <div 
       onClick={onClick}
-      className="flex-1 min-h-[300px] bg-card rounded-[2rem] p-8 shadow-xl border border-primary/10 flex flex-col justify-between col-span-1 md:col-span-2 lg:col-span-1 cursor-pointer hover:-translate-y-2 hover:shadow-2xl transition-all duration-300"
+      className="flex-1 min-h-[250px] md:min-h-[300px] bg-card rounded-3xl md:rounded-[2rem] p-6 md:p-8 shadow-xl border border-primary/10 flex flex-col justify-between col-span-1 md:col-span-2 lg:col-span-1 cursor-pointer hover:-translate-y-2 hover:shadow-2xl transition-all duration-300"
     >
       <div>
         <div className="flex items-center justify-between mb-2">
@@ -182,9 +182,9 @@ export default function Features({
   }, []);
 
   return (
-    <section ref={containerRef} className="py-20 md:py-32 px-6 md:px-16 max-w-7xl mx-auto">
-      <div className="mb-12 md:mb-16">
-        <h2 className="text-4xl md:text-5xl font-heading font-bold text-foreground feature-card">
+    <section ref={containerRef} className="py-16 md:py-32 px-4 md:px-16 max-w-7xl mx-auto">
+      <div className="mb-10 md:mb-16 text-center md:text-left">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-foreground feature-card">
           Purpose-Built Tools.
         </h2>
         <p className="text-lg text-secondary mt-4 max-w-xl feature-card">

@@ -51,8 +51,25 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between h-20">
         
         {/* Logo */}
-        <NavLink to="/" className={`text-2xl font-heading font-black tracking-tighter ${isIncognitoActive ? 'text-white' : 'text-[#080808]'}`}>
-          akupy<span className={isIncognitoActive ? 'text-blue-500 text-3xl leading-none' : 'text-primary text-3xl leading-none'}>.</span>
+        <NavLink to="/" className="flex items-center hover:opacity-80 transition-opacity">
+          <svg viewBox="0 0 400 120" className="h-10 md:h-12 w-auto">
+            {/* Speed Lines */}
+            <line x1="10" y1="50" x2="40" y2="50" stroke="#8DE86A" strokeWidth="6" strokeLinecap="round" />
+            <line x1="0" y1="65" x2="35" y2="65" stroke="#8DE86A" strokeWidth="6" strokeLinecap="round" />
+            <line x1="20" y1="80" x2="40" y2="80" stroke="#8DE86A" strokeWidth="6" strokeLinecap="round" />
+            
+            {/* Shopping Cart Body */}
+            <path d="M 35 45 L 85 45 L 75 80 L 45 80 Z" fill="#8DE86A" />
+            
+            {/* Cart Wheels */}
+            <circle cx="50" cy="90" r="7" fill="#1EB854" />
+            <circle cx="70" cy="90" r="7" fill="#1EB854" />
+            
+            {/* akupy Text with Green Dot */}
+            <text x="100" y="80" fontFamily="sans-serif" fontWeight="900" fontSize="55" fill={isIncognitoActive ? "#FFFFFF" : "#080808"} letterSpacing="-2">
+              akupy<tspan fill="#8DE86A">.</tspan>
+            </text>
+          </svg>
         </NavLink>
 
         {/* Desktop Search Bar (Mid) */}

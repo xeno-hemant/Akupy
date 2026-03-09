@@ -19,7 +19,7 @@ export default function SocialProof() {
   ];
 
   return (
-    <div className="w-full py-20 overflow-hidden bg-background border-y border-foreground/5 relative">
+    <div className="w-full py-8 md:py-20 overflow-hidden bg-background border-y border-foreground/5 relative">
       {/* Gradient Fades */}
       <div 
         className="absolute inset-y-0 left-0 w-32 md:w-64 z-10 pointer-events-none" 
@@ -30,7 +30,7 @@ export default function SocialProof() {
         style={{ backgroundImage: 'linear-gradient(to left, var(--background), transparent)' }} 
       />
 
-      <div className="flex flex-col gap-12 w-full max-w-[2000px] mx-auto">
+      <div className="flex flex-col gap-6 md:gap-12 w-full max-w-[2000px] mx-auto">
         <div className="w-full inline-flex flex-nowrap overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]">
           <ul className="flex items-center justify-center md:justify-start [&_li]:mx-8 animate-scroll whitespace-nowrap">
             {categories.map((item, idx) => (

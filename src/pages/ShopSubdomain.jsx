@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import useCartStore from '../store/useCartStore';
 
+const getApiUrl = () => {
+  if (import.meta.env.VITE_API_URL && import.meta.env.VITE_API_URL !== 'http://localhost:5000') {
+    return import.meta.env.VITE_API_URL;
+  }
+  return `http://${window.location.hostname}:5000`;
+};
+
 export default function ShopSubdomain({ shopId }) {
   const [business, setBusiness] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -10,7 +17,7 @@ export default function ShopSubdomain({ shopId }) {
   useEffect(() => {
     const fetchBusiness = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/businesses/shop/${shopId}`);
+        const res = await fetch(`${getApiUrl()}/api/businesses/shop/${shopId}`);
         if (res.ok) {
           const data = await res.json();
           setBusiness(data);
@@ -43,9 +50,9 @@ export default function ShopSubdomain({ shopId }) {
   return (
     <div className="min-h-screen bg-white">
       {/* Dynamic Header specific to this shop */}
-      <header className="w-full bg-[#080808] text-white py-12 px-6 text-center">
-        <h1 className="text-4xl md:text-5xl font-heading font-bold mb-4">{business.name}</h1>
-        <p className="text-gray-400 max-w-xl mx-auto">{business.description || 'Welcome to our official Akupy store.'}</p>
+      <header className="w-full bg-[#080808] text-white py-10 md:py-16 px-6 text-center">
+        <h1 className="text-3xl md:text-5xl font-heading font-bold mb-4">{business.name}</h1>
+        <p className="text-gray-400 text-sm md:text-base max-w-xl mx-auto">{business.description || 'Welcome to our official Akupy store.'}</p>
         {business.category && <span className="inline-block mt-4 px-3 py-1 bg-white/10 rounded-full text-xs font-medium uppercase tracking-wider">{business.category}</span>}
       </header>
 

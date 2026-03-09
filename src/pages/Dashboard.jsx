@@ -3,6 +3,13 @@ import useAuthStore from '../store/useAuthStore';
 import { Navigate } from 'react-router-dom';
 import { DollarSign, Package, Eye, TrendingUp } from 'lucide-react';
 
+const getApiUrl = () => {
+  if (import.meta.env.VITE_API_URL && import.meta.env.VITE_API_URL !== 'http://localhost:5000') {
+    return import.meta.env.VITE_API_URL;
+  }
+  return `http://${window.location.hostname}:5000`;
+};
+
 export default function Dashboard() {
   const { user, logout } = useAuthStore();
   const [loading, setLoading] = useState(true);
@@ -29,7 +36,7 @@ export default function Dashboard() {
     const fetchProfile = async () => {
       try {
         if (user.role === 'business') {
-          const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/businesses/me`, {
+          const res = await fetch(`${getApiUrl()}/api/businesses/me`, {
             headers: { Authorization: `Bearer ${user.token}` }
           });
           if (res.ok) {
@@ -47,7 +54,7 @@ export default function Dashboard() {
           }
         } else {
           // Fetch Consumer Profile
-          const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/auth/profile`, {
+          const res = await fetch(`${getApiUrl()}/api/auth/profile`, {
             headers: { Authorization: `Bearer ${user.token}` }
           });
           if (res.ok) {
@@ -77,7 +84,7 @@ export default function Dashboard() {
       const endpoint = user.role === 'business' ? '/api/businesses' : '/api/auth/profile';
       const method = user.role === 'business' ? 'POST' : 'PUT';
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${endpoint}`, {
+      const res = await fetch(`${getApiUrl()}${endpoint}`, {
         method: method,
         headers: {
           'Content-Type': 'application/json',
@@ -128,7 +135,7 @@ export default function Dashboard() {
 
     try {
       // Show uploading state here if desired (e.g. by setting a temporary string 'Uploading...')
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/upload`, {
+      const res = await fetch(`${getApiUrl()}/api/upload`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${user.token}` },
         body: uploadData
@@ -136,7 +143,7 @@ export default function Dashboard() {
 
       if (res.ok) {
         const data = await res.json();
-        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+        const baseUrl = getApiUrl();
         // handleProductChange updates the state
         handleProductChange(index, 'imageUrl', baseUrl + data.imageUrl);
       } else {
@@ -153,19 +160,19 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F0FDF4] p-6 pt-28 md:p-16 md:pt-32">
-      <div className="max-w-4xl mx-auto bg-white rounded-[2.5rem] shadow-sm border border-black/5 p-8 md:p-12">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
-          <h1 className="text-3xl md:text-4xl font-heading font-medium text-[#080808]">Business Dashboard</h1>
+    <div className="min-h-screen bg-[#F0FDF4] p-3 pt-20 md:p-16 md:pt-32">
+      <div className="max-w-4xl mx-auto bg-white rounded-[2rem] md:rounded-[2.5rem] shadow-sm border border-black/5 p-5 md:p-12">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-6 mb-6 md:mb-12">
+          <h1 className="text-2xl md:text-4xl font-heading font-medium text-[#080808]">Business Dashboard</h1>
           <button 
             onClick={logout}
-            className="px-6 py-3 rounded-full border border-black/20 hover:bg-black/5 transition-colors font-medium w-full md:w-auto"
+            className="px-6 py-2.5 md:py-3 rounded-full border border-black/20 hover:bg-black/5 transition-colors font-medium w-full md:w-auto text-sm md:text-base"
           >
             Logout
           </button>
         </div>
         
-        <div className="bg-gray-50 rounded-2xl p-6 md:p-8 mb-8 border border-black/5">
+        <div className="bg-gray-50 rounded-2xl p-5 md:p-8 mb-6 md:mb-8 border border-black/5">
           <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
             {user.role === 'user' && (
               <div className="relative w-20 h-20 bg-white rounded-full border border-gray-200 shadow-sm overflow-hidden flex-shrink-0 flex items-center justify-center">
@@ -266,10 +273,10 @@ export default function Dashboard() {
                  </div>
               </div>
 
-              <hr className="border-gray-100 my-10" />
+              <hr className="border-gray-100 my-8 md:my-10" />
 
               <form onSubmit={handleSubmit} className="space-y-6">
-                <h2 className="text-2xl font-semibold mb-6 text-[#080808]">Public Storefront Configuration</h2>
+                <h2 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6 text-[#080808]">Public Storefront Configuration</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
@@ -509,14 +516,14 @@ export default function Dashboard() {
                               const uploadData = new FormData();
                               uploadData.append('image', file);
                               try {
-                                const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/upload`, {
+                                const res = await fetch(`${getApiUrl()}/api/upload`, {
                                   method: 'POST',
                                   headers: { Authorization: `Bearer ${user.token}` },
                                   body: uploadData
                                 });
                                 if (res.ok) {
                                   const data = await res.json();
-                                  setFormData({...formData, avatarUrl: (import.meta.env.VITE_API_URL || 'http://localhost:5000') + data.imageUrl});
+                                  setFormData({...formData, avatarUrl: getApiUrl() + data.imageUrl});
                                 }
                               } catch(err) { console.error('Upload failed'); }
                             }}
