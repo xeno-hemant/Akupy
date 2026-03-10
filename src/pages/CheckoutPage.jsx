@@ -64,7 +64,7 @@ export default function CheckoutPage() {
     setIsProcessing(true);
     try {
       if (isIncognitoActive && anonId) {
-        const apiUrl = window.location.hostname.includes('akupy.in') ? 'https://akupybackend.onrender.com' : 'http://localhost:5000';
+        const apiUrl = (!import.meta.env.DEV && window.location.hostname.includes('akupy.in')) ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
         const res = await fetch(`${apiUrl}/api/orders/incognito`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

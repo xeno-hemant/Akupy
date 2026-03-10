@@ -39,7 +39,8 @@ export default function ProductDetails() {
         const fetchProd = async () => {
             setLoading(true);
             try {
-                const url = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+                const isProd = !import.meta.env.DEV && window.location.hostname.includes('akupy.in');
+                const url = import.meta.env.VITE_API_URL || (isProd ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`);
                 const res = await fetch(`${url}/api/products/${productId}`);
                 if (res.ok) {
                     const data = await res.json();

@@ -8,11 +8,11 @@ const getApiUrl = () => {
   if (import.meta.env.VITE_API_URL && import.meta.env.VITE_API_URL !== 'http://localhost:5000') {
     return import.meta.env.VITE_API_URL;
   }
-  
-  if (window.location.hostname.includes('akupy.in')) {
+
+  if (!import.meta.env.DEV && window.location.hostname.includes('akupy.in')) {
     return 'https://akupybackend.onrender.com';
   }
-  
+
   // If we are on a mobile device on local network, point to the current computer's IP
   return `http://${window.location.hostname}:5000`;
 };

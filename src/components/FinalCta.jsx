@@ -26,7 +26,7 @@ export default function FinalCta() {
   const [otp, setOtp] = useState('');
   const [isWakingUp, setIsWakingUp] = useState(false);
 
-  const isProdHost = window.location.hostname.includes('akupy.in');
+  const isProdHost = !import.meta.env.DEV && window.location.hostname.includes('akupy.in');
   const fallbackUrl = isProdHost ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
   const apiUrl = import.meta.env.VITE_API_URL || fallbackUrl;
 

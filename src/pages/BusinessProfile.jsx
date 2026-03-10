@@ -23,7 +23,7 @@ export default function BusinessProfile() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const isProd = window.location.hostname.includes('akupy.in');
+      const isProd = !import.meta.env.DEV && window.location.hostname.includes('akupy.in');
       const rootUrl = isProd ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
       const apiUrl = import.meta.env.VITE_API_URL || rootUrl;
 
@@ -50,7 +50,7 @@ export default function BusinessProfile() {
     setReviewStatus('submitting');
 
     try {
-      const isProd = window.location.hostname.includes('akupy.in');
+      const isProd = !import.meta.env.DEV && window.location.hostname.includes('akupy.in');
       const rootUrl = isProd ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
       const apiUrl = import.meta.env.VITE_API_URL || rootUrl;
 

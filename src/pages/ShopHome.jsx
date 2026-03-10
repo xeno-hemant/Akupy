@@ -23,7 +23,7 @@ export default function ShopHome() {
   }, []);
 
   return (
-    <div className="min-h-screen" style={{ background: '#3d3830' }}>
+    <div className="min-h-screen -mt-[170px] md:-mt-[114px] pt-[170px] md:pt-[114px]" style={{ background: '#3d3830' }}>
       {/* Hero Section */}
       <Hero />
       <SocialProof />

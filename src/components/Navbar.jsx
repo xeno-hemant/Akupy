@@ -97,8 +97,8 @@ export default function Navbar() {
               onClick={handleIncognitoToggle}
               title={isIncognitoActive ? 'Disable Incognito' : 'Enable Incognito'}
               className={`p-2 rounded-full transition-all flex items-center justify-center relative ${isIncognitoActive
-                  ? 'bg-[#8E867B] text-[#F3F0E2]'
-                  : 'text-[#8E867B] hover:bg-[#E8E0D6]'
+                ? 'bg-[#8E867B] text-[#F3F0E2]'
+                : 'text-[#8E867B] hover:bg-[#E8E0D6]'
                 }`}
             >
               <Shield className="w-5 h-5" />
@@ -152,8 +152,8 @@ export default function Navbar() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={`w-full h-10 pl-10 pr-12 outline-none text-sm rounded-full border font-medium ${isIncognitoActive
-                    ? 'bg-[#3d3830]/60 border-[#8E867B]/30 text-[#F3F0E2] placeholder-[#8E867B]'
-                    : 'bg-[#F3F0E2] border-[#D9D5D2] text-[#3d3830] placeholder-[#aba49c] focus:border-[#8E867B]'
+                  ? 'bg-[#3d3830]/60 border-[#8E867B]/30 text-[#F3F0E2] placeholder-[#8E867B]'
+                  : 'bg-[#F3F0E2] border-[#D9D5D2] text-[#3d3830] placeholder-[#aba49c] focus:border-[#8E867B]'
                   }`}
               />
               <button type="button" onClick={() => setIsGlobeMapOpen(true)} className="absolute right-3 p-1 text-[#8E867B] active:scale-95">
@@ -174,12 +174,12 @@ export default function Navbar() {
                 key={category}
                 onClick={() => setActiveCategory(category)}
                 className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${activeCategory === category
-                    ? isIncognitoActive
-                      ? 'bg-[#F3F0E2] text-[#3d3830] shadow-sm'
-                      : 'bg-[#8E867B] text-[#F3F0E2] shadow-sm'
-                    : isIncognitoActive
-                      ? 'bg-[#8E867B]/15 text-[#D9D5D2] hover:bg-[#8E867B]/30'
-                      : 'bg-[#E8E0D6] text-[#8E867B] hover:bg-[#D9D5D2] hover:text-[#3d3830]'
+                  ? isIncognitoActive
+                    ? 'bg-[#F3F0E2] text-[#3d3830] shadow-sm'
+                    : 'bg-[#8E867B] text-[#F3F0E2] shadow-sm'
+                  : isIncognitoActive
+                    ? 'bg-[#8E867B]/15 text-[#D9D5D2] hover:bg-[#8E867B]/30'
+                    : 'bg-[#E8E0D6] text-[#8E867B] hover:bg-[#D9D5D2] hover:text-[#3d3830]'
                   }`}
               >
                 {category}
@@ -195,8 +195,8 @@ export default function Navbar() {
 
       </nav>
 
-      {/* Spacer */}
-      <div className="h-[120px] md:h-[110px]"></div>
+      {/* Spacer perfectly matched to Navbar height (Mobile ~170px, Desktop ~114px) */}
+      <div className="h-[170px] md:h-[114px]"></div>
 
       {isGlobeMapOpen && <GlobeShopOverlay onClose={() => setIsGlobeMapOpen(false)} />}
     </>

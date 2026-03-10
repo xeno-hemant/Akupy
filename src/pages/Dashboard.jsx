@@ -4,7 +4,7 @@ import { Navigate } from 'react-router-dom';
 import { DollarSign, Package, Eye, TrendingUp } from 'lucide-react';
 
 const getApiUrl = () => {
-  if (window.location.hostname.includes('akupy.in')) {
+  if (!import.meta.env.DEV && window.location.hostname.includes('akupy.in')) {
     return 'https://akupybackend.onrender.com';
   }
   return `http://${window.location.hostname}:5000`;

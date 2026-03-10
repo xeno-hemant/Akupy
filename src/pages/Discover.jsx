@@ -46,8 +46,8 @@ export default function Discover() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const isProd = window.location.hostname.includes('akupy.in');
-      const rootUrl = isProd ? 'https://akupybackend.onrender.com' : 'http://localhost:5000';
+      const isProd = !import.meta.env.DEV && window.location.hostname.includes('akupy.in');
+      const rootUrl = isProd ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
       let url = `${rootUrl}/api/products?page=1&limit=24`;
       if (query) url += `&search=${encodeURIComponent(query)}`;
       if (category && category !== 'All') url += `&category=${encodeURIComponent(category)}`;
@@ -91,7 +91,7 @@ export default function Discover() {
   const inputFocusStyle = { borderColor: HH.taupe };
 
   return (
-    <div className="min-h-screen pb-24" style={{ background: pageBg, color: pageText, paddingTop: '140px' }}>
+    <div className="min-h-screen pt-6 md:pt-10 pb-24" style={{ background: pageBg, color: pageText }}>
       <div className="max-w-[1400px] mx-auto px-4 md:px-6">
 
         {/* TOP: Title + Sort */}

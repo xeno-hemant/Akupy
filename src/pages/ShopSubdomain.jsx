@@ -54,9 +54,9 @@ export default function ShopSubdomain({ shopId: propShopId }) {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#F3F0E2] -mt-[170px] md:-mt-[114px]">
       {/* Dynamic Header specific to this shop */}
-      <header className={`w-full ${isIncognitoActive ? 'bg-[#3d3830] text-[#F3F0E2]' : 'bg-[#3d3830] text-[#F3F0E2]'} py-10 md:py-16 px-6 text-center`}>
+      <header className={`w-full ${isIncognitoActive ? 'bg-[#3d3830] text-[#F3F0E2]' : 'bg-[#3d3830] text-[#F3F0E2]'} pt-[calc(170px+2.5rem)] md:pt-[calc(114px+4rem)] pb-10 md:pb-16 px-6 text-center`}>
         <h1 className="text-3xl md:text-5xl font-heading font-bold mb-4">
           {isIncognitoActive ? 'Anonymous Store' : business.name}
         </h1>

@@ -42,7 +42,7 @@ const useTryOnStore = create((set, get) => ({
     // Save via API
     saveManualProfile: async (formData, token) => {
         try {
-            const isProd = window.location.hostname.includes('akupy.in');
+            const isProd = !import.meta.env.DEV && window.location.hostname.includes('akupy.in');
             const rootUrl = isProd ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
             const apiUrl = import.meta.env.VITE_API_URL || rootUrl;
 
@@ -74,7 +74,7 @@ const useTryOnStore = create((set, get) => ({
 
     fetchProfile: async (token) => {
         try {
-            const isProd = window.location.hostname.includes('akupy.in');
+            const isProd = !import.meta.env.DEV && window.location.hostname.includes('akupy.in');
             const rootUrl = isProd ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
             const apiUrl = import.meta.env.VITE_API_URL || rootUrl;
 
