@@ -96,17 +96,17 @@ export default function Discover() {
 
         {/* TOP: Title + Sort */}
         <div
-          className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 mb-6"
+          className="flex flex-col md:flex-row md:items-end justify-between items-center gap-4 pb-6 mb-6"
           style={{ borderBottom: `1px solid ${HH.silver}` }}
         >
-          <div>
+          <div className="text-center md:text-left">
             <h1 className="text-3xl md:text-4xl font-heading font-black" style={{ color: pageText }}>
               {query ? `Results for "${query}"` : category && category !== 'All' ? category : 'All Products'}
             </h1>
             <p className="mt-2 font-medium" style={{ color: HH.taupe }}>{total} products found</p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-2 w-full md:w-auto mt-2 md:mt-0">
             <span className="text-sm font-bold hidden sm:block" style={{ color: HH.taupe }}>Sort:</span>
             <div className="relative">
               <select
@@ -123,7 +123,7 @@ export default function Discover() {
         </div>
 
         {/* HORIZONTAL FILTER BAR */}
-        <div className="flex items-center gap-3 overflow-x-auto hide-scrollbar mb-8 pb-2">
+        <div className="flex items-center md:justify-start justify-center gap-3 overflow-x-auto hide-scrollbar mb-8 pb-2">
           {/* All Filters button */}
           <button
             onClick={() => setIsFilterOpen(true)}

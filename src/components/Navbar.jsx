@@ -48,10 +48,18 @@ export default function Navbar() {
 
           {/* Logo & Location */}
           <div className="flex items-center gap-4">
-            <Link to="/" className="flex-shrink-0">
-              <span className={`text-2xl font-heading font-black tracking-tight ${isIncognitoActive ? 'text-[#F3F0E2]' : 'text-[#3d3830]'}`}>
-                akupy<span className="text-[#8E867B]">.</span>
-              </span>
+            <Link to="/" className="flex-shrink-0 flex items-center">
+              <svg viewBox="0 0 400 120" className="h-7 sm:h-8 w-auto">
+                <line x1="10" y1="50" x2="40" y2="50" stroke="#55c567" strokeWidth="8" strokeLinecap="round" />
+                <line x1="0" y1="65" x2="35" y2="65" stroke="#55c567" strokeWidth="8" strokeLinecap="round" />
+                <line x1="20" y1="80" x2="40" y2="80" stroke="#55c567" strokeWidth="8" strokeLinecap="round" />
+                <path d="M 35 40 L 95 40 L 85 80 L 45 80 Z" fill="#55c567" />
+                <circle cx="50" cy="98" r="9" fill="#00a859" />
+                <circle cx="75" cy="98" r="9" fill="#00a859" />
+                <text x="115" y="85" fontFamily="sans-serif" fontWeight="900" fontSize="72" fill={isIncognitoActive ? '#F3F0E2' : '#000000'} letterSpacing="-2">
+                  akupy<tspan fill="#55c567">.</tspan>
+                </text>
+              </svg>
             </Link>
 
             <button className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-colors group ${isIncognitoActive ? 'hover:bg-[#8E867B]/20' : 'hover:bg-[#E8E0D6]'}`}>
@@ -143,16 +151,16 @@ export default function Navbar() {
         <div className={`px-4 pb-3 md:border-t ${isIncognitoActive ? 'border-[#8E867B]/20' : 'border-[#D9D5D2]'}`}>
 
           {/* Mobile Search */}
-          <div className="md:hidden mt-1 mb-3">
-            <form onSubmit={handleSearch} className="relative w-full flex items-center">
+          <div className="md:hidden mt-1 mb-3 flex justify-center w-full">
+            <form onSubmit={handleSearch} className="relative w-full max-w-[400px] flex items-center">
               <Search className="absolute left-4 w-4 h-4 text-[#8E867B]" />
               <input
                 type="text"
                 placeholder="Search products..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className={`w-full h-10 pl-10 pr-12 outline-none text-sm rounded-full border font-medium ${isIncognitoActive
-                  ? 'bg-[#3d3830]/60 border-[#8E867B]/30 text-[#F3F0E2] placeholder-[#8E867B]'
+                className={`w-full h-11 pl-11 pr-12 outline-none text-sm rounded-full border shadow-sm font-medium ${isIncognitoActive
+                  ? 'bg-[#3d3830]/80 border-[#8E867B]/30 text-[#F3F0E2] placeholder-[#8E867B]'
                   : 'bg-[#F3F0E2] border-[#D9D5D2] text-[#3d3830] placeholder-[#aba49c] focus:border-[#8E867B]'
                   }`}
               />
@@ -163,7 +171,7 @@ export default function Navbar() {
           </div>
 
           {/* Category Chips */}
-          <div className="max-w-[1400px] mx-auto flex items-center overflow-x-auto hide-scrollbar gap-2 md:gap-3 md:py-2">
+          <div className="max-w-[1400px] mx-auto flex items-center md:justify-start justify-center overflow-x-auto hide-scrollbar gap-2 md:gap-3 md:py-2">
             <button className={`sm:hidden flex-shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap ${isIncognitoActive ? 'bg-[#8E867B]/20 text-[#D9D5D2]' : 'bg-[#E8E0D6] text-[#8E867B]'
               }`}>
               <MapPin className="w-3 h-3" /> Mumbai

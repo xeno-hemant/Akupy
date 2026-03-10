@@ -54,17 +54,17 @@ export default function Hero() {
       <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#3d3830] via-[#3d3830]/50 to-transparent pointer-events-none" />
 
       {/* Content */}
-      <div className="relative z-20 max-w-4xl mx-auto px-5 md:px-8 flex flex-col items-center text-center">
+      <div className="relative z-20 w-full max-w-4xl mx-auto px-5 md:px-8 flex flex-col items-center text-center">
         {/* Logo */}
-        <svg viewBox="0 0 400 120" className="hero-text h-10 md:h-16 w-auto mb-6 -ml-2">
-          <line x1="10" y1="50" x2="40" y2="50" stroke="#8E867B" strokeWidth="6" strokeLinecap="round" />
-          <line x1="0" y1="65" x2="35" y2="65" stroke="#8E867B" strokeWidth="6" strokeLinecap="round" />
-          <line x1="20" y1="80" x2="40" y2="80" stroke="#8E867B" strokeWidth="6" strokeLinecap="round" />
-          <path d="M 35 45 L 85 45 L 75 80 L 45 80 Z" fill="#8E867B" />
-          <circle cx="50" cy="90" r="7" fill="#7a7268" />
-          <circle cx="70" cy="90" r="7" fill="#7a7268" />
-          <text x="100" y="80" fontFamily="sans-serif" fontWeight="900" fontSize="55" fill="#F3F0E2" letterSpacing="-2">
-            akupy<tspan fill="#8E867B">.</tspan>
+        <svg viewBox="0 0 400 120" className="hero-text h-12 md:h-16 w-auto mb-6 -ml-2">
+          <line x1="10" y1="50" x2="40" y2="50" stroke="#55c567" strokeWidth="8" strokeLinecap="round" />
+          <line x1="0" y1="65" x2="35" y2="65" stroke="#55c567" strokeWidth="8" strokeLinecap="round" />
+          <line x1="20" y1="80" x2="40" y2="80" stroke="#55c567" strokeWidth="8" strokeLinecap="round" />
+          <path d="M 35 40 L 95 40 L 85 80 L 45 80 Z" fill="#55c567" />
+          <circle cx="50" cy="98" r="9" fill="#00a859" />
+          <circle cx="75" cy="98" r="9" fill="#00a859" />
+          <text x="115" y="85" fontFamily="sans-serif" fontWeight="900" fontSize="72" fill="#F3F0E2" letterSpacing="-2">
+            akupy<tspan fill="#55c567">.</tspan>
           </text>
         </svg>
 
