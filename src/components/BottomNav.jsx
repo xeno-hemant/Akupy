@@ -1,175 +1,128 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, Grid3x3, ShoppingCart, User, Globe, EyeOff, Bot } from 'lucide-react';
+import { Home, Grid3x3, ShoppingCart, User, Plus, Shirt, Shield, Bot } from 'lucide-react';
 import useAuthStore from '../store/useAuthStore';
 import useCartStore from '../store/useCartStore';
+import useFeatureStore from '../store/useFeatureStore';
 
 const NAV_ITEMS = [
     { id: 'home', label: 'Home', icon: Home, path: '/shop' },
     { id: 'categories', label: 'Categories', icon: Grid3x3, path: '/discover' },
-    { id: 'fab', label: '', icon: null, path: null }, // FAB placeholder
+    { id: 'fab', label: '', icon: Plus, isFab: true },
     { id: 'cart', label: 'Cart', icon: ShoppingCart, path: '/cart' },
     { id: 'profile', label: 'Profile', icon: User, path: '/dashboard' },
 ];
 
-const FAB_ACTIONS = [
-    {
-        id: 'tryon',
-        label: '3D Try-On',
-        icon: () => (
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
-                <path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z" />
-            </svg>
-        ),
-        angle: 210, // left
-    },
-    {
-        id: 'incognito',
-        label: 'Incognito',
-        icon: () => (
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                <circle cx="12" cy="12" r="3" />
-                <line x1="2" y1="2" x2="22" y2="22" />
-            </svg>
-        ),
-        angle: 270, // top center
-    },
-    {
-        id: 'ai',
-        label: 'AI Assistant',
-        icon: () => (
-            <div className="flex flex-col items-center leading-none">
-                <span className="text-xs font-black" style={{ color: '#22C55E' }}>AI</span>
-                <span className="w-1 h-1 rounded-full bg-[#22C55E] mt-0.5"></span>
-            </div>
-        ),
-        angle: 330, // right
-    },
-];
-
 export default function BottomNav() {
     const { user } = useAuthStore();
-    const [fabOpen, setFabOpen] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
     const { getTotalItems } = useCartStore();
+    const { isIncognitoActive } = useFeatureStore();
+    const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
     // Dynamically adjust profile path
     const items = NAV_ITEMS.map(item =>
         item.id === 'profile'
-            ? { ...item, path: user?.role === 'business' ? '/seller/dashboard' : '/dashboard' }
+            ? { ...item, path: (user?.role === 'seller' || location.pathname === '/sell') ? '/seller/dashboard' : '/dashboard' }
             : item
     );
 
     const isActive = (path) => path && location.pathname === path;
 
-    const handleFabAction = (action) => {
-        setFabOpen(false);
-        if (action.id === 'tryon') navigate('/wardrobe');
-        if (action.id === 'incognito') {
+    const handleAction = (id) => {
+        setIsMenuOpen(false);
+        if (id === 'tryon') window.dispatchEvent(new CustomEvent('open-tryon-modal'));
+        if (id === 'incognito') {
             window.dispatchEvent(new CustomEvent('toggle-incognito'));
         }
-        if (action.id === 'ai') window.dispatchEvent(new CustomEvent('open-ai-chat'));
+        if (id === 'ai') window.dispatchEvent(new CustomEvent('open-ai-chat'));
     };
 
-    // Calculate positions for radial arc (semicircle upward)
-    const getPosition = (angle) => {
-        const radius = 72;
-        const rad = (angle * Math.PI) / 180;
-        return {
-            x: Math.cos(rad) * radius,
-            y: -Math.sin(rad) * radius, // negative because y increases downward
-        };
-    };
+    const FAB_ACTIONS = [
+        { id: 'tryon', label: 'Try-On', icon: Shirt, angle: 150 }, // Left-top
+        { id: 'incognito', label: 'Incognito', icon: Shield, angle: 90, active: isIncognitoActive }, // Top
+        { id: 'ai', label: 'Assistant', icon: Bot, angle: 30 }, // Right-top
+    ];
 
     return (
         <>
-            {/* FAB Backdrop */}
-            {fabOpen && (
+            {/* Backdrop Overlay */}
+            {isMenuOpen && (
                 <div
-                    className="fixed inset-0 z-[998]"
-                    style={{
-                        background: 'rgba(44, 42, 39, 0.85)',
-                        backdropFilter: 'blur(4px)'
-                    }}
-                    onClick={() => setFabOpen(false)}
+                    className="fixed inset-0 z-[998] bg-[#0A0F1E]/40 backdrop-blur-sm transition-opacity"
+                    onClick={() => setIsMenuOpen(false)}
                 />
             )}
 
-            {/* FAB Radial Menu */}
-            {fabOpen && (
-                <div className="fixed bottom-[80px] left-1/2 -translate-x-1/2 z-[999] pointer-events-none">
-                    {FAB_ACTIONS.map((action, i) => {
-                        const pos = getPosition(action.angle);
+            {/* Radial Menu Buttons */}
+            <div className={`fixed bottom-0 left-1/2 -translate-x-1/2 z-[999] pointer-events-none transition-all duration-500 xl:hidden ${isMenuOpen ? 'opacity-100 scale-100 translate-y-[-80px]' : 'opacity-0 scale-50 translate-y-0'
+                }`}>
+                <div className="relative w-72 h-48">
+                    {/* Dark Navy Semicircle Backdrop */}
+                    <div className="absolute bottom-[-40px] left-1/2 -translate-x-1/2 w-80 h-48 bg-[#0A192F] rounded-t-full shadow-[0_-10px_40px_rgba(0,0,0,0.3)] border-t border-white/5" />
+
+                    {FAB_ACTIONS.map((action) => {
+                        const Icon = action.icon;
+                        const radius = 120;
+                        const radian = (action.angle * Math.PI) / 180;
+                        const x = Math.cos(radian) * radius;
+                        const y = Math.sin(radian) * radius;
+
                         return (
-                            <button
+                            <div
                                 key={action.id}
-                                className="absolute flex flex-col items-center gap-1.5 pointer-events-auto"
+                                className="absolute bottom-0 left-1/2 pointer-events-auto"
                                 style={{
-                                    left: `calc(50% + ${pos.x}px - 28px)`,
-                                    top: `calc(50% + ${pos.y}px - 28px)`,
-                                    width: 56,
-                                    height: 56,
-                                    animation: `bounceIn 0.${3 + i}s cubic-bezier(0.68,-0.55,0.265,1.55) both`,
-                                    animationDelay: `${i * 0.05}s`
+                                    transform: `translate(calc(-50% + ${x}px), ${-y}px)`,
                                 }}
-                                onClick={() => handleFabAction(action)}
                             >
-                                <div
-                                    className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg"
-                                    style={{ background: '#FFFFFF', color: '#1A1A1A', border: '2px solid #22C55E' }}
+                                <button
+                                    onClick={() => handleAction(action.id)}
+                                    className={`flex flex-col items-center gap-2 group transition-all duration-300 hover:scale-110 active:scale-95`}
                                 >
-                                    <action.icon />
-                                </div>
-                                <span
-                                    className="text-[10px] font-bold text-center whitespace-nowrap"
-                                    style={{ color: '#FFFFFF', textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}
-                                >
-                                    {action.label}
-                                </span>
-                            </button>
+                                    <div className={`w-16 h-16 rounded-full flex items-center justify-center shadow-xl border-2 transition-colors ${action.active ? 'bg-[#22C55E] border-[#22C55E]' : 'bg-white border-transparent'
+                                        }`}>
+                                        <Icon
+                                            size={28}
+                                            className={action.active ? 'text-white' : 'text-[#1A1A1A]'}
+                                        />
+                                    </div>
+                                    <span className="text-[11px] font-bold text-white tracking-wide uppercase px-2 py-0.5 rounded-full bg-black/20 backdrop-blur-md">
+                                        {action.label}
+                                    </span>
+                                </button>
+                            </div>
                         );
                     })}
                 </div>
-            )}
+            </div>
 
-            {/* Bottom Nav Bar — only visible below 1200px */}
             <nav
-                className="fixed bottom-0 left-0 w-full z-[997] xl:hidden"
+                className="fixed bottom-0 left-0 w-full z-[1000] xl:hidden"
                 style={{
                     background: '#FFFFFF',
                     borderTop: '1px solid #F3F4F6',
                     boxShadow: '0 -2px 16px rgba(0,0,0,0.08)',
                 }}
             >
-                <div className="flex items-end justify-around px-2 py-2 max-w-lg mx-auto h-[70px]">
+                <div className="flex items-center justify-around px-2 py-2 max-w-lg mx-auto h-[75px] relative">
                     {items.map((item) => {
-                        if (item.id === 'fab') {
+                        const Icon = item.icon;
+                        const active = isActive(item.path);
+
+                        if (item.isFab) {
                             return (
                                 <button
-                                    key="fab"
-                                    onClick={() => setFabOpen(prev => !prev)}
-                                    className="relative flex items-center justify-center w-14 h-14 rounded-full shadow-lg transition-all active:scale-95 -mt-5"
-                                    style={{
-                                        background: fabOpen
-                                            ? '#16A34A'
-                                            : 'linear-gradient(135deg, #22C55E 0%, #16A34A 100%)',
-                                        boxShadow: '0 4px 20px rgba(34,197,94,0.4)',
-                                        transform: fabOpen ? 'rotate(45deg)' : 'rotate(0deg)',
-                                        transition: 'all 0.3s cubic-bezier(0.68,-0.55,0.265,1.55)'
-                                    }}
+                                    key={item.id}
+                                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                    className="relative -translate-y-6 flex items-center justify-center w-16 h-16 rounded-full bg-[#22C55E] text-white shadow-[0_8px_25px_rgba(34,197,94,0.4)] border-4 border-white transition-all duration-500 hover:scale-110 active:scale-95 z-[1001]"
+                                    style={{ transform: `translateY(-24px) rotate(${isMenuOpen ? '135deg' : '0deg'})` }}
                                 >
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" className="w-6 h-6">
-                                        <line x1="12" y1="5" x2="12" y2="19" />
-                                        <line x1="5" y1="12" x2="19" y2="12" />
-                                    </svg>
+                                    <Plus className="w-8 h-8" />
                                 </button>
                             );
                         }
-
-                        const Icon = item.icon;
-                        const active = isActive(item.path);
 
                         return (
                             <button
@@ -189,7 +142,7 @@ export default function BottomNav() {
                                 <span className="text-[10px] font-semibold">{item.label}</span>
                                 {active && (
                                     <span
-                                        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
+                                        className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
                                         style={{ background: '#22C55E' }}
                                     />
                                 )}
@@ -201,3 +154,4 @@ export default function BottomNav() {
         </>
     );
 }
+

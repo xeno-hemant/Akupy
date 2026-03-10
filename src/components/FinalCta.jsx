@@ -16,7 +16,7 @@ export default function FinalCta() {
   const [password, setPassword] = useState('');
 
   // Default to business if on the sell page, otherwise user
-  const [role, setRole] = useState(location.pathname === '/sell' ? 'business' : 'user');
+  const [role, setRole] = useState(location.pathname === '/sell' ? 'seller' : 'user');
   const [authMode, setAuthMode] = useState('register'); // 'login' or 'register'
   const [status, setStatus] = useState('idle'); // idle, loading, error
 
@@ -53,7 +53,7 @@ export default function FinalCta() {
     clearError();
     if (!email || !password) return;
 
-    if (authMode === 'register' && role === 'business' && !monetizationPlan) {
+    if (authMode === 'register' && role === 'seller' && !monetizationPlan) {
       setShowPricingModal(true);
       return;
     }
@@ -71,7 +71,7 @@ export default function FinalCta() {
     setStatus('loading');
     const success = await login(email, password);
     if (success) {
-      navigate('/dashboard');
+      navigate(role === 'seller' ? '/seller/dashboard' : '/dashboard');
     } else {
       setStatus('error');
     }
@@ -123,7 +123,7 @@ export default function FinalCta() {
       }
 
       const payload = { email, password, role };
-      if (role === 'business' && monetizationPlan) {
+      if (role === 'seller' && monetizationPlan) {
         payload.monetizationPlan = monetizationPlan;
       }
       const response = await fetchWithTimeout(`${apiUrl}/api/auth/register`, {
@@ -134,7 +134,7 @@ export default function FinalCta() {
       if (response.ok) {
         await login(email, password);
         setShowOtpField(false);
-        navigate('/dashboard');
+        navigate(role === 'seller' ? '/seller/dashboard' : '/dashboard');
       } else {
         const errData = await response.json();
         useAuthStore.setState({ error: errData.message || 'User already exists or invalid data' });
@@ -150,7 +150,7 @@ export default function FinalCta() {
     setStatus('loading');
     try {
       const payload = { email, password, role };
-      if (role === 'business' && monetizationPlan) {
+      if (role === 'seller' && monetizationPlan) {
         payload.monetizationPlan = monetizationPlan;
       }
 
@@ -162,7 +162,7 @@ export default function FinalCta() {
 
       if (response.ok) {
         const success = await login(email, password);
-        if (success) navigate('/dashboard');
+        if (success) navigate(role === 'seller' ? '/seller/dashboard' : '/dashboard');
         else setStatus('error');
       } else {
         const errData = await response.json();
@@ -226,7 +226,7 @@ export default function FinalCta() {
               Logged in as <span className="font-bold">{user.email}</span>
             </div>
             <button
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate((user.role === 'seller' || location.pathname === '/sell') ? '/seller/dashboard' : '/dashboard')}
               className="rounded-full px-12 py-4 text-lg font-semibold transition-all hover:scale-105 active:scale-95 duration-200"
               style={{ background: '#3d3830', color: '#F3F0E2', boxShadow: '0 0 30px rgba(61,56,48,0.35)' }}
             >
@@ -268,9 +268,9 @@ export default function FinalCta() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setRole('business')}
-                  className={`px-6 py-2 rounded-full text-sm font-semibold transition-colors ${role === 'business' ? 'text-[#08080e]' : 'text-[#8b8ba0] hover:text-white'}`}
-                  style={role === 'business' ? { background: '#8E867B', color: '#F3F0E2' } : {}}
+                  onClick={() => setRole('seller')}
+                  className={`px-6 py-2 rounded-full text-sm font-semibold transition-colors ${role === 'seller' ? 'text-[#08080e]' : 'text-[#8b8ba0] hover:text-white'}`}
+                  style={role === 'seller' ? { background: '#8E867B', color: '#F3F0E2' } : {}}
                 >
                   I'm a Business
                 </button>

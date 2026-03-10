@@ -70,36 +70,38 @@ function FilterChips({ sortBy, setSortBy }) {
   ];
 
   return (
-    <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar pb-1 mb-5">
-      {FILTERS.map((f) => (
-        <button
-          key={f.label}
-          onClick={() => f.value && f.value !== 'filters' && setSortBy(f.value)}
-          className="flex-shrink-0 px-3 py-1.5 text-xs font-semibold rounded-full border transition-all whitespace-nowrap"
-          style={
-            sortBy === f.value && f.value
-              ? { background: '#22C55E', color: '#fff', borderColor: '#22C55E' }
-              : { background: 'transparent', color: '#1A1A1A', borderColor: '#D1D5DB' }
-          }
-          onMouseEnter={e => {
-            if (!(sortBy === f.value && f.value)) {
-              e.currentTarget.style.borderColor = '#22C55E';
-              e.currentTarget.style.color = '#22C55E';
+    <div className="w-full overflow-hidden">
+      <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar pb-1 mb-5">
+        {FILTERS.map((f) => (
+          <button
+            key={f.label}
+            onClick={() => f.value && f.value !== 'filters' && setSortBy(f.value)}
+            className="flex-shrink-0 px-3 py-1.5 text-xs font-semibold rounded-full border transition-all whitespace-nowrap"
+            style={
+              sortBy === f.value && f.value
+                ? { background: '#22C55E', color: '#fff', borderColor: '#22C55E' }
+                : { background: 'transparent', color: '#1A1A1A', borderColor: '#D1D5DB' }
             }
-          }}
-          onMouseLeave={e => {
-            if (!(sortBy === f.value && f.value)) {
-              e.currentTarget.style.borderColor = '#D1D5DB';
-              e.currentTarget.style.color = '#1A1A1A';
-            }
-          }}
-        >
-          {f.label}
-        </button>
-      ))}
-      <div className="ml-auto flex-shrink-0 flex items-center gap-1">
-        <span className="text-xs font-semibold" style={{ color: '#6B7280' }}>Sort by</span>
-        <ChevronDown className="w-3 h-3" style={{ color: '#6B7280' }} />
+            onMouseEnter={e => {
+              if (!(sortBy === f.value && f.value)) {
+                e.currentTarget.style.borderColor = '#22C55E';
+                e.currentTarget.style.color = '#22C55E';
+              }
+            }}
+            onMouseLeave={e => {
+              if (!(sortBy === f.value && f.value)) {
+                e.currentTarget.style.borderColor = '#D1D5DB';
+                e.currentTarget.style.color = '#1A1A1A';
+              }
+            }}
+          >
+            {f.label}
+          </button>
+        ))}
+        <div className="ml-auto flex-shrink-0 flex items-center gap-1">
+          <span className="text-xs font-semibold" style={{ color: '#6B7280' }}>Sort by</span>
+          <ChevronDown className="w-3 h-3" style={{ color: '#6B7280' }} />
+        </div>
       </div>
     </div>
   );

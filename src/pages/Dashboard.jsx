@@ -35,7 +35,7 @@ export default function Dashboard() {
 
     const fetchProfile = async () => {
       try {
-        if (user.role === 'business') {
+        if (user.role === 'seller') {
           const res = await fetch(`${getApiUrl()}/api/businesses/me`, {
             headers: { Authorization: `Bearer ${user.token}` }
           });
@@ -81,8 +81,8 @@ export default function Dashboard() {
     setSaveStatus('saving');
 
     try {
-      const endpoint = user.role === 'business' ? '/api/businesses' : '/api/auth/profile';
-      const method = user.role === 'business' ? 'POST' : 'PUT';
+      const endpoint = user.role === 'seller' ? '/api/businesses' : '/api/auth/profile';
+      const method = user.role === 'seller' ? 'POST' : 'PUT';
 
       const res = await fetch(`${getApiUrl()}${endpoint}`, {
         method: method,
@@ -163,7 +163,7 @@ export default function Dashboard() {
     <div className="min-h-screen p-3 pt-20 md:p-16 md:pt-32 page-bottom-padding" style={{ background: '#F5F0E8' }}>
       <div className="max-w-4xl mx-auto rounded-[2rem] md:rounded-[2.5rem] shadow-sm border p-5 md:p-12" style={{ background: '#FFFFFF', borderColor: '#F3F4F6' }}>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-6 mb-6 md:mb-12">
-          <h1 className="text-2xl md:text-4xl font-heading font-bold" style={{ color: '#1A1A1A' }}>{user.role === 'business' ? 'Business Dashboard' : 'My Profile'}</h1>
+          <h1 className="text-2xl md:text-4xl font-heading font-bold" style={{ color: '#1A1A1A' }}>{user.role === 'seller' ? 'Business Dashboard' : 'My Profile'}</h1>
           <button
             onClick={logout}
             className="px-6 py-2.5 md:py-3 rounded-full border-2 font-semibold w-full md:w-auto text-sm md:text-base transition-colors"
@@ -196,7 +196,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {user.role === 'business' && (
+        {user.role === 'seller' && (
           loading ? (
             <div className="py-12 text-center text-gray-500">Loading profile data...</div>
           ) : (

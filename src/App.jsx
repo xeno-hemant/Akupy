@@ -13,6 +13,9 @@ import BusinessProfile from './pages/BusinessProfile';
 import SellLanding from './pages/SellLanding';
 import Navbar from './components/Navbar';
 import BottomNav from './components/BottomNav';
+import TryOnModal from './components/TryOnModal';
+import AiAssistantDrawer from './components/AiAssistantDrawer';
+import { ProtectedSellerRoute, ProtectedShopperRoute } from './components/ProtectedRoute';
 import CustomCursor from './components/CustomCursor';
 import TryOnOnboardingModal from './components/tryon/TryOnOnboardingModal';
 import ShopSubdomain from './pages/ShopSubdomain';
@@ -48,14 +51,28 @@ function AppInner({ subdomainShopId }) {
   const [toastMessage, setToastMessage] = useState('');
   const isSellerRoute = useIsSellerRoute();
 
+  const { setIncognito } = useFeatureStore();
+
   useEffect(() => {
     const handleToast = (e) => {
       setToastMessage(e.detail.message);
       setTimeout(() => setToastMessage(''), 3000);
     };
+    const handleToggleIncognito = () => {
+      const newState = !isIncognitoActive;
+      setIncognito(newState);
+      window.dispatchEvent(new CustomEvent('incognito-toast', {
+        detail: { message: newState ? "Incognito Mode Activated" : "Incognito Mode Deactivated" }
+      }));
+    };
+
     window.addEventListener('incognito-toast', handleToast);
-    return () => window.removeEventListener('incognito-toast', handleToast);
-  }, []);
+    window.addEventListener('toggle-incognito', handleToggleIncognito);
+    return () => {
+      window.removeEventListener('incognito-toast', handleToast);
+      window.removeEventListener('toggle-incognito', handleToggleIncognito);
+    };
+  }, [isIncognitoActive, setIncognito]);
 
   return (
     <main className="w-full min-h-screen relative transition-colors duration-500"
@@ -74,45 +91,49 @@ function AppInner({ subdomainShopId }) {
         </div>
       )}
 
-      {!isSellerRoute && <Navbar />}
-      {!isSellerRoute && <BottomNav />}
+      {!isSellerRoute && location.pathname !== '/' && <Navbar />}
+      {!isSellerRoute && location.pathname !== '/' && <BottomNav />}
+      <TryOnModal />
+      <AiAssistantDrawer />
 
       {subdomainShopId ? (
         <ShopSubdomain shopId={subdomainShopId} />
       ) : (
         <Routes>
-          {/* Shopper Routes */}
+          {/* Shopper Routeswrapped in Shopper Protection */}
           <Route path="/" element={<Gateway />} />
-          <Route path="/shop" element={<ShopHome />} />
+          <Route path="/shop" element={<ProtectedShopperRoute><ShopHome /></ProtectedShopperRoute>} />
           <Route path="/sell" element={<SellLanding />} />
-          <Route path="/discover" element={<Discover />} />
+          <Route path="/discover" element={<ProtectedShopperRoute><Discover /></ProtectedShopperRoute>} />
           <Route path="/business/:id" element={<BusinessProfile />} />
           <Route path="/dashboard" element={
-            user?.role === 'business' ? <Navigate to="/seller/dashboard" replace /> : <Dashboard />
+            <ProtectedShopperRoute>
+              {user?.role === 'seller' ? <Navigate to="/seller/dashboard" replace /> : <Dashboard />}
+            </ProtectedShopperRoute>
           } />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/wardrobe" element={<TryOnGalleryPage />} />
+          <Route path="/cart" element={<ProtectedShopperRoute><CartPage /></ProtectedShopperRoute>} />
+          <Route path="/checkout" element={<ProtectedShopperRoute><CheckoutPage /></ProtectedShopperRoute>} />
+          <Route path="/wardrobe" element={<ProtectedShopperRoute><TryOnGalleryPage /></ProtectedShopperRoute>} />
           <Route path="/product/:productId" element={<ProductDetails />} />
 
-          {/* Seller Portal Routes */}
-          <Route path="/seller" element={<SellerDashboard />} />
-          <Route path="/seller/dashboard" element={<SellerDashboard />} />
-          <Route path="/seller/orders" element={<SellerOrders />} />
-          <Route path="/seller/products" element={<SellerProducts />} />
-          <Route path="/seller/products/new" element={<SellerAddProduct />} />
-          <Route path="/seller/products/:id/edit" element={<SellerAddProduct />} />
-          <Route path="/seller/inventory" element={<SellerInventory />} />
-          <Route path="/seller/earnings" element={<SellerEarnings />} />
-          <Route path="/seller/payouts" element={<SellerEarnings />} />
-          <Route path="/seller/transactions" element={<SellerEarnings />} />
-          <Route path="/seller/shop" element={<SellerShopProfile />} />
-          <Route path="/seller/coupons" element={<SellerCoupons />} />
-          <Route path="/seller/reviews" element={<SellerReviews />} />
-          <Route path="/seller/notifications" element={<SellerNotifications />} />
-          <Route path="/seller/customers" element={<SellerOrders />} />
-          <Route path="/seller/settings" element={<SellerShopProfile />} />
-          <Route path="/seller/help" element={<SellerNotifications />} />
+          {/* Seller Portal Routes wrapped in Seller Protection */}
+          <Route path="/seller" element={<ProtectedSellerRoute><SellerDashboard /></ProtectedSellerRoute>} />
+          <Route path="/seller/dashboard" element={<ProtectedSellerRoute><SellerDashboard /></ProtectedSellerRoute>} />
+          <Route path="/seller/orders" element={<ProtectedSellerRoute><SellerOrders /></ProtectedSellerRoute>} />
+          <Route path="/seller/products" element={<ProtectedSellerRoute><SellerProducts /></ProtectedSellerRoute>} />
+          <Route path="/seller/products/new" element={<ProtectedSellerRoute><SellerAddProduct /></ProtectedSellerRoute>} />
+          <Route path="/seller/products/:id/edit" element={<ProtectedSellerRoute><SellerAddProduct /></ProtectedSellerRoute>} />
+          <Route path="/seller/inventory" element={<ProtectedSellerRoute><SellerInventory /></ProtectedSellerRoute>} />
+          <Route path="/seller/earnings" element={<ProtectedSellerRoute><SellerEarnings /></ProtectedSellerRoute>} />
+          <Route path="/seller/payouts" element={<ProtectedSellerRoute><SellerEarnings /></ProtectedSellerRoute>} />
+          <Route path="/seller/transactions" element={<ProtectedSellerRoute><SellerEarnings /></ProtectedSellerRoute>} />
+          <Route path="/seller/shop" element={<ProtectedSellerRoute><SellerShopProfile /></ProtectedSellerRoute>} />
+          <Route path="/seller/coupons" element={<ProtectedSellerRoute><SellerCoupons /></ProtectedSellerRoute>} />
+          <Route path="/seller/reviews" element={<ProtectedSellerRoute><SellerReviews /></ProtectedSellerRoute>} />
+          <Route path="/seller/notifications" element={<ProtectedSellerRoute><SellerNotifications /></ProtectedSellerRoute>} />
+          <Route path="/seller/customers" element={<ProtectedSellerRoute><SellerOrders /></ProtectedSellerRoute>} />
+          <Route path="/seller/settings" element={<ProtectedSellerRoute><SellerShopProfile /></ProtectedSellerRoute>} />
+          <Route path="/seller/help" element={<ProtectedSellerRoute><SellerNotifications /></ProtectedSellerRoute>} />
 
           {/* Wildcard shop subdomain — must be last */}
           <Route path="/:shopId" element={<ShopSubdomain />} />

@@ -32,7 +32,7 @@ export default function SellLanding() {
 
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
             <Link
-              to="/dashboard"
+              to="/seller/dashboard"
               className="px-6 md:px-8 py-3 md:py-4 rounded-full font-bold text-base md:text-lg transition-transform active:scale-95 flex items-center justify-center gap-2 w-full md:w-auto"
               style={{ background: '#8E867B', color: '#F3F0E2' }}
             >

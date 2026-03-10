@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Search, ShoppingCart, User, Globe, Shield } from 'lucide-react';
 import useAuthStore from '../store/useAuthStore';
 import useCartStore from '../store/useCartStore';
@@ -40,6 +40,7 @@ export default function Navbar() {
   const { getTotalItems } = useCartStore();
   const { isIncognitoActive, setIncognito } = useFeatureStore();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -133,7 +134,7 @@ export default function Navbar() {
 
             {user ? (
               <Link
-                to={user?.role === 'business' ? '/seller/dashboard' : '/dashboard'}
+                to={(user?.role === 'seller' || location.pathname === '/sell') ? '/seller/dashboard' : '/dashboard'}
                 className="p-2 rounded-full transition-colors"
                 style={{ color: '#6B7280' }}
                 onMouseEnter={e => e.currentTarget.style.color = '#22C55E'}
