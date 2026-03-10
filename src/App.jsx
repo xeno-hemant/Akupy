@@ -84,7 +84,9 @@ function AppInner({ subdomainShopId }) {
           <Route path="/sell" element={<SellLanding />} />
           <Route path="/discover" element={<Discover />} />
           <Route path="/business/:id" element={<BusinessProfile />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={
+            user?.role === 'business' ? <Navigate to="/seller/dashboard" replace /> : <Dashboard />
+          } />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/wardrobe" element={<TryOnGalleryPage />} />

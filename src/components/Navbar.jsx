@@ -133,7 +133,7 @@ export default function Navbar() {
 
             {user ? (
               <Link
-                to="/dashboard"
+                to={user?.role === 'business' ? '/seller/dashboard' : '/dashboard'}
                 className="p-2 rounded-full transition-colors"
                 style={{ color: '#6B7280' }}
                 onMouseEnter={e => e.currentTarget.style.color = '#22C55E'}

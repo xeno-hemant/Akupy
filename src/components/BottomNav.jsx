@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Home, Grid3x3, ShoppingCart, User, Globe, EyeOff, Bot } from 'lucide-react';
+import useAuthStore from '../store/useAuthStore';
 import useCartStore from '../store/useCartStore';
 
 const NAV_ITEMS = [
@@ -48,10 +49,18 @@ const FAB_ACTIONS = [
 ];
 
 export default function BottomNav() {
+    const { user } = useAuthStore();
     const [fabOpen, setFabOpen] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
     const { getTotalItems } = useCartStore();
+
+    // Dynamically adjust profile path
+    const items = NAV_ITEMS.map(item =>
+        item.id === 'profile'
+            ? { ...item, path: user?.role === 'business' ? '/seller/dashboard' : '/dashboard' }
+            : item
+    );
 
     const isActive = (path) => path && location.pathname === path;
 
@@ -135,7 +144,7 @@ export default function BottomNav() {
                 }}
             >
                 <div className="flex items-end justify-around px-2 py-2 max-w-lg mx-auto h-[70px]">
-                    {NAV_ITEMS.map((item) => {
+                    {items.map((item) => {
                         if (item.id === 'fab') {
                             return (
                                 <button
