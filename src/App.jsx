@@ -35,12 +35,15 @@ import SellerNotifications from './seller/pages/SellerNotifications';
 
 gsap.registerPlugin(ScrollTrigger);
 
+import useAuthStore from './store/useAuthStore';
+
 function useIsSellerRoute() {
   const location = useLocation();
   return location.pathname.startsWith('/seller');
 }
 
 function AppInner({ subdomainShopId }) {
+  const { user } = useAuthStore();
   const { isIncognitoActive } = useFeatureStore();
   const [toastMessage, setToastMessage] = useState('');
   const isSellerRoute = useIsSellerRoute();
