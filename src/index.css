@@ -1,6 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=General+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
-@import url('https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,300,400&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -8,38 +6,118 @@
 
 @layer base {
   :root {
-    --background: #FFFFFF;
-    --foreground: #080808;
-    --primary: #4ADE80;
-    --secondary: #6B7280;
-    --card: #F0FDF4;
+    /* ── Hidden Hues Core Palette ── */
+    --color-silver: #D9D5D2;
+    --color-taupe: #8E867B;
+    --color-cream: #F0EADD;
+    --color-ivory: #F3F0E2;
+    --color-linen: #E8E0D6;
+    --color-dark: #3d3830;
+
+    /* ── Backgrounds ── */
+    --bg-page: #F3F0E2;
+    --bg-section-alt: #E8E0D6;
+    --bg-card: #F0EADD;
+    --bg-navbar: #F0EADD;
+    --bg-footer: #D9D5D2;
+    --bg-input: #F3F0E2;
+    --bg-overlay: rgba(142, 134, 123, 0.15);
+
+    /* ── Buttons ── */
+    --bg-button-primary: #8E867B;
+    --bg-button-hover: #7a7268;
+
+    /* ── Text ── */
+    --text-primary: #3d3830;
+    --text-secondary: #8E867B;
+    --text-muted: #aba49c;
+    --text-on-primary: #F3F0E2;
+
+    /* ── Borders ── */
+    --border: #D9D5D2;
+    --border-light: #D9D5D2;
+    --border-medium: #c8c2bc;
+    --border-focus: #8E867B;
+
+    /* ── Accents ── */
+    --accent-primary: #8E867B;
+    --accent-light: #D9D5D2;
+    --accent-warm: #c4b9ab;
+
+    /* ── Status Colors (warm-toned) ── */
+    --success: #7a9e7e;
+    --success-bg: #eef2ee;
+    --error: #b5776e;
+    --error-bg: #f7efed;
+    --warning: #c4a882;
+    --warning-bg: #f7f0e6;
+    --info: #8a9eb5;
+    --info-bg: #eef1f5;
+
+    /* ── Shadows (taupe-based) ── */
+    --shadow-sm: 0 1px 4px rgba(142, 134, 123, 0.12);
+    --shadow-md: 0 4px 16px rgba(142, 134, 123, 0.16);
+    --shadow-lg: 0 8px 32px rgba(142, 134, 123, 0.20);
+    --shadow-xl: 0 16px 48px rgba(142, 134, 123, 0.24);
+
+    /* ── Legacy aliases for old components ── */
+    --primary: #8E867B;
+    --primary-dark: #7a7268;
+    --bg: #F3F0E2;
+    --bg-gray: #E8E0D6;
+    --bg-dark: #3d3830;
+    --accent-red: #b5776e;
+    --accent-yellow: #c4a882;
+    --background: #F3F0E2;
+    --foreground: #3d3830;
+    --card: #F0EADD;
   }
-  
+
   html {
     @apply antialiased scroll-smooth;
     font-family: 'Inter', sans-serif;
   }
-  
+
   body {
-    @apply bg-[var(--background)] text-[var(--foreground)] min-h-screen overflow-x-hidden;
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Custom text selection */
+  ::selection {
+    background: rgba(142, 134, 123, 0.25);
+    color: #3d3830;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #F3F0E2;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #D9D5D2;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #8E867B;
   }
 
   /* Custom Cursor override for non-touch devices */
   @media (pointer: fine) {
-    *, *::before, *::after {
+
+    *,
+    *::before,
+    *::after {
       cursor: none !important;
     }
-  }
-
-  /* Noise Overlay */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 9999;
-    opacity: 0.03;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
   }
 }
 
@@ -47,5 +125,142 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  /* Font families */
+  .font-heading {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  .font-body {
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Shadow utilities */
+  .shadow-akupy {
+    box-shadow: var(--shadow-md);
+  }
+
+  .shadow-hh-sm {
+    box-shadow: var(--shadow-sm);
+  }
+
+  .shadow-hh-md {
+    box-shadow: var(--shadow-md);
+  }
+
+  .shadow-hh-lg {
+    box-shadow: var(--shadow-lg);
+  }
+
+  .shadow-hh-xl {
+    box-shadow: var(--shadow-xl);
+  }
+
+  /* Glow utilities — Hidden Hues taupe glow */
+  .glow-taupe {
+    box-shadow: 0 0 20px rgba(142, 134, 123, 0.3), 0 0 40px rgba(142, 134, 123, 0.1);
+  }
+
+  /* Remove old green/violet glow names but keep as taupe so nothing breaks */
+  .glow-mint {
+    box-shadow: 0 0 20px rgba(142, 134, 123, 0.3);
+  }
+
+  .glow-violet {
+    box-shadow: 0 0 20px rgba(142, 134, 123, 0.2);
+  }
+
+  .glowing {
+    box-shadow: 0 0 20px rgba(142, 134, 123, 0.3);
+  }
 }
 
+/* ── Keyframe Animations ── */
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 6px rgba(142, 134, 123, 0.6);
+  }
+
+  50% {
+    box-shadow: 0 0 20px rgba(142, 134, 123, 1), 0 0 40px rgba(142, 134, 123, 0.4);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.35s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+/* ── Hide scrollbar for horizontal scroll elements ── */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

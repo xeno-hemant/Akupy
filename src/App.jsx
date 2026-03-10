@@ -3,6 +3,7 @@ import Lenis from '@studio-freight/lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import useFeatureStore from './store/useFeatureStore';
 
 import Gateway from './pages/Gateway';
 import ShopHome from './pages/ShopHome';
@@ -12,24 +13,38 @@ import BusinessProfile from './pages/BusinessProfile';
 import SellLanding from './pages/SellLanding';
 import Navbar from './components/Navbar';
 import CustomCursor from './components/CustomCursor';
+import TryOnOnboardingModal from './components/tryon/TryOnOnboardingModal';
 import ShopSubdomain from './pages/ShopSubdomain';
 import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
+import TryOnGalleryPage from './pages/TryOnGalleryPage';
+import ProductDetails from './pages/ProductDetails';
 
 gsap.registerPlugin(ScrollTrigger);
 
 function App() {
   const [subdomainShopId, setSubdomainShopId] = useState(null);
+  const { isIncognitoActive } = useFeatureStore();
+  const [toastMessage, setToastMessage] = useState('');
+
+  useEffect(() => {
+    const handleToast = (e) => {
+      setToastMessage(e.detail.message);
+      setTimeout(() => setToastMessage(''), 3000);
+    };
+    window.addEventListener('incognito-toast', handleToast);
+    return () => window.removeEventListener('incognito-toast', handleToast);
+  }, []);
 
   // Subdomain Detection Logic
   useEffect(() => {
     const hostname = window.location.hostname;
     let extracted = null;
-    
+
     // Check local dev e.g. zudio.localhost
     if (hostname.includes('localhost') && hostname !== 'localhost') {
       extracted = hostname.split('.')[0];
-    } 
+    }
     // Check production e.g. zudio.akupy.in
     else if (hostname.includes('akupy.in')) {
       const parts = hostname.split('.');
@@ -37,7 +52,7 @@ function App() {
         extracted = parts[0];
       }
     }
-    
+
     if (extracted) {
       setSubdomainShopId(extracted);
     }
@@ -72,7 +87,23 @@ function App() {
   return (
     <Router>
       <CustomCursor />
-      <main className="w-full bg-background min-h-screen relative pt-20">
+      <main className="w-full min-h-screen relative transition-colors duration-500" style={{ background: isIncognitoActive ? '#2e2a25' : '#F3F0E2' }}>
+
+        {/* Global Incognito Vignette */}
+        {isIncognitoActive && (
+          <div className="fixed inset-0 pointer-events-none z-[9990] opacity-100 transition-opacity duration-1000"
+            style={{ boxShadow: 'inset 0 0 150px rgba(61,56,48,0.4)' }}></div>
+        )}
+
+        <TryOnOnboardingModal />
+
+        {/* Global Toast */}
+        {toastMessage && (
+          <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[10000] bg-violet-900/95 text-violet-100 px-6 py-3 rounded-full text-sm font-semibold border border-violet-500/30 shadow-[0_0_30px_rgba(124,92,252,0.3)] animate-fade-in flex items-center gap-3 backdrop-blur-md">
+            <span className="text-xl">🔒</span> {toastMessage}
+          </div>
+        )}
+
         <Navbar />
         {subdomainShopId ? (
           <ShopSubdomain shopId={subdomainShopId} />
@@ -86,6 +117,8 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/wardrobe" element={<TryOnGalleryPage />} />
+            <Route path="/product/:productId" element={<ProductDetails />} />
             <Route path="/:shopId" element={<ShopSubdomain />} />
           </Routes>
         )}

@@ -48,7 +48,7 @@ export default function ShopSubdomain({ shopId: propShopId }) {
       <div className="min-h-screen flex flex-col items-center justify-center">
         <h1 className="text-4xl font-bold mb-4">Shop Not Found</h1>
         <p className="text-gray-500">The shop <strong>{shopId}</strong> does not exist.</p>
-        <a href="https://akupy.in" className="mt-6 text-primary hover:underline">Return to Akupy</a>
+        <a href="https://akupy.in" className="mt-6 hover:underline" style={{ color: '#8E867B' }}>Return to Akupy</a>
       </div>
     );
   }
@@ -56,13 +56,13 @@ export default function ShopSubdomain({ shopId: propShopId }) {
   return (
     <div className="min-h-screen bg-white">
       {/* Dynamic Header specific to this shop */}
-      <header className={`w-full ${isIncognitoActive ? 'bg-black text-white' : 'bg-[#080808] text-white'} py-10 md:py-16 px-6 text-center`}>
+      <header className={`w-full ${isIncognitoActive ? 'bg-[#3d3830] text-[#F3F0E2]' : 'bg-[#3d3830] text-[#F3F0E2]'} py-10 md:py-16 px-6 text-center`}>
         <h1 className="text-3xl md:text-5xl font-heading font-bold mb-4">
           {isIncognitoActive ? 'Anonymous Store' : business.name}
         </h1>
         <p className="text-gray-400 text-sm md:text-base max-w-xl mx-auto">
-          {isIncognitoActive 
-            ? 'Store details are hidden while browsing in Incognito mode.' 
+          {isIncognitoActive
+            ? 'Store details are hidden while browsing in Incognito mode.'
             : (business.description || 'Welcome to our official Akupy store.')}
         </p>
         {!isIncognitoActive && business.category && (
@@ -90,13 +90,16 @@ export default function ShopSubdomain({ shopId: propShopId }) {
                 <div className="p-5 flex flex-col flex-grow">
                   <h3 className="text-lg font-bold mb-1 border-b pb-1">{product.name}</h3>
                   <p className="text-sm text-gray-500 mb-4 line-clamp-2">{product.description}</p>
-                  
+
                   <div className="flex items-center justify-between mt-auto">
                     <span className="text-xl font-bold">${Number(product.price).toFixed(2)}</span>
-                    <button 
+                    <button
                       onClick={() => addToCart(product, business)}
                       disabled={!product.inStock}
-                      className="bg-primary/10 text-primary px-4 py-2 rounded-full font-medium hover:bg-primary hover:text-black transition-colors disabled:opacity-50"
+                      className="px-4 py-2 rounded-full font-medium transition-colors disabled:opacity-50"
+                      style={{ background: 'rgba(142,134,123,0.1)', color: '#8E867B' }}
+                      onMouseEnter={e => { e.currentTarget.style.background = '#8E867B'; e.currentTarget.style.color = '#F3F0E2'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'rgba(142,134,123,0.1)'; e.currentTarget.style.color = '#8E867B'; }}
                     >
                       Buy
                     </button>
@@ -111,7 +114,7 @@ export default function ShopSubdomain({ shopId: propShopId }) {
           </div>
         )}
       </main>
-      
+
       <footer className="w-full text-center py-6 text-sm text-gray-400 border-t">
         Powered by Akupy Infrastructure
       </footer>

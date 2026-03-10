@@ -1,98 +1,116 @@
-import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
-
+import { useRef } from 'react';
 import { Globe, ShieldCheck, View } from 'lucide-react';
+
+// Hidden Hues palette mapped to accents
+const HH = {
+  taupe: '#8E867B', // Replaces green
+  amber: '#c4a882', // Replaces yellow
+  dark: '#3d3830', // New dark background
+  muted: '#aba49c', // Replaces purple/blue accents
+  terra: '#b5776e', // Additional accent
+};
 
 const protocols = [
   {
     num: "01",
     title: "Global Explore",
     desc: "Discover businesses half a world away as easily as the coffee shop next door.",
-    visual: () => (
-      <div className="w-full h-full flex flex-col items-center justify-center relative bg-gray-50/50 rounded-full border border-gray-100 overflow-hidden group">
-        <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-        <Globe className="w-32 h-32 text-gray-300 group-hover:text-primary transition-colors duration-700 stroke-[1px]" />
-        <div className="absolute top-1/2 left-1/2 w-full h-[1px] bg-primary/20 -translate-x-1/2 -translate-y-1/2 rotate-45 group-hover:rotate-90 transition-transform duration-[2000ms] ease-out"></div>
-      </div>
-    )
+    accent: HH.taupe,
+    tagBg: 'rgba(142,134,123,0.12)',
+    tagBorder: 'rgba(142,134,123,0.3)',
+    tagColor: HH.taupe,
+    glow: 'rgba(142,134,123,0.08)',
+    Icon: Globe
   },
   {
     num: "02",
     title: "Privacy First",
     desc: "Incognito search means your preferences are yours. Browse anonymously, decide freely.",
-    visual: () => (
-      <div className="w-full h-full flex items-center justify-center relative bg-[#080808] rounded-full border border-black/10 overflow-hidden group shadow-2xl">
-         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-         <ShieldCheck className="w-32 h-32 text-gray-600 group-hover:text-white transition-colors duration-700 stroke-[1px] relative z-10" />
-         <div className="absolute top-0 left-0 w-full h-[2px] bg-primary opacity-0 group-hover:opacity-50 shadow-[0_0_15px_var(--primary)] animate-[scan_3s_ease-in-out_infinite]" />
-         <style>{`
-          @keyframes scan {
-            0%, 100% { top: 0%; opacity: 0; }
-            10%, 90% { opacity: 0.8; }
-            50% { top: 100%; }
-          }
-         `}</style>
-      </div>
-    )
+    accent: HH.muted,
+    tagBg: 'rgba(171,164,156,0.12)',
+    tagBorder: 'rgba(171,164,156,0.3)',
+    tagColor: HH.muted,
+    glow: 'rgba(171,164,156,0.08)',
+    Icon: ShieldCheck
   },
   {
     num: "03",
     title: "Immersive Previews",
     desc: "Try-On Mode transforms how you buy. See it in your space before taking the next step.",
-    visual: () => (
-      <div className="w-full h-full flex flex-col items-center justify-center relative bg-white rounded-full shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-gray-100 overflow-hidden group">
-         <div className="absolute inset-0 border-[20px] border-gray-50 rounded-full scale-110 group-hover:scale-100 transition-transform duration-1000 ease-out"></div>
-         <View className="w-32 h-32 text-gray-200 group-hover:text-[#080808] transition-colors duration-700 stroke-[1px] relative z-10" />
-      </div>
-    )
+    accent: HH.amber,
+    tagBg: 'rgba(196,168,130,0.12)',
+    tagBorder: 'rgba(196,168,130,0.3)',
+    tagColor: HH.amber,
+    glow: 'rgba(196,168,130,0.08)',
+    Icon: View
   }
 ];
 
 export default function PhilosophyStack() {
   return (
-    <section className="bg-[#F0FDF4] relative pb-16 md:pb-32">
-      <div className="max-w-7xl mx-auto px-4 md:px-12 pt-16 md:pt-32 mb-8 md:mb-12">
-        <h2 className="text-3xl md:text-5xl font-heading font-black tracking-tighter text-[#080808]">Our Protocols.</h2>
-        <p className="text-xl text-gray-600 font-medium mt-4 max-w-xl">The foundational pillars that guarantee a seamless, private, and boundless shopping experience.</p>
+    <section style={{ background: HH.dark }} className="relative pb-16 md:pb-28">
+      <div className="max-w-7xl mx-auto px-4 md:px-12 pt-16 md:pt-28 mb-8 md:mb-12">
+        <h2 className="text-3xl md:text-5xl font-heading font-black tracking-tighter text-[#F3F0E2]">Our Protocols.</h2>
+        <p className="text-lg text-[#aba49c] font-body mt-4 max-w-xl">The foundational pillars that guarantee a seamless, private, and boundless shopping experience.</p>
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 md:px-12 pb-12 md:pb-24">
-        {protocols.map((card, idx) => {
-          return (
-            <div 
-              key={idx} 
-              className="sticky w-full origin-top mb-12 md:mb-24 last:mb-0"
-              style={{ 
-                top: `calc(15vh + ${idx * 30}px)`,
-                zIndex: idx,
-                height: '70vh',
-                minHeight: '500px'
+      <div className="relative max-w-7xl mx-auto px-4 md:px-12 pb-8 md:pb-20">
+        {protocols.map((card, idx) => (
+          <div
+            key={idx}
+            className="sticky w-full origin-top mb-10 md:mb-20 last:mb-0"
+            style={{
+              top: `calc(15vh + ${idx * 30}px)`,
+              zIndex: idx,
+              height: '70vh',
+              minHeight: '480px'
+            }}
+          >
+            <div
+              className="w-full flex flex-col md:flex-row overflow-hidden transition-all duration-500"
+              style={{
+                background: '#2e2a25',
+                border: '1px solid rgba(142,134,123,0.2)',
+                borderRadius: '2rem',
+                boxShadow: `0 -10px 40px ${card.glow}`
               }}
             >
-              <div className="w-full flex flex-col md:flex-row shadow-[0_-15px_40px_rgba(0,0,0,0.08)] bg-white rounded-[2rem] md:rounded-[3rem] border border-black/10 overflow-hidden transition-all duration-500">
-                
-                <div className="flex-1 p-6 md:p-20 flex flex-col justify-center bg-white order-2 md:order-1">
-                  <span className="font-mono text-primary font-bold tracking-widest uppercase mb-4 md:mb-6 block text-xs md:text-sm bg-green-50 w-max px-3 md:px-4 py-1.5 md:py-2 rounded-full border border-green-100">Protocol_{card.num}</span>
-                  <h2 className="text-3xl md:text-6xl font-heading font-bold tracking-tight mb-3 md:mb-6 text-[#080808]">{card.title}</h2>
-                  <p className="text-base md:text-xl text-gray-600 font-body leading-relaxed max-w-md">
-                    {card.desc}
-                  </p>
-                </div>
+              {/* Text */}
+              <div className="flex-1 p-6 md:p-16 flex flex-col justify-center order-2 md:order-1">
+                <span
+                  className="font-mono text-xs uppercase tracking-[0.12em] mb-4 md:mb-6 block w-max px-4 py-2 rounded-full font-bold"
+                  style={{ background: card.tagBg, border: `1px solid ${card.tagBorder}`, color: card.tagColor }}
+                >
+                  Protocol_{card.num}
+                </span>
+                <h2 className="text-3xl md:text-5xl font-heading font-bold tracking-tight mb-4 md:mb-6 text-[#F3F0E2]">{card.title}</h2>
+                <p className="text-base md:text-lg text-[#aba49c] font-body leading-relaxed max-w-md">
+                  {card.desc}
+                </p>
+              </div>
 
-                <div className="w-full md:flex-1 h-48 md:h-full flex items-center justify-center bg-gray-50 p-6 md:p-16 border-b md:border-b-0 md:border-l border-black/5 relative overflow-hidden group order-1 md:order-2">
-                  <div className="absolute inset-0 bg-gradient-to-br from-green-50/50 to-transparent pointer-events-none" />
-                  <div className="w-full max-w-[120px] md:max-w-sm aspect-square relative z-10 transition-transform duration-700 group-hover:scale-105 flex items-center justify-center">
-                    {card.visual()}
-                  </div>
+              {/* Visual */}
+              <div
+                className="w-full md:flex-1 h-44 md:h-full flex items-center justify-center p-8 md:p-16 relative overflow-hidden order-1 md:order-2"
+                style={{ borderLeft: 'none', borderBottom: '1px solid rgba(142,134,123,0.1)' }}
+              >
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{ background: `radial-gradient(circle at 70% 50%, ${card.accent}15, transparent 70%)` }}
+                />
+                <div
+                  className="w-36 h-36 md:w-56 md:h-56 rounded-full flex items-center justify-center relative animate-float"
+                  style={{
+                    background: `${card.accent}15`,
+                    border: `1.5px solid ${card.accent}30`
+                  }}
+                >
+                  <card.Icon className="w-16 h-16 md:w-24 md:h-24 stroke-[1px]" style={{ color: card.accent, filter: `drop-shadow(0 0 16px ${card.accent}60)` }} />
                 </div>
-
               </div>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
     </section>
   );

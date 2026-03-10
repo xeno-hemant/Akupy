@@ -14,40 +14,36 @@ import TryOnViewer from '../components/TryOnViewer';
 export default function ShopHome() {
   const [activeFeatureModal, setActiveFeatureModal] = useState(null);
   const [isTryOnOpen, setIsTryOnOpen] = useState(false);
-  
+
   useEffect(() => {
-    gsap.fromTo('.shop-header-element', 
+    gsap.fromTo('.shop-header-element',
       { opacity: 0, y: 20 },
       { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: "power2.out" }
     );
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#F0FDF4]">
+    <div className="min-h-screen" style={{ background: '#3d3830' }}>
       {/* Hero Section */}
       <Hero />
       <SocialProof />
 
       {/* Main Product Feed */}
-      <div className="pt-8">
-        <HomeFeed />
-      </div>
+      <HomeFeed />
 
-      <div className="mt-20">
-        <Features 
-          onGlobeShopClick={() => setActiveFeatureModal('globe')}
-          onIncognitoClick={() => setActiveFeatureModal('incognito')}
-          onTryOnClick={() => setActiveFeatureModal('tryon')}
-        />
-      </div>
+      {/* Purpose-Built Tools */}
+      <Features
+        onGlobeShopClick={() => setActiveFeatureModal('globe')}
+        onIncognitoClick={() => setActiveFeatureModal('incognito')}
+        onTryOnClick={() => setActiveFeatureModal('tryon')}
+      />
 
-      <div className="mt-20 bg-white border-y border-black/5">
-        <HowItWorks />
-      </div>
+      {/* How It Works */}
+      <HowItWorks />
 
-      <FeatureActionModal 
-        isOpen={!!activeFeatureModal} 
-        onClose={() => setActiveFeatureModal(null)} 
+      <FeatureActionModal
+        isOpen={!!activeFeatureModal}
+        onClose={() => setActiveFeatureModal(null)}
         feature={activeFeatureModal}
         onTryOnSuccess={() => {
           setActiveFeatureModal(null);
@@ -55,9 +51,9 @@ export default function ShopHome() {
         }}
       />
 
-      <TryOnViewer 
-        isOpen={isTryOnOpen} 
-        onClose={() => setIsTryOnOpen(false)} 
+      <TryOnViewer
+        isOpen={isTryOnOpen}
+        onClose={() => setIsTryOnOpen(false)}
       />
 
       {/* Protocols & Auth & Footer */}

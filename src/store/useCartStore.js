@@ -5,31 +5,37 @@ const useCartStore = create(
   persist(
     (set, get) => ({
       cart: [],
-      addToCart: (product, business) => {
+      addToCart: (product) => {
         set((state) => {
-          // Use product._id or a fallback to handle items that might not have a formal ID yet (e.g., demo items without _id)
-          const productId = product._id || product.name;
-          const existingItem = state.cart.find((item) => (item._id || item.name) === productId);
-          
-          if (existingItem) {
-            return {
-              cart: state.cart.map((item) =>
-                (item._id || item.name) === productId ? { ...item, quantity: item.quantity + 1 } : item
-              ),
-            };
+          // Compound ID using base ID + variants to treat different sizes as distinct items
+          const variantId = `${product._id || product.id}-${product.selectedColor || ''}-${product.selectedSize || ''}`;
+          const existingItemIndex = state.cart.findIndex(item => item.variantId === variantId);
+
+          if (existingItemIndex > -1) {
+            const newCart = [...state.cart];
+            newCart[existingItemIndex].quantity += (product.quantity || 1);
+            return { cart: newCart };
           }
-          return { cart: [...state.cart, { ...product, businessId: business._id, businessName: business.name, quantity: 1, _id: productId }] };
+
+          return {
+            cart: [...state.cart, {
+              ...product,
+              variantId,
+              shopName: product.shopId?.name || product.businessName || 'Unknown Shop',
+              quantity: product.quantity || 1
+            }]
+          };
         });
       },
-      removeFromCart: (productId) => {
+      removeFromCart: (variantId) => {
         set((state) => ({
-          cart: state.cart.filter((item) => (item._id || item.name) !== productId),
+          cart: state.cart.filter((item) => item.variantId !== variantId),
         }));
       },
-      updateQuantity: (productId, quantity) => {
+      updateQuantity: (variantId, quantity) => {
         set((state) => ({
           cart: state.cart.map((item) =>
-            (item._id || item.name) === productId ? { ...item, quantity: Math.max(1, quantity) } : item
+            item.variantId === variantId ? { ...item, quantity: Math.max(1, quantity) } : item
           ),
         }));
       },

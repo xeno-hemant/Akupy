@@ -16,8 +16,8 @@ const mockPlaces = [
 ];
 
 function EarthMap({ onPinClick }) {
-  const radius = 2.5; 
-  
+  const radius = 2.5;
+
   const getCoordinates = (lat, lng) => {
     const phi = (90 - lat) * (Math.PI / 180);
     const theta = (lng + 180) * (Math.PI / 180);
@@ -33,7 +33,7 @@ function EarthMap({ onPinClick }) {
         <sphereGeometry args={[radius, 64, 64]} />
         <meshStandardMaterial color="#080808" roughness={0.7} metalness={0.2} />
       </mesh>
-      
+
       <mesh scale={1.02}>
         <sphereGeometry args={[radius, 32, 32]} />
         <meshBasicMaterial color="#ffffff" wireframe transparent opacity={0.05} />
@@ -44,19 +44,19 @@ function EarthMap({ onPinClick }) {
         return (
           <group key={place.id} position={[x, y, z]}>
             <Html center zIndexRange={[100, 0]}>
-              <div 
+              <div
                 className="group relative flex flex-col items-center cursor-pointer transition-transform duration-300 hover:scale-125 hover:-translate-y-2"
                 onClick={() => onPinClick(place)}
               >
                 <div className="relative">
-                  <MapPin className="text-primary w-8 h-8 filter drop-shadow-[0_0_12px_rgba(74,222,128,0.8)] fill-black/50" />
+                  <MapPin className="w-8 h-8 filter drop-shadow-[0_0_12px_rgba(142,134,123,0.8)] fill-black/50" style={{ color: '#8E867B' }} />
                   <div className="absolute inset-0 flex items-center justify-center -mt-1">
                     <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
                   </div>
                 </div>
-                
+
                 <div className="absolute top-full mt-2 bg-white/10 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity border border-white/20 shadow-xl flex items-center gap-2">
-                  {place.name} <span className="bg-primary/20 text-primary px-1.5 rounded text-[10px]">{place.shops} stores</span>
+                  {place.name} <span className="px-1.5 rounded text-[10px]" style={{ background: 'rgba(142,134,123,0.2)', color: '#8E867B' }}>{place.shops} stores</span>
                 </div>
               </div>
             </Html>
@@ -72,7 +72,7 @@ export default function GlobalMapViewer({ isOpen, onClose }) {
   const [selectedPlace, setSelectedPlace] = useState(null);
   const { setGlobeShop } = useFeatureStore();
   const navigate = useNavigate();
-  
+
   if (!isOpen) return null;
 
   const handleSearch = (e) => {
@@ -97,14 +97,14 @@ export default function GlobalMapViewer({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4">
-      <div 
+      <div
         className="absolute inset-0 bg-black/90 backdrop-blur-md"
         onClick={onClose}
       />
-      
+
       <div className="relative w-full max-w-6xl h-[85vh] bg-[#050505] rounded-[2rem] overflow-hidden shadow-2xl border border-white/10 flex flex-col lg:flex-row">
-        
-        <button 
+
+        <button
           onClick={onClose}
           className="absolute top-6 right-6 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors z-20 backdrop-blur-md"
         >
@@ -117,12 +117,15 @@ export default function GlobalMapViewer({ isOpen, onClose }) {
           <div className="absolute top-6 left-6 right-20 lg:right-6 z-10 lg:w-80">
             <form onSubmit={handleSearch} className="relative flex items-center shadow-2xl">
               <SearchIcon className="absolute left-4 w-5 h-5 text-gray-400" />
-              <input 
-                type="text" 
+              <input
+                type="text"
                 placeholder="Search global destinations..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white/10 backdrop-blur-xl border border-white/20 text-white placeholder-gray-400 focus:bg-white/20 focus:border-primary/50 text-sm rounded-2xl py-3 pl-12 pr-4 outline-none transition-all shadow-lg"
+                className="w-full bg-white/10 backdrop-blur-xl border border-white/20 text-white placeholder-gray-400 focus:bg-white/20 text-sm rounded-2xl py-3 pl-12 pr-4 outline-none transition-all shadow-lg"
+                style={{ '--focus-border': 'rgba(142,134,123,0.5)' }}
+                onFocus={e => e.currentTarget.style.borderColor = 'rgba(142,134,123,0.5)'}
+                onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'}
               />
             </form>
           </div>
@@ -131,12 +134,12 @@ export default function GlobalMapViewer({ isOpen, onClose }) {
             <ambientLight intensity={0.4} />
             <directionalLight position={[10, 10, 5]} intensity={1.5} />
             <pointLight position={[-10, -10, -10]} intensity={0.5} />
-            
+
             <Suspense fallback={null}>
               <EarthMap onPinClick={setSelectedPlace} />
             </Suspense>
-            
-            <OrbitControls 
+
+            <OrbitControls
               enablePan={false}
               enableZoom={true}
               minDistance={3.5}
@@ -145,7 +148,7 @@ export default function GlobalMapViewer({ isOpen, onClose }) {
               autoRotateSpeed={0.5}
             />
           </Canvas>
-          
+
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 text-white/50 text-xs font-mono tracking-widest pointer-events-none">
             DRAG TO ROTATE • SCROLL TO ZOOM
           </div>
@@ -155,15 +158,15 @@ export default function GlobalMapViewer({ isOpen, onClose }) {
         <div className={`w-full lg:w-96 bg-white flex flex-col transition-all duration-500 transform ${selectedPlace ? 'translate-x-0' : 'translate-y-full lg:translate-y-0 lg:translate-x-full absolute lg:relative h-auto left-0 bottom-0 lg:left-auto lg:bottom-auto z-20 shadow-[0_-20px_40px_rgba(0,0,0,0.5)] lg:shadow-none max-h-[50vh] lg:max-h-full overflow-y-auto'}`}>
           {selectedPlace && (
             <div className="p-8 flex flex-col h-full animate-fade-in">
-              <div className="flex items-center gap-3 text-primary mb-4">
+              <div className="flex items-center gap-3 mb-4" style={{ color: '#8E867B' }}>
                 <Navigation className="w-5 h-5" />
                 <span className="text-sm font-bold tracking-wider uppercase">Destination Locked</span>
               </div>
-              
+
               <h2 className="text-4xl font-heading font-black text-[#080808] mb-2 leading-tight">
                 {selectedPlace.name}
               </h2>
-              
+
               <div className="flex items-center gap-2 mb-8">
                 <Store className="w-4 h-4 text-gray-400" />
                 <span className="text-gray-600 font-medium">{selectedPlace.shops} verified global stores found</span>
@@ -178,11 +181,14 @@ export default function GlobalMapViewer({ isOpen, onClose }) {
                   </div>
                 ))}
               </div>
-              
+
               <div className="mt-8 pt-6 border-t border-gray-100">
-                <button 
+                <button
                   onClick={handleExploreShop}
-                  className="w-full bg-[#080808] text-white py-4 rounded-xl font-bold hover:bg-primary transition-colors active:scale-95 flex justify-center items-center gap-2 shadow-xl hover:shadow-primary/30"
+                  className="w-full py-4 rounded-xl font-bold transition-colors active:scale-95 flex justify-center items-center gap-2 shadow-xl"
+                  style={{ background: '#3d3830', color: '#F3F0E2' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#8E867B'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = '#3d3830'; }}
                 >
                   <SearchIcon className="w-5 h-5" /> Explore {selectedPlace.name.split(',')[0]}
                 </button>

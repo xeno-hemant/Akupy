@@ -19,47 +19,33 @@ export default function SocialProof() {
   ];
 
   return (
-    <div className="w-full py-8 md:py-20 overflow-hidden bg-background border-y border-foreground/5 relative">
-      {/* Gradient Fades */}
-      <div 
-        className="absolute inset-y-0 left-0 w-32 md:w-64 z-10 pointer-events-none" 
-        style={{ backgroundImage: 'linear-gradient(to right, var(--background), transparent)' }} 
-      />
-      <div 
-        className="absolute inset-y-0 right-0 w-32 md:w-64 z-10 pointer-events-none" 
-        style={{ backgroundImage: 'linear-gradient(to left, var(--background), transparent)' }} 
-      />
+    <div className="w-full py-10 md:py-16 overflow-hidden relative" style={{ background: '#2e2a25', borderTop: '1px solid rgba(61,56,48,0.5)', borderBottom: '1px solid rgba(61,56,48,0.5)' }}>
+      {/* Gradient fades */}
+      <div className="absolute inset-y-0 left-0 w-24 md:w-48 z-10 pointer-events-none"
+        style={{ backgroundImage: 'linear-gradient(to right, #2e2a25, transparent)' }} />
+      <div className="absolute inset-y-0 right-0 w-24 md:w-48 z-10 pointer-events-none"
+        style={{ backgroundImage: 'linear-gradient(to left, #2e2a25, transparent)' }} />
 
-      <div className="flex flex-col gap-6 md:gap-12 w-full max-w-[2000px] mx-auto">
-        <div className="w-full inline-flex flex-nowrap overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]">
-          <ul className="flex items-center justify-center md:justify-start [&_li]:mx-8 animate-scroll whitespace-nowrap">
-            {categories.map((item, idx) => (
-              <li key={idx} className="text-xl md:text-3xl font-heading font-medium text-secondary/60">
+      <div className="flex flex-col gap-6 md:gap-10 w-full">
+        {/* Category ticker */}
+        <div className="w-full inline-flex flex-nowrap overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_96px,_black_calc(100%-96px),transparent_100%)]">
+          <ul className="flex items-center [&_li]:mx-8 animate-scroll whitespace-nowrap">
+            {[...categories, ...categories].map((item, idx) => (
+              <li key={idx} className="text-xl md:text-2xl font-heading font-medium text-[#8b8ba0]/60">
                 {item}
-              </li>
-            ))}
-            {categories.map((item, idx) => (
-              <li key={`dup-${idx}`} className="text-xl md:text-3xl font-heading font-medium text-secondary/60">
-                {item}
+                <span className="ml-8 animate-pulse" style={{ color: '#8E867B' }}>·</span>
               </li>
             ))}
           </ul>
         </div>
-        
-        <div className="w-full inline-flex flex-nowrap overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]">
-          <ul className="flex items-center justify-center md:justify-start [&_li]:mx-12 animate-scroll whitespace-nowrap" style={{ animationDirection: 'reverse' }}>
-             {stats.map((item, idx) => (
-              <li key={idx} className="flex items-center gap-4">
-                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                <span className="text-sm md:text-lg font-mono text-foreground/80 lowercase">
-                  {item}
-                </span>
-              </li>
-            ))}
-            {stats.map((item, idx) => (
-              <li key={`dup-${idx}`} className="flex items-center gap-4">
-                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                <span className="text-sm md:text-lg font-mono text-foreground/80 lowercase">
+
+        {/* Stats ticker (reverse) */}
+        <div className="w-full inline-flex flex-nowrap overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_96px,_black_calc(100%-96px),transparent_100%)]">
+          <ul className="flex items-center [&_li]:mx-10 animate-scroll whitespace-nowrap" style={{ animationDirection: 'reverse' }}>
+            {[...stats, ...stats].map((item, idx) => (
+              <li key={idx} className="flex items-center gap-3">
+                <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#8E867B', boxShadow: '0 0 6px rgba(142,134,123,0.6)' }} />
+                <span className="text-sm md:text-base font-mono text-white/60 lowercase tracking-wide">
                   {item}
                 </span>
               </li>

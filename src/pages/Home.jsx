@@ -1,15 +1,17 @@
-import Hero from '../components/Hero';
+import HeroBanner from '../components/HeroBanner';
+import CategoryGrid from '../components/CategoryGrid';
+import ShopDiscovery from '../components/ShopDiscovery';
 import SocialProof from '../components/SocialProof';
-import PhilosophyStack from '../components/PhilosophyStack';
 import FinalCta from '../components/FinalCta';
 import Footer from '../components/Footer';
 
 export default function Home() {
   return (
     <>
-      <Hero />
+      <HeroBanner />
+      <CategoryGrid />
+      <ShopDiscovery />
       <SocialProof />
-      <PhilosophyStack />
       <FinalCta />
       <Footer />
     </>

@@ -1,138 +1,273 @@
-import { ShoppingCart, Trash2, Plus, Minus, ArrowLeft, ShieldCheck, Tag } from 'lucide-react';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Trash2, ShoppingBag, ArrowRight, ShieldCheck, Tag, Plus, Minus } from 'lucide-react';
 import useCartStore from '../store/useCartStore';
-import { useNavigate } from 'react-router-dom';
+import useFeatureStore from '../store/useFeatureStore';
+
+// Hidden Hues tokens
+const HH = {
+  ivory: '#F3F0E2',
+  cream: '#F0EADD',
+  linen: '#E8E0D6',
+  silver: '#D9D5D2',
+  taupe: '#8E867B',
+  dark: '#3d3830',
+  muted: '#aba49c',
+};
 
 export default function CartPage() {
-  const { cart, removeFromCart, updateQuantity, getTotalItems, getTotalPrice } = useCartStore();
+  const { cart, removeFromCart, updateQuantity, getTotalPrice, getTotalItems } = useCartStore();
+  const { isIncognitoActive } = useFeatureStore();
   const navigate = useNavigate();
 
+  const [couponCode, setCouponCode] = useState('');
+  const [couponApplied, setCouponApplied] = useState(false);
+
+  const subtotal = getTotalPrice();
+  const discount = couponApplied ? Math.floor(subtotal * 0.1) : 0;
+  const platformFee = 5;
+  const delivery = subtotal > 499 ? 0 : 49;
+  const cartTotal = subtotal - discount + platformFee + delivery;
+
+  const incog = isIncognitoActive;
+  const pageBg = incog ? HH.dark : HH.ivory;
+  const cardBg = incog ? '#2e2a25' : HH.cream;
+  const cardBdr = incog ? '#8E867B' : HH.silver;
+  const textMain = incog ? HH.ivory : HH.dark;
+  const textSub = incog ? HH.silver : HH.taupe;
+
+  const handleApplyCoupon = (e) => {
+    e.preventDefault();
+    if (couponCode.trim().toUpperCase() === 'AKUPY10') setCouponApplied(true);
+  };
+
+  if (cart.length === 0) {
+    return (
+      <div className="min-h-screen pt-32 pb-20 flex flex-col items-center justify-center" style={{ background: pageBg }}>
+        <div className="w-24 h-24 rounded-full flex items-center justify-center mb-6" style={{ background: HH.linen }}>
+          <ShoppingBag className="w-10 h-10" style={{ color: HH.taupe }} />
+        </div>
+        <h2 className="text-3xl font-heading font-black mb-3" style={{ color: textMain }}>Your Cart is Empty</h2>
+        <p className="mb-8" style={{ color: textSub }}>Looks like you haven't added anything yet.</p>
+        <Link
+          to="/discover"
+          className="px-8 py-4 rounded-full font-bold transition-transform shadow-sm active:scale-95"
+          style={{ background: HH.taupe, color: HH.ivory }}
+          onMouseEnter={e => e.currentTarget.style.background = '#7a7268'}
+          onMouseLeave={e => e.currentTarget.style.background = HH.taupe}
+        >
+          Start Shopping
+        </Link>
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-12 py-12 pb-24 min-h-[80vh] flex flex-col pt-32">
-       <button 
-         onClick={() => navigate(-1)}
-         className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors w-fit mb-8 font-semibold"
-       >
-         <ArrowLeft className="w-4 h-4" /> Continue Shopping
-       </button>
+    <div className="min-h-screen pb-24" style={{ background: pageBg, paddingTop: '120px' }}>
+      <div className="max-w-[1200px] mx-auto px-4 md:px-6">
 
-      <div className="flex flex-col lg:flex-row gap-12">
-        
-        {/* Cart Items Section */}
-        <div className="flex-grow">
-          <div className="flex items-center justify-between mb-8 pb-4 border-b">
-             <h1 className="text-3xl font-heading font-black text-[#080808] flex items-center gap-3">
-               Shopping Cart
-               <span className="text-lg bg-gray-100 px-3 py-1 rounded-full text-gray-600 font-bold">{getTotalItems()} Items</span>
-             </h1>
-          </div>
-
-          {cart.length === 0 ? (
-            <div className="text-center text-gray-400 py-24 bg-gray-50 rounded-[2rem] border border-dashed border-gray-200">
-              <ShoppingCart className="w-20 h-20 mx-auto mb-6 text-gray-300" />
-              <h2 className="text-2xl font-bold text-gray-600 mb-2">Your cart is empty</h2>
-              <p className="mb-8">Discover amazing local products and add them to your cart.</p>
-              <button 
-                onClick={() => navigate('/discover')}
-                className="bg-[#080808] text-white px-8 py-4 rounded-xl font-bold hover:bg-primary hover:text-black transition-all"
-              >
-                Explore Shops
-              </button>
-            </div>
-          ) : (
-             <div className="space-y-6">
-               {cart.map((item) => (
-                 <div key={item._id || item.name} className="flex flex-col sm:flex-row gap-6 p-6 rounded-[2rem] border hover:shadow-lg transition-shadow bg-white items-center">
-                   <div className="w-full sm:w-32 sm:h-32 h-48 bg-gray-50 rounded-xl overflow-hidden flex-shrink-0">
-                     {item.imageUrl ? (
-                       <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
-                     ) : (
-                       <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">No Img</div>
-                     )}
-                   </div>
-                   
-                   <div className="flex flex-col flex-grow w-full">
-                     <div className="flex justify-between items-start mb-2">
-                       <div>
-                         <h4 className="font-bold text-[#080808] text-lg lg:text-xl">{item.name}</h4>
-                         <span className="text-sm text-gray-500 font-medium">Sold by {item.businessName}</span>
-                       </div>
-                       <button 
-                         onClick={() => removeFromCart(item._id || item.name)}
-                         className="text-red-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-full transition-colors flex-shrink-0"
-                         title="Remove item"
-                       >
-                         <Trash2 className="w-5 h-5" />
-                       </button>
-                     </div>
-                     
-                     <div className="mt-4 sm:mt-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 w-full">
-                       <span className="font-black text-2xl text-[#080808]">
-                         ${Number(item.price).toFixed(2)}
-                       </span>
-                       
-                       <div className="flex items-center gap-4 bg-gray-50 rounded-full px-2 py-1 border">
-                         <button 
-                           onClick={() => updateQuantity(item._id || item.name, item.quantity - 1)} 
-                           className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white hover:shadow-sm"
-                         >
-                           <Minus className="w-4 h-4" />
-                         </button>
-                         <span className="text-sm font-bold w-6 text-center">{item.quantity}</span>
-                         <button 
-                           onClick={() => updateQuantity(item._id || item.name, item.quantity + 1)} 
-                           className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white hover:shadow-sm"
-                         >
-                           <Plus className="w-4 h-4" />
-                         </button>
-                       </div>
-                     </div>
-                   </div>
-                 </div>
-               ))}
-             </div>
-          )}
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl md:text-4xl font-heading font-black" style={{ color: textMain }}>Shopping Cart</h1>
+          <span className="text-lg font-bold" style={{ color: textSub }}>{getTotalItems()} Items</span>
         </div>
 
-        {/* Order Summary Section */}
-        {cart.length > 0 && (
-          <div className="w-full lg:w-[400px] flex-shrink-0">
-            <div className="bg-gray-50 rounded-[2rem] p-8 border hover:border-gray-300 transition-colors sticky top-28">
-              <h3 className="text-xl font-bold mb-6 text-[#080808]">Order Summary</h3>
-              
-              <div className="space-y-4 text-sm font-medium text-gray-600 mb-6 pb-6 border-b border-gray-200">
-                <div className="flex justify-between">
-                  <span>Subtotal ({getTotalItems()} items)</span>
-                  <span className="text-[#080808]">${getTotalPrice().toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-green-600">
-                  <span>Shipping</span>
-                  <span>Free</span>
-                </div>
-                <div className="flex justify-between text-gray-400">
-                  <span>Estimated Tax</span>
-                  <span>Calculated at checkout</span>
-                </div>
-              </div>
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
 
-              <div className="flex items-center justify-between mb-8">
-                <span className="text-lg font-bold text-[#080808]">Total</span>
-                <span className="text-3xl font-black text-[#080808]">${getTotalPrice().toFixed(2)}</span>
-              </div>
-
-              <button 
-                className="w-full bg-[#080808] text-white py-4 rounded-xl font-bold text-lg hover:bg-primary hover:text-black transition-all active:scale-95 flex justify-center items-center shadow-xl hover:shadow-primary/20 mb-4"
-                onClick={() => navigate('/checkout')}
+          {/* ITEMS LIST */}
+          <div className="flex-grow space-y-4">
+            {cart.map((item) => (
+              <div
+                key={item.variantId}
+                className="p-4 md:p-6 rounded-2xl md:rounded-3xl flex gap-4 md:gap-6 relative"
+                style={{ background: cardBg, border: `1px solid ${cardBdr}` }}
               >
-                Proceed to Checkout
+                {/* Image */}
+                <div className="w-24 h-24 md:w-28 md:h-28 rounded-xl overflow-hidden flex-shrink-0" style={{ background: HH.linen }}>
+                  <img
+                    src={item.images?.[0] || item.imageUrl || 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=400&q=80'}
+                    className="w-full h-full object-cover"
+                    alt={item.name}
+                  />
+                </div>
+
+                {/* Details */}
+                <div className="flex flex-col flex-grow min-w-0">
+                  <div className="flex justify-between items-start gap-4">
+                    <div className="min-w-0">
+                      <span className="text-xs font-bold block mb-0.5 truncate" style={{ color: textSub }}>
+                        {item.shopName || 'Akupy Store'}
+                      </span>
+                      <Link
+                        to={`/product/${item._id || item.id}`}
+                        className="text-sm md:text-base font-bold leading-tight line-clamp-2 transition-colors"
+                        style={{ color: textMain }}
+                      >
+                        {item.name}
+                      </Link>
+
+                      {/* Variants */}
+                      {(item.selectedColor || item.selectedSize) && (
+                        <div
+                          className="flex items-center gap-3 mt-2 text-xs font-semibold w-max px-3 py-1 rounded-full"
+                          style={{ background: HH.linen, border: `1px solid ${HH.silver}`, color: textSub }}
+                        >
+                          {item.selectedColor && (
+                            <span className="flex items-center gap-1.5">
+                              <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.colorVariants?.find(c => c.name === item.selectedColor)?.hex || '#8E867B' }}></span>
+                              {item.selectedColor}
+                            </span>
+                          )}
+                          {item.selectedSize && <span>Size: {item.selectedSize}</span>}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Remove */}
+                    <button
+                      onClick={() => removeFromCart(item.variantId)}
+                      className="p-2 rounded-full flex-shrink-0 transition-colors"
+                      style={{ color: HH.muted }}
+                      onMouseEnter={e => e.currentTarget.style.color = '#b5776e'}
+                      onMouseLeave={e => e.currentTarget.style.color = HH.muted}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="mt-auto pt-4 flex items-center justify-between">
+                    {/* Qty Controls */}
+                    <div className="flex items-center rounded-xl overflow-hidden" style={{ border: `1px solid ${HH.silver}`, background: HH.linen }}>
+                      <button
+                        onClick={() => updateQuantity(item.variantId, item.quantity - 1)}
+                        className="w-9 h-9 flex items-center justify-center font-bold transition-colors"
+                        style={{ color: HH.taupe }}
+                        onMouseEnter={e => e.currentTarget.style.background = HH.silver}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                      >
+                        <Minus className="w-3.5 h-3.5" />
+                      </button>
+                      <span className="w-8 text-center font-bold text-sm" style={{ color: HH.dark }}>{item.quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(item.variantId, item.quantity + 1)}
+                        className="w-9 h-9 flex items-center justify-center font-bold transition-colors"
+                        style={{ color: HH.taupe }}
+                        onMouseEnter={e => e.currentTarget.style.background = HH.silver}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    {/* Price */}
+                    <span className="font-heading font-black text-lg" style={{ color: textMain }}>
+                      ₹{(item.price * item.quantity).toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* PRICE SUMMARY */}
+          <div className="w-full lg:w-[380px] flex-shrink-0 space-y-4">
+
+            {/* Coupon */}
+            <div className="p-4 rounded-2xl" style={{ background: cardBg, border: `1px solid ${cardBdr}` }}>
+              <p className="text-xs font-bold uppercase tracking-[0.1em] mb-3 flex items-center gap-1.5" style={{ color: HH.taupe }}>
+                <Tag className="w-3.5 h-3.5" /> Apply Coupon
+              </p>
+              {couponApplied ? (
+                <div
+                  className="flex items-center justify-between px-4 py-3 rounded-xl"
+                  style={{ background: '#eef2ee', border: '1px solid #7a9e7e' }}
+                >
+                  <span className="font-bold text-sm" style={{ color: '#7a9e7e' }}>✓ AKUPY10 Applied — 10% Off</span>
+                  <button className="text-xs font-bold" style={{ color: '#b5776e' }} onClick={() => setCouponApplied(false)}>Remove</button>
+                </div>
+              ) : (
+                <form onSubmit={handleApplyCoupon} className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Enter coupon code"
+                    value={couponCode}
+                    onChange={e => setCouponCode(e.target.value)}
+                    className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium outline-none border"
+                    style={{ background: HH.ivory, borderColor: HH.silver, color: HH.dark }}
+                    onFocus={e => e.target.style.borderColor = HH.taupe}
+                    onBlur={e => e.target.style.borderColor = HH.silver}
+                  />
+                  <button
+                    type="submit"
+                    className="px-4 py-2.5 rounded-xl font-bold text-sm transition-colors"
+                    style={{ background: HH.taupe, color: HH.ivory }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#7a7268'}
+                    onMouseLeave={e => e.currentTarget.style.background = HH.taupe}
+                  >
+                    Apply
+                  </button>
+                </form>
+              )}
+            </div>
+
+            {/* Price Breakdown */}
+            <div className="p-6 rounded-2xl" style={{ background: cardBg, border: `1px solid ${cardBdr}`, boxShadow: '0 4px 16px rgba(142,134,123,0.12)' }}>
+              <h3 className="text-sm font-bold uppercase tracking-[0.12em] pb-4 mb-4" style={{ color: HH.dark, borderBottom: `1px solid ${HH.silver}` }}>
+                Price Details
+              </h3>
+
+              <div className="space-y-3 text-sm font-semibold">
+                <div className="flex justify-between">
+                  <span style={{ color: textSub }}>Price ({getTotalItems()} items)</span>
+                  <span style={{ color: textMain }}>₹{subtotal.toLocaleString()}</span>
+                </div>
+                {discount > 0 && (
+                  <div className="flex justify-between">
+                    <span style={{ color: textSub }}>Coupon Discount</span>
+                    <span style={{ color: '#7a9e7e' }}>-₹{discount}</span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span style={{ color: textSub }}>Delivery</span>
+                  <span style={{ color: delivery === 0 ? '#7a9e7e' : textMain }}>
+                    {delivery === 0 ? 'FREE' : `₹${delivery}`}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span style={{ color: textSub }}>Platform Fee</span>
+                  <span style={{ color: textMain }}>₹{platformFee}</span>
+                </div>
+              </div>
+
+              <div className="my-4 h-px" style={{ background: HH.silver }}></div>
+
+              <div className="flex justify-between items-center mb-4">
+                <span className="font-black text-base" style={{ color: textMain }}>Total Pay</span>
+                <span className="font-heading font-black text-2xl" style={{ color: textMain }}>₹{cartTotal.toLocaleString()}</span>
+              </div>
+
+              {discount > 0 && (
+                <div className="px-3 py-2 rounded-xl mb-4 text-sm font-bold text-center" style={{ background: '#eef2ee', color: '#7a9e7e' }}>
+                  🎉 You're saving ₹{discount} on this order!
+                </div>
+              )}
+
+              <button
+                onClick={() => navigate('/checkout')}
+                className="w-full py-4 rounded-xl font-black text-base flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
+                style={{ background: HH.dark, color: HH.ivory, minHeight: '56px' }}
+                onMouseEnter={e => e.currentTarget.style.background = HH.taupe}
+                onMouseLeave={e => e.currentTarget.style.background = HH.dark}
+              >
+                Proceed to Checkout <ArrowRight className="w-5 h-5" />
               </button>
-              
-              <div className="flex items-center justify-center gap-2 text-xs text-gray-500 mt-4">
-                 <ShieldCheck className="w-4 h-4 text-green-500" />
-                 Secure Checkout Process
+
+              <div className="flex items-center justify-center gap-2 mt-4 text-xs font-medium" style={{ color: HH.muted }}>
+                <ShieldCheck className="w-4 h-4" style={{ color: '#7a9e7e' }} />
+                Secured with 256-bit encryption
               </div>
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
