@@ -1,17 +1,40 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, MapPin, ShoppingCart, User, Globe, Shield, Filter, ChevronRight } from 'lucide-react';
+import { Search, ShoppingCart, User, Globe, Shield } from 'lucide-react';
 import useAuthStore from '../store/useAuthStore';
 import useCartStore from '../store/useCartStore';
 import useFeatureStore from '../store/useFeatureStore';
 import GlobeShopOverlay from './GlobeShopOverlay';
 
-const CATEGORIES = ['All', 'Shops', 'Fashion', 'Electronics', 'Food', 'Services', 'Beauty', 'Furniture'];
+const CATEGORIES = ['Fashion', 'Electronics', 'Food', 'Services', 'Beauty', 'Home', 'Mobiles'];
+
+// AkupyLogo SVG
+export function AkupyLogo({ size = 'md', dark = false }) {
+  const textColor = dark ? '#FFFFFF' : '#1A1A1A';
+  const h = size === 'sm' ? 'h-6' : size === 'lg' ? 'h-12' : 'h-8';
+  return (
+    <svg viewBox="0 0 380 100" className={`${h} w-auto`} style={{ display: 'block' }}>
+      {/* Speed lines */}
+      <line x1="2" y1="38" x2="36" y2="38" stroke="#22C55E" strokeWidth="7" strokeLinecap="round" />
+      <line x1="0" y1="52" x2="30" y2="52" stroke="#22C55E" strokeWidth="7" strokeLinecap="round" />
+      <line x1="8" y1="66" x2="36" y2="66" stroke="#22C55E" strokeWidth="7" strokeLinecap="round" />
+      {/* Cart body */}
+      <path d="M 32 32 L 86 32 L 78 68 L 40 68 Z" fill="#22C55E" />
+      {/* Wheels */}
+      <circle cx="47" cy="80" r="8" fill="#16A34A" />
+      <circle cx="71" cy="80" r="8" fill="#16A34A" />
+      {/* Text */}
+      <text x="100" y="72" fontFamily="'Plus Jakarta Sans', sans-serif" fontWeight="900" fontSize="62" fill={textColor} letterSpacing="-2">
+        akupy<tspan fill="#22C55E">.</tspan>
+      </text>
+    </svg>
+  );
+}
 
 export default function Navbar() {
   const [isGlobeMapOpen, setIsGlobeMapOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState('All');
+  const [activeCategory, setActiveCategory] = useState('');
 
   const { user, logout } = useAuthStore();
   const { getTotalItems } = useCartStore();
@@ -21,8 +44,13 @@ export default function Navbar() {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/discover?q=${encodeURIComponent(searchQuery)}&cat=${activeCategory !== 'All' ? activeCategory : ''}`);
+      navigate(`/discover?q=${encodeURIComponent(searchQuery)}`);
     }
+  };
+
+  const handleCategoryClick = (cat) => {
+    setActiveCategory(cat === activeCategory ? '' : cat);
+    navigate(`/discover?category=${encodeURIComponent(cat)}`);
   };
 
   const handleIncognitoToggle = () => {
@@ -33,178 +61,191 @@ export default function Navbar() {
     }));
   };
 
-  // Incognito: dark warm brown overlay
-  const incogBg = 'bg-[#3d3830] text-[#F3F0E2] border-b border-[#8E867B]/30';
-  const normalBg = 'bg-[#F0EADD] text-[#3d3830] border-b border-[#D9D5D2]';
+  const navBg = isIncognitoActive ? '#2C2A27' : '#F5F0E8';
+  const navBorder = isIncognitoActive ? 'rgba(255,255,255,0.06)' : '#E5E7EB';
+  const textColor = isIncognitoActive ? '#F5F0E8' : '#1A1A1A';
+  const mutedColor = isIncognitoActive ? '#9CA3AF' : '#6B7280';
 
   return (
     <>
-      <nav className={`fixed top-0 left-0 w-full z-50 transition-colors duration-300 ${isIncognitoActive ? incogBg : normalBg} backdrop-blur-[16px]`}
-        style={!isIncognitoActive ? { boxShadow: '0 2px 16px rgba(142,134,123,0.10)' } : { boxShadow: '0 2px 16px rgba(61,56,48,0.3)' }}
+      <nav
+        className="fixed top-0 left-0 w-full z-50 transition-colors duration-300"
+        style={{
+          background: navBg,
+          borderBottom: `1px solid ${navBorder}`,
+          boxShadow: '0 2px 12px rgba(0,0,0,0.06)'
+        }}
       >
+        {/* TOP ROW */}
+        <div className="max-w-[1400px] mx-auto px-4 md:px-6 h-[60px] flex items-center justify-between gap-4">
 
-        {/* TOP ROW: Logo, Location, Icons */}
-        <div className="max-w-[1400px] mx-auto px-4 md:px-6 h-16 flex items-center justify-between gap-4">
+          {/* Logo */}
+          <Link to="/" className="flex-shrink-0">
+            <AkupyLogo size="sm" dark={isIncognitoActive} />
+          </Link>
 
-          {/* Logo & Location */}
-          <div className="flex items-center gap-4">
-            <Link to="/" className="flex-shrink-0 flex items-center">
-              <svg viewBox="0 0 400 120" className="h-7 sm:h-8 w-auto">
-                <line x1="10" y1="50" x2="40" y2="50" stroke="#55c567" strokeWidth="8" strokeLinecap="round" />
-                <line x1="0" y1="65" x2="35" y2="65" stroke="#55c567" strokeWidth="8" strokeLinecap="round" />
-                <line x1="20" y1="80" x2="40" y2="80" stroke="#55c567" strokeWidth="8" strokeLinecap="round" />
-                <path d="M 35 40 L 95 40 L 85 80 L 45 80 Z" fill="#55c567" />
-                <circle cx="50" cy="98" r="9" fill="#00a859" />
-                <circle cx="75" cy="98" r="9" fill="#00a859" />
-                <text x="115" y="85" fontFamily="sans-serif" fontWeight="900" fontSize="72" fill={isIncognitoActive ? '#F3F0E2' : '#000000'} letterSpacing="-2">
-                  akupy<tspan fill="#55c567">.</tspan>
-                </text>
-              </svg>
-            </Link>
-
-            <button className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-colors group ${isIncognitoActive ? 'hover:bg-[#8E867B]/20' : 'hover:bg-[#E8E0D6]'}`}>
-              <MapPin className="w-4 h-4 text-[#8E867B] group-hover:animate-bounce" />
-              <span className={`text-sm font-semibold truncate max-w-[120px] ${isIncognitoActive ? 'text-[#D9D5D2]' : 'text-[#8E867B]'}`}>Mumbai, IN</span>
-            </button>
-          </div>
-
-          {/* Desktop Search */}
+          {/* Desktop Search Bar */}
           <div className="hidden md:flex flex-grow max-w-2xl mx-8">
-            <form onSubmit={handleSearch} className="relative w-full flex items-center">
-              <div className={`absolute left-0 top-0 bottom-0 px-4 flex items-center justify-center rounded-l-full border-r ${isIncognitoActive ? 'bg-[#8E867B]/20 border-[#8E867B]/30' : 'bg-[#E8E0D6] border-[#D9D5D2]'}`}>
-                <Search className="w-4 h-4 text-[#8E867B]" />
-              </div>
-              <input
-                type="text"
-                placeholder="Search shops, products, services..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={`w-full h-11 pl-14 pr-24 outline-none text-sm transition-all rounded-full border-2 font-medium ${isIncognitoActive
-                  ? 'bg-[#3d3830]/60 border-[#8E867B]/30 text-[#F3F0E2] placeholder-[#8E867B] focus:border-[#8E867B]'
-                  : 'bg-[#F3F0E2] border-[#D9D5D2] text-[#3d3830] placeholder-[#aba49c] focus:border-[#8E867B] focus:bg-[#F0EADD]'
-                  }`}
-              />
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                <button type="button" className={`p-1.5 rounded-full ${isIncognitoActive ? 'hover:bg-[#8E867B]/20 text-[#D9D5D2]' : 'hover:bg-[#E8E0D6] text-[#8E867B]'}`}>
-                  <Filter className="w-4 h-4" />
-                </button>
-                <div className="w-px h-5 bg-[#D9D5D2] mx-1"></div>
-                <button type="button" onClick={() => setIsGlobeMapOpen(true)}
-                  className={`p-1.5 rounded-full ${isIncognitoActive ? 'hover:bg-[#8E867B]/20 text-[#D9D5D2]' : 'hover:bg-[#E8E0D6] text-[#8E867B]'}`}
-                  title="Globe Shop">
-                  <Globe className="w-4 h-4" />
-                </button>
-              </div>
-            </form>
-          </div>
-
-          {/* Icons: Shield, Try-On, Profile, Cart */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-
-            <button
-              onClick={handleIncognitoToggle}
-              title={isIncognitoActive ? 'Disable Incognito' : 'Enable Incognito'}
-              className={`p-2 rounded-full transition-all flex items-center justify-center relative ${isIncognitoActive
-                ? 'bg-[#8E867B] text-[#F3F0E2]'
-                : 'text-[#8E867B] hover:bg-[#E8E0D6]'
-                }`}
-            >
-              <Shield className="w-5 h-5" />
-              {isIncognitoActive && (
-                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#b5776e] rounded-full border-2 border-[#3d3830]"></span>
-              )}
-            </button>
-
-            <Link to="/wardrobe" className={`hidden lg:flex items-center gap-1.5 text-sm font-semibold hover:opacity-80 transition-opacity whitespace-nowrap px-2 ${isIncognitoActive ? 'text-[#D9D5D2]' : 'text-[#8E867B]'}`}>
-              👗 Try-On
-            </Link>
-
-            {user ? (
-              <Link to="/dashboard" className={`p-2 rounded-full transition-colors hidden sm:block ${isIncognitoActive ? 'text-[#D9D5D2] hover:bg-[#8E867B]/20' : 'text-[#8E867B] hover:bg-[#E8E0D6]'}`}>
-                <User className="w-5 h-5" />
-              </Link>
-            ) : (
-              <Link to="/shop" className={`hidden sm:block text-sm font-bold transition-colors px-4 py-2 rounded-full border ${isIncognitoActive ? 'border-[#8E867B] text-[#F3F0E2] hover:bg-[#8E867B]/30' : 'border-[#D9D5D2] text-[#3d3830] hover:bg-[#E8E0D6]'
-                }`}>
-                Log In
-              </Link>
-            )}
-
-            <Link to="/cart" className={`relative p-2 rounded-full transition-colors ${isIncognitoActive ? 'text-[#F3F0E2] hover:bg-[#8E867B]/20' : 'text-[#3d3830] hover:bg-[#E8E0D6]'}`}>
-              <ShoppingCart className="w-5 h-5" />
-              {getTotalItems() > 0 && (
-                <span className={`absolute top-0 right-0 w-4 h-4 flex items-center justify-center text-[10px] font-bold rounded-full border-2 ${isIncognitoActive ? 'bg-[#8E867B] text-[#F3F0E2] border-[#3d3830]' : 'bg-[#b5776e] text-white border-[#F0EADD]'
-                  }`}>
-                  {getTotalItems()}
-                </span>
-              )}
-            </Link>
-
-            <button className={`sm:hidden p-2 rounded-full transition-colors ${isIncognitoActive ? 'text-[#D9D5D2]' : 'text-[#8E867B]'}`}>
-              <User className="w-5 h-5" />
-            </button>
-
-          </div>
-        </div>
-
-        {/* BOTTOM ROW: Mobile Search + Category Chips */}
-        <div className={`px-4 pb-3 md:border-t ${isIncognitoActive ? 'border-[#8E867B]/20' : 'border-[#D9D5D2]'}`}>
-
-          {/* Mobile Search */}
-          <div className="md:hidden mt-1 mb-3 flex justify-center w-full">
-            <form onSubmit={handleSearch} className="relative w-full max-w-[400px] flex items-center">
-              <Search className="absolute left-4 w-4 h-4 text-[#8E867B]" />
+            <form onSubmit={handleSearch} className="relative w-full">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#6B7280' }} />
               <input
                 type="text"
                 placeholder="Search products..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className={`w-full h-11 pl-11 pr-12 outline-none text-sm rounded-full border shadow-sm font-medium ${isIncognitoActive
-                  ? 'bg-[#3d3830]/80 border-[#8E867B]/30 text-[#F3F0E2] placeholder-[#8E867B]'
-                  : 'bg-[#F3F0E2] border-[#D9D5D2] text-[#3d3830] placeholder-[#aba49c] focus:border-[#8E867B]'
-                  }`}
+                className="w-full h-11 pl-11 pr-12 rounded-full text-sm font-medium outline-none border-2 transition-all"
+                style={{
+                  background: isIncognitoActive ? 'rgba(255,255,255,0.06)' : '#FFFFFF',
+                  borderColor: isIncognitoActive ? 'rgba(255,255,255,0.12)' : '#E5E7EB',
+                  color: textColor,
+                }}
+                onFocus={(e) => e.target.style.borderColor = '#22C55E'}
+                onBlur={(e) => e.target.style.borderColor = isIncognitoActive ? 'rgba(255,255,255,0.12)' : '#E5E7EB'}
               />
-              <button type="button" onClick={() => setIsGlobeMapOpen(true)} className="absolute right-3 p-1 text-[#8E867B] active:scale-95">
+              <button
+                type="button"
+                onClick={() => setIsGlobeMapOpen(true)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full transition-colors"
+                style={{ color: '#22C55E' }}
+                title="Globe Shop"
+              >
                 <Globe className="w-4 h-4" />
               </button>
             </form>
           </div>
 
-          {/* Category Chips */}
-          <div className="max-w-[1400px] mx-auto flex items-center md:justify-start justify-center overflow-x-auto hide-scrollbar gap-2 md:gap-3 md:py-2">
-            <button className={`sm:hidden flex-shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap ${isIncognitoActive ? 'bg-[#8E867B]/20 text-[#D9D5D2]' : 'bg-[#E8E0D6] text-[#8E867B]'
-              }`}>
-              <MapPin className="w-3 h-3" /> Mumbai
+          {/* Desktop Right Icons */}
+          <div className="hidden md:flex items-center gap-3 flex-shrink-0">
+            <button
+              onClick={handleIncognitoToggle}
+              title={isIncognitoActive ? 'Disable Incognito' : 'Enable Incognito'}
+              className="p-2 rounded-full transition-all relative"
+              style={{
+                background: isIncognitoActive ? '#22C55E' : 'transparent',
+                color: isIncognitoActive ? '#fff' : '#6B7280'
+              }}
+            >
+              <Shield className="w-5 h-5" />
+              {isIncognitoActive && (
+                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-amber-400 rounded-full border-2 border-white"></span>
+              )}
             </button>
 
-            {CATEGORIES.map(category => (
-              <button
-                key={category}
-                onClick={() => setActiveCategory(category)}
-                className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${activeCategory === category
-                  ? isIncognitoActive
-                    ? 'bg-[#F3F0E2] text-[#3d3830] shadow-sm'
-                    : 'bg-[#8E867B] text-[#F3F0E2] shadow-sm'
-                  : isIncognitoActive
-                    ? 'bg-[#8E867B]/15 text-[#D9D5D2] hover:bg-[#8E867B]/30'
-                    : 'bg-[#E8E0D6] text-[#8E867B] hover:bg-[#D9D5D2] hover:text-[#3d3830]'
-                  }`}
+            {user ? (
+              <Link
+                to="/dashboard"
+                className="p-2 rounded-full transition-colors"
+                style={{ color: '#6B7280' }}
+                onMouseEnter={e => e.currentTarget.style.color = '#22C55E'}
+                onMouseLeave={e => e.currentTarget.style.color = '#6B7280'}
               >
-                {category}
-              </button>
-            ))}
+                <User className="w-5 h-5" />
+              </Link>
+            ) : (
+              <Link
+                to="/shop"
+                className="text-sm font-bold px-4 py-2 rounded-full border-2 transition-all"
+                style={{ borderColor: '#22C55E', color: '#22C55E' }}
+                onMouseEnter={e => { e.currentTarget.style.background = '#22C55E'; e.currentTarget.style.color = '#fff'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#22C55E'; }}
+              >
+                Log In
+              </Link>
+            )}
 
-            <Link to="/discover" className={`flex-shrink-0 flex items-center gap-1 pl-2 text-sm font-bold transition-colors group whitespace-nowrap ${isIncognitoActive ? 'text-[#D9D5D2] hover:text-[#F3F0E2]' : 'text-[#aba49c] hover:text-[#8E867B]'
-              }`}>
-              More <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+            <Link to="/cart" className="relative p-2 rounded-full transition-colors" style={{ color: '#1A1A1A' }}>
+              <ShoppingCart className="w-5 h-5" />
+              {getTotalItems() > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 flex items-center justify-center text-[10px] font-bold rounded-full bg-[#22C55E] text-white border-2 border-white">
+                  {getTotalItems()}
+                </span>
+              )}
+            </Link>
+          </div>
+
+          {/* Mobile: Cart + Profile only */}
+          <div className="md:hidden flex items-center gap-2">
+            <Link to="/cart" className="relative p-2 rounded-full" style={{ color: '#1A1A1A' }}>
+              <ShoppingCart className="w-5 h-5" />
+              {getTotalItems() > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 flex items-center justify-center text-[9px] font-bold rounded-full bg-[#22C55E] text-white">
+                  {getTotalItems()}
+                </span>
+              )}
             </Link>
           </div>
         </div>
 
+        {/* MOBILE SEARCH ROW */}
+        <div className="md:hidden px-4 pb-2">
+          <form onSubmit={handleSearch} className="relative w-full">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#6B7280' }} />
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-11 pl-11 pr-12 rounded-full text-sm font-medium outline-none border-2 transition-all shadow-sm"
+              style={{
+                background: isIncognitoActive ? 'rgba(255,255,255,0.06)' : '#FFFFFF',
+                borderColor: '#E5E7EB',
+                color: textColor,
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#22C55E'}
+              onBlur={(e) => e.target.style.borderColor = '#E5E7EB'}
+            />
+            <button
+              type="button"
+              onClick={() => setIsGlobeMapOpen(true)}
+              className="absolute right-4 top-1/2 -translate-y-1/2"
+              style={{ color: '#22C55E' }}
+            >
+              <Globe className="w-4 h-4" />
+            </button>
+          </form>
+        </div>
+
+        {/* CATEGORY CHIPS */}
+        <div
+          className="px-4 pb-2.5 overflow-x-auto hide-scrollbar"
+          style={{ borderTop: `1px solid ${navBorder}` }}
+        >
+          <div className="flex items-center gap-2 pt-2 max-w-[1400px] mx-auto">
+            {CATEGORIES.map(cat => (
+              <button
+                key={cat}
+                onClick={() => handleCategoryClick(cat)}
+                className="flex-shrink-0 chip-pill transition-all"
+                style={
+                  activeCategory === cat
+                    ? { background: '#22C55E', color: '#fff' }
+                    : {
+                      background: isIncognitoActive ? 'rgba(255,255,255,0.08)' : '#EDE6D8',
+                      color: isIncognitoActive ? '#D1D5DB' : '#6B7280'
+                    }
+                }
+                onMouseEnter={e => {
+                  if (activeCategory !== cat) {
+                    e.currentTarget.style.background = '#DCFCE7';
+                    e.currentTarget.style.color = '#22C55E';
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (activeCategory !== cat) {
+                    e.currentTarget.style.background = isIncognitoActive ? 'rgba(255,255,255,0.08)' : '#EDE6D8';
+                    e.currentTarget.style.color = isIncognitoActive ? '#D1D5DB' : '#6B7280';
+                  }
+                }}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
       </nav>
 
-      {/* Spacer perfectly matched to Navbar height (Mobile ~170px, Desktop ~114px) */}
-      <div className="h-[170px] md:h-[114px]"></div>
+      {/* Spacer: Mobile ~160px (60px top + 44px search + 42px chips), Desktop ~110px */}
+      <div className="h-[160px] md:h-[112px]"></div>
 
       {isGlobeMapOpen && <GlobeShopOverlay onClose={() => setIsGlobeMapOpen(false)} />}
     </>

@@ -1,169 +1,175 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, Globe, ShoppingCart, Star } from 'lucide-react';
+import { Heart, ShoppingCart, Star } from 'lucide-react';
 import useCartStore from '../store/useCartStore';
 
 export default function ProductCard({ product }) {
     const navigate = useNavigate();
     const addToCart = useCartStore((state) => state.addToCart);
+    const [added, setAdded] = useState(false);
+    const [wishlisted, setWishlisted] = useState(false);
 
     const handleAddToCart = (e) => {
         e.preventDefault();
         e.stopPropagation();
         addToCart(product);
+        setAdded(true);
+        setTimeout(() => setAdded(false), 2000);
+    };
+
+    const handleWishlist = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setWishlisted(prev => !prev);
     };
 
     const hasDiscount = product.discountPercent && product.discountPercent > 0;
-    const isGlobal = product.isGlobeShop || product.shopId?.enableGlobeShop;
     const hasTryOn = product.garmentType && product.garmentType !== 'none';
-    const isNew = product.tags?.includes('NEW');
-    const isHot = product.tags?.includes('TRENDING') || product.tags?.includes('HOT');
+    const shopName = product.shopId?.name || product.shopName || product.businessName || product.brand || '';
 
     return (
         <Link
             to={`/product/${product._id || product.id}`}
-            className="group block rounded-xl md:rounded-2xl overflow-hidden transition-all duration-300 relative"
+            className="group block rounded-2xl overflow-hidden transition-all duration-300 relative cursor-pointer"
             style={{
-                background: '#F0EADD',
-                border: '1px solid #D9D5D2',
-                boxShadow: '0 1px 4px rgba(142,134,123,0.10)',
+                background: '#FFFFFF',
+                border: '1px solid #F3F4F6',
+                boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
             }}
             onMouseEnter={e => {
-                e.currentTarget.style.transform = 'translateY(-4px)';
-                e.currentTarget.style.boxShadow = '0 4px 16px rgba(142,134,123,0.18)';
-                e.currentTarget.style.borderColor = '#c8c2bc';
+                e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)';
+                e.currentTarget.style.boxShadow = '0 8px 30px rgba(0,0,0,0.12)';
             }}
             onMouseLeave={e => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 1px 4px rgba(142,134,123,0.10)';
-                e.currentTarget.style.borderColor = '#D9D5D2';
+                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.06)';
             }}
         >
-            {/* Top Right Actions */}
-            <div className="absolute top-3 right-3 z-10 flex flex-col gap-2">
-                <button
-                    className="w-8 h-8 rounded-full backdrop-blur-md shadow-sm flex items-center justify-center transition-all hover:scale-110 active:scale-95"
-                    style={{ background: 'rgba(240,234,221,0.85)', border: '1px solid #D9D5D2', color: '#aba49c' }}
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                    onMouseEnter={e => e.currentTarget.style.color = '#b5776e'}
-                    onMouseLeave={e => e.currentTarget.style.color = '#aba49c'}
-                >
-                    <Heart className="w-4 h-4" />
-                </button>
-                {isGlobal && (
-                    <div
-                        className="w-8 h-8 rounded-full flex items-center justify-center shadow-sm"
-                        style={{ background: '#8a9eb5', color: '#F3F0E2', border: '1px solid #7a8ea5' }}
-                        title="Globe Shop Item"
-                    >
-                        <Globe className="w-4 h-4" />
-                    </div>
-                )}
-            </div>
-
-            {/* Badges (Top Left) */}
-            <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5 items-start">
-                {hasDiscount && (
-                    <span
-                        className="text-[10px] sm:text-xs font-black px-2 py-0.5 rounded-full shadow-sm"
-                        style={{ background: '#3d3830', color: '#F3F0E2' }}
-                    >
-                        -{product.discountPercent}%
-                    </span>
-                )}
-                {isNew && !hasDiscount && (
-                    <span
-                        className="text-[10px] sm:text-xs font-black px-2 py-0.5 rounded-full shadow-sm uppercase tracking-wider"
-                        style={{ background: '#8E867B', color: '#F3F0E2' }}
-                    >
-                        NEW
-                    </span>
-                )}
-                {isHot && !isNew && !hasDiscount && (
-                    <span
-                        className="text-[10px] sm:text-xs font-black px-2 py-0.5 rounded-full shadow-sm uppercase tracking-wider"
-                        style={{ background: '#b5776e', color: '#F3F0E2' }}
-                    >
-                        HOT
-                    </span>
-                )}
-            </div>
-
-            {/* Image */}
-            <div className="w-full aspect-[4/5] sm:aspect-square relative overflow-hidden" style={{ background: '#F3F0E2' }}>
+            {/* Image Container */}
+            <div className="relative w-full aspect-square overflow-hidden" style={{ background: '#F5F0E8' }}>
                 <img
                     src={product.images?.[0] || product.imageUrl || 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=500&q=80'}
                     alt={product.name}
-                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
                 />
 
-                {/* Hover Actions Overlay */}
-                <div
-                    className="absolute left-0 right-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 pointer-events-none group-hover:pointer-events-auto p-2 hidden md:flex gap-2"
-                    style={{ background: 'linear-gradient(to top, rgba(61,56,48,0.55), transparent)' }}
+                {/* Heart Wishlist Button — top right */}
+                <button
+                    className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90 z-10"
+                    style={{
+                        background: 'rgba(255,255,255,0.9)',
+                        backdropFilter: 'blur(4px)',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                    }}
+                    onClick={handleWishlist}
                 >
-                    {hasTryOn && (
-                        <button
-                            className="flex-1 font-bold text-xs py-2 rounded-lg flex items-center justify-center gap-1 shadow-md transition-colors"
-                            style={{ background: '#4fc3f7', color: '#fff', border: '1px solid #29b6f6' }}
-                            onClick={(e) => {
-                                e.preventDefault(); e.stopPropagation();
-                                navigate(`/product/${product._id || product.id}?tryon=true`);
-                            }}
-                            onMouseEnter={e => e.currentTarget.style.background = '#29b6f6'}
-                            onMouseLeave={e => e.currentTarget.style.background = '#4fc3f7'}
-                        >
-                            👗 Try On
-                        </button>
-                    )}
-                    <button
-                        className="flex-1 font-bold text-xs py-2 rounded-lg flex items-center justify-center gap-1 shadow-md transition-opacity hover:opacity-90"
-                        style={{ background: '#81c784', color: '#fff' }}
-                        onClick={handleAddToCart}
+                    <Heart
+                        className="w-4 h-4"
+                        style={{
+                            color: wishlisted ? '#EF4444' : '#9CA3AF',
+                            fill: wishlisted ? '#EF4444' : 'none'
+                        }}
+                    />
+                </button>
+
+                {/* Discount Badge */}
+                {hasDiscount && (
+                    <div
+                        className="absolute top-2.5 left-2.5 text-[10px] font-black px-2 py-0.5 rounded-full z-10"
+                        style={{ background: '#22C55E', color: '#fff' }}
                     >
-                        <ShoppingCart className="w-4 h-4" /> Add
-                    </button>
+                        -{product.discountPercent}%
+                    </div>
+                )}
+
+                {/* Desktop hover: Add to Cart overlay */}
+                <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 pointer-events-none group-hover:pointer-events-auto p-2 hidden md:block">
+                    <div style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.5), transparent)' }} className="absolute inset-0 rounded-b-2xl" />
+                    <div className="relative flex gap-1">
+                        {hasTryOn && (
+                            <button
+                                className="flex-1 py-2 rounded-xl text-xs font-bold transition-colors"
+                                style={{ background: '#3B82F6', color: '#fff' }}
+                                onClick={(e) => {
+                                    e.preventDefault(); e.stopPropagation();
+                                    navigate(`/product/${product._id || product.id}?tryon=true`);
+                                }}
+                            >
+                                👗 Try On
+                            </button>
+                        )}
+                        <button
+                            className="flex-1 py-2 rounded-xl text-xs font-bold transition-all"
+                            style={added
+                                ? { background: '#22C55E', color: '#fff' }
+                                : { background: 'rgba(255,255,255,0.9)', color: '#1A1A1A' }
+                            }
+                            onClick={handleAddToCart}
+                        >
+                            {added ? '✓ Added!' : 'Add to Cart'}
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            {/* Info */}
-            <div className="p-3 sm:p-4 flex flex-col" style={{ background: '#F0EADD' }}>
-                <div className="mb-0.5 text-xs font-semibold truncate" style={{ color: '#8E867B' }}>
-                    {product.shopId?.name || product.brand || 'Unknown Shop'}
-                </div>
+            {/* Info Section */}
+            <div className="p-3">
+                {/* Shop Name */}
+                {shopName && (
+                    <p className="text-[11px] font-semibold truncate mb-0.5" style={{ color: '#6B7280' }}>
+                        by {shopName}
+                    </p>
+                )}
 
+                {/* Product Name */}
                 <h3
-                    className="text-sm font-semibold leading-tight line-clamp-2 min-h-[40px] transition-colors"
-                    style={{ color: '#3d3830' }}
+                    className="text-sm font-bold leading-tight line-clamp-2 mb-1.5"
+                    style={{ color: '#1A1A1A', minHeight: '2.5rem' }}
                 >
                     {product.name}
                 </h3>
 
-                <div className="flex items-center gap-1 mt-1.5 mb-2">
-                    <Star className="w-3.5 h-3.5 fill-current" style={{ color: '#c4a882' }} />
-                    <span className="text-xs font-bold" style={{ color: '#3d3830' }}>{product.rating?.toFixed(1) || '4.5'}</span>
-                    <span className="text-xs" style={{ color: '#aba49c' }}>({product.reviewCount || 10})</span>
+                {/* Stars */}
+                <div className="flex items-center gap-1 mb-2">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                        <Star
+                            key={i}
+                            className="w-3 h-3"
+                            style={{
+                                color: '#F59E0B',
+                                fill: i < Math.round(product.rating || 4.5) ? '#F59E0B' : 'none'
+                            }}
+                        />
+                    ))}
+                    <span className="text-[11px] font-semibold" style={{ color: '#1A1A1A' }}>
+                        {(product.rating || 4.5).toFixed(1)}
+                    </span>
+                    <span className="text-[11px]" style={{ color: '#9CA3AF' }}>
+                        ({product.reviewCount || 10})
+                    </span>
                 </div>
 
-                <div className="mt-auto pt-2 flex items-end justify-between">
+                {/* Price Row */}
+                <div className="flex items-center justify-between gap-2">
                     <div>
                         {hasDiscount && (
-                            <span className="text-xs line-through mr-1 block sm:inline" style={{ color: '#aba49c' }}>
+                            <span className="text-[11px] line-through mr-1" style={{ color: '#9CA3AF' }}>
                                 ₹{product.originalPrice}
                             </span>
                         )}
-                        <span className="font-heading font-black text-base sm:text-lg" style={{ color: '#3d3830' }}>
+                        <span className="font-black text-base" style={{ color: '#1A1A1A' }}>
                             ₹{product.price}
                         </span>
                     </div>
 
-                    {/* Mobile Quick Add */}
+                    {/* Mobile quick add */}
                     <button
-                        className="md:hidden w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-95"
-                        style={{ background: '#e8f5e9', color: '#4caf50', border: '1px solid #c8e6c9' }}
+                        className="md:hidden w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90"
+                        style={added
+                            ? { background: '#22C55E', color: '#fff' }
+                            : { background: '#F0FDF4', color: '#22C55E', border: '1.5px solid #DCFCE7' }
+                        }
                         onClick={handleAddToCart}
-                        onMouseEnter={e => { e.currentTarget.style.background = '#81c784'; e.currentTarget.style.color = '#fff'; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = '#e8f5e9'; e.currentTarget.style.color = '#4caf50'; }}
                     >
                         <ShoppingCart className="w-4 h-4" />
                     </button>

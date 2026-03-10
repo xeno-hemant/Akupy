@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import Lenis from '@studio-freight/lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import useFeatureStore from './store/useFeatureStore';
 
 import Gateway from './pages/Gateway';
@@ -12,6 +12,7 @@ import Discover from './pages/Discover';
 import BusinessProfile from './pages/BusinessProfile';
 import SellLanding from './pages/SellLanding';
 import Navbar from './components/Navbar';
+import BottomNav from './components/BottomNav';
 import CustomCursor from './components/CustomCursor';
 import TryOnOnboardingModal from './components/tryon/TryOnOnboardingModal';
 import ShopSubdomain from './pages/ShopSubdomain';
@@ -20,12 +21,29 @@ import CheckoutPage from './pages/CheckoutPage';
 import TryOnGalleryPage from './pages/TryOnGalleryPage';
 import ProductDetails from './pages/ProductDetails';
 
+// Seller Portal Pages
+import SellerDashboard from './seller/pages/SellerDashboard';
+import SellerOrders from './seller/pages/SellerOrders';
+import SellerProducts from './seller/pages/SellerProducts';
+import SellerAddProduct from './seller/pages/SellerAddProduct';
+import SellerInventory from './seller/pages/SellerInventory';
+import SellerEarnings from './seller/pages/SellerEarnings';
+import SellerShopProfile from './seller/pages/SellerShopProfile';
+import SellerCoupons from './seller/pages/SellerCoupons';
+import SellerReviews from './seller/pages/SellerReviews';
+import SellerNotifications from './seller/pages/SellerNotifications';
+
 gsap.registerPlugin(ScrollTrigger);
 
-function App() {
-  const [subdomainShopId, setSubdomainShopId] = useState(null);
+function useIsSellerRoute() {
+  const location = useLocation();
+  return location.pathname.startsWith('/seller');
+}
+
+function AppInner({ subdomainShopId }) {
   const { isIncognitoActive } = useFeatureStore();
   const [toastMessage, setToastMessage] = useState('');
+  const isSellerRoute = useIsSellerRoute();
 
   useEffect(() => {
     const handleToast = (e) => {
@@ -36,31 +54,84 @@ function App() {
     return () => window.removeEventListener('incognito-toast', handleToast);
   }, []);
 
-  // Subdomain Detection Logic
+  return (
+    <main className="w-full min-h-screen relative transition-colors duration-500"
+      style={{ background: isSellerRoute ? '#F8F9FA' : isIncognitoActive ? '#2C2A27' : '#F5F0E8' }}>
+
+      {isIncognitoActive && !isSellerRoute && (
+        <div className="fixed inset-0 pointer-events-none z-[9990] opacity-100 transition-opacity duration-1000"
+          style={{ boxShadow: 'inset 0 0 150px rgba(44,42,39,0.5)' }}></div>
+      )}
+
+      {!isSellerRoute && <TryOnOnboardingModal />}
+
+      {toastMessage && (
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[10000] bg-[#2C2A27]/95 text-white px-6 py-3 rounded-full text-sm font-semibold border border-white/10 shadow-lg animate-fade-in flex items-center gap-3 backdrop-blur-md">
+          <span className="text-xl">🔒</span> {toastMessage}
+        </div>
+      )}
+
+      {!isSellerRoute && <Navbar />}
+      {!isSellerRoute && <BottomNav />}
+
+      {subdomainShopId ? (
+        <ShopSubdomain shopId={subdomainShopId} />
+      ) : (
+        <Routes>
+          {/* Shopper Routes */}
+          <Route path="/" element={<Gateway />} />
+          <Route path="/shop" element={<ShopHome />} />
+          <Route path="/sell" element={<SellLanding />} />
+          <Route path="/discover" element={<Discover />} />
+          <Route path="/business/:id" element={<BusinessProfile />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/wardrobe" element={<TryOnGalleryPage />} />
+          <Route path="/product/:productId" element={<ProductDetails />} />
+
+          {/* Seller Portal Routes */}
+          <Route path="/seller" element={<SellerDashboard />} />
+          <Route path="/seller/dashboard" element={<SellerDashboard />} />
+          <Route path="/seller/orders" element={<SellerOrders />} />
+          <Route path="/seller/products" element={<SellerProducts />} />
+          <Route path="/seller/products/new" element={<SellerAddProduct />} />
+          <Route path="/seller/products/:id/edit" element={<SellerAddProduct />} />
+          <Route path="/seller/inventory" element={<SellerInventory />} />
+          <Route path="/seller/earnings" element={<SellerEarnings />} />
+          <Route path="/seller/payouts" element={<SellerEarnings />} />
+          <Route path="/seller/transactions" element={<SellerEarnings />} />
+          <Route path="/seller/shop" element={<SellerShopProfile />} />
+          <Route path="/seller/coupons" element={<SellerCoupons />} />
+          <Route path="/seller/reviews" element={<SellerReviews />} />
+          <Route path="/seller/notifications" element={<SellerNotifications />} />
+          <Route path="/seller/customers" element={<SellerOrders />} />
+          <Route path="/seller/settings" element={<SellerShopProfile />} />
+          <Route path="/seller/help" element={<SellerNotifications />} />
+
+          {/* Wildcard shop subdomain — must be last */}
+          <Route path="/:shopId" element={<ShopSubdomain />} />
+        </Routes>
+      )}
+    </main>
+  );
+}
+
+function App() {
+  const [subdomainShopId, setSubdomainShopId] = useState(null);
+
   useEffect(() => {
     const hostname = window.location.hostname;
     let extracted = null;
-
-    // Check local dev e.g. zudio.localhost
     if (hostname.includes('localhost') && hostname !== 'localhost') {
       extracted = hostname.split('.')[0];
-    }
-    // Check production e.g. zudio.akupy.in
-    else if (hostname.includes('akupy.in')) {
+    } else if (hostname.includes('akupy.in')) {
       const parts = hostname.split('.');
-      if (parts.length > 2 && parts[0] !== 'www') {
-        extracted = parts[0];
-      }
+      if (parts.length > 2 && parts[0] !== 'www') extracted = parts[0];
     }
-
-    if (extracted) {
-      setSubdomainShopId(extracted);
-    }
+    if (extracted) setSubdomainShopId(extracted);
   }, []);
 
-  // Custom Cursor Logic is now handled by the CustomCursor component
-
-  // Lenis Smooth Scroll Logic
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.2,
@@ -70,59 +141,16 @@ function App() {
       smoothWheel: true,
       touchMultiplier: 2,
     });
-
-    const updateLenis = (time) => {
-      lenis.raf(time * 1000);
-    };
-
+    const updateLenis = (time) => lenis.raf(time * 1000);
     gsap.ticker.add(updateLenis);
-    gsap.ticker.lagSmoothing(0); // Optional: prevents GSAP from correcting lag to sync with Lenis
-
-    return () => {
-      lenis.destroy();
-      gsap.ticker.remove(updateLenis);
-    };
+    gsap.ticker.lagSmoothing(0);
+    return () => { lenis.destroy(); gsap.ticker.remove(updateLenis); };
   }, []);
 
   return (
     <Router>
       <CustomCursor />
-      <main className="w-full min-h-screen relative transition-colors duration-500" style={{ background: isIncognitoActive ? '#2e2a25' : '#F3F0E2' }}>
-
-        {/* Global Incognito Vignette */}
-        {isIncognitoActive && (
-          <div className="fixed inset-0 pointer-events-none z-[9990] opacity-100 transition-opacity duration-1000"
-            style={{ boxShadow: 'inset 0 0 150px rgba(61,56,48,0.4)' }}></div>
-        )}
-
-        <TryOnOnboardingModal />
-
-        {/* Global Toast */}
-        {toastMessage && (
-          <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[10000] bg-violet-900/95 text-violet-100 px-6 py-3 rounded-full text-sm font-semibold border border-violet-500/30 shadow-[0_0_30px_rgba(124,92,252,0.3)] animate-fade-in flex items-center gap-3 backdrop-blur-md">
-            <span className="text-xl">🔒</span> {toastMessage}
-          </div>
-        )}
-
-        <Navbar />
-        {subdomainShopId ? (
-          <ShopSubdomain shopId={subdomainShopId} />
-        ) : (
-          <Routes>
-            <Route path="/" element={<Gateway />} />
-            <Route path="/shop" element={<ShopHome />} />
-            <Route path="/sell" element={<SellLanding />} />
-            <Route path="/discover" element={<Discover />} />
-            <Route path="/business/:id" element={<BusinessProfile />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/wardrobe" element={<TryOnGalleryPage />} />
-            <Route path="/product/:productId" element={<ProductDetails />} />
-            <Route path="/:shopId" element={<ShopSubdomain />} />
-          </Routes>
-        )}
-      </main>
+      <AppInner subdomainShopId={subdomainShopId} />
     </Router>
   );
 }

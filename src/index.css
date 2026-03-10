@@ -6,6 +6,375 @@
 
 @layer base {
   :root {
+    /* ── Akupy Brand Palette ── */
+    --color-green: #22C55E;
+    --color-green-dark: #16A34A;
+    --color-green-light: #DCFCE7;
+    --color-cream: #F5F0E8;
+    --color-cream-dark: #EDE6D8;
+    --color-cream-darker: #E2D9C9;
+    --color-dark: #2C2A27;
+    --color-charcoal: #1A1A1A;
+    --color-muted: #6B7280;
+    --color-amber: #F59E0B;
+
+    /* ── Backgrounds ── */
+    --bg-page: #F5F0E8;
+    --bg-section-alt: #EDE6D8;
+    --bg-card: #FFFFFF;
+    --bg-navbar: #F5F0E8;
+    --bg-footer: #2C2A27;
+    --bg-input: #FFFFFF;
+    --bg-overlay: rgba(0, 0, 0, 0.08);
+
+    /* ── Buttons ── */
+    --bg-button-primary: #22C55E;
+    --bg-button-hover: #16A34A;
+
+    /* ── Text ── */
+    --text-primary: #1A1A1A;
+    --text-secondary: #6B7280;
+    --text-muted: #9CA3AF;
+    --text-on-primary: #FFFFFF;
+
+    /* ── Borders ── */
+    --border: #E5E7EB;
+    --border-light: #F3F4F6;
+    --border-medium: #D1D5DB;
+    --border-focus: #22C55E;
+
+    /* ── Accents ── */
+    --accent-primary: #22C55E;
+    --accent-amber: #F59E0B;
+    --accent-light: #DCFCE7;
+
+    /* ── Status Colors ── */
+    --success: #22C55E;
+    --success-bg: #F0FDF4;
+    --error: #EF4444;
+    --error-bg: #FEF2F2;
+    --warning: #F59E0B;
+    --warning-bg: #FFFBEB;
+    --info: #3B82F6;
+    --info-bg: #EFF6FF;
+
+    /* ── Shadows ── */
+    --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 2px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.10);
+    --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.12);
+
+    /* ── Legacy aliases for old components ── */
+    --primary: #22C55E;
+    --primary-dark: #16A34A;
+    --bg: #F5F0E8;
+    --bg-gray: #EDE6D8;
+    --bg-dark: #2C2A27;
+    --accent-red: #EF4444;
+    --accent-yellow: #F59E0B;
+    --background: #F5F0E8;
+    --foreground: #1A1A1A;
+    --card: #FFFFFF;
+
+    /* ── HiddenHues compat aliases (so old components still render) ── */
+    --color-silver: #E5E7EB;
+    --color-taupe: #6B7280;
+    --color-ivory: #F5F0E8;
+    --color-linen: #EDE6D8;
+    --color-dark: #2C2A27;
+  }
+
+  html {
+    @apply antialiased scroll-smooth;
+    font-family: 'Inter', sans-serif;
+  }
+
+  body {
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: rgba(34, 197, 94, 0.2);
+    color: #1A1A1A;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #F5F0E8;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #D1D5DB;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #6B7280;
+  }
+
+  /* Custom Cursor override for non-touch devices */
+  @media (pointer: fine) {
+
+    *,
+    *::before,
+    *::after {
+      cursor: none !important;
+    }
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .font-heading {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  .font-body {
+    font-family: 'Inter', sans-serif;
+  }
+
+  .shadow-akupy {
+    box-shadow: var(--shadow-md);
+  }
+
+  .shadow-hh-sm {
+    box-shadow: var(--shadow-sm);
+  }
+
+  .shadow-hh-md {
+    box-shadow: var(--shadow-md);
+  }
+
+  .shadow-hh-lg {
+    box-shadow: var(--shadow-lg);
+  }
+
+  .shadow-hh-xl {
+    box-shadow: var(--shadow-xl);
+  }
+
+  .glow-green {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.3), 0 0 40px rgba(34, 197, 94, 0.1);
+  }
+
+  .glow-taupe {
+    box-shadow: 0 0 20px rgba(107, 114, 128, 0.2);
+  }
+
+  .glow-mint {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.25);
+  }
+
+  .glow-violet {
+    box-shadow: 0 0 20px rgba(107, 114, 128, 0.2);
+  }
+
+  .glowing {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.25);
+  }
+}
+
+/* ── Keyframe Animations ── */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+  }
+
+  50% {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.8), 0 0 40px rgba(34, 197, 94, 0.3);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.35s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+
+  70% {
+    transform: scale(0.9);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-bounce-in {
+  animation: bounceIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+@keyframes radialExpand {
+  from {
+    transform: scale(0.5) translateY(0);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-radial-expand {
+  animation: radialExpand 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+/* ── Hide scrollbar ── */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ── Akupy utility classes ── */
+.btn-green {
+  background: #22C55E;
+  color: white;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-green:hover {
+  background: #16A34A;
+  transform: translateY(-1px);
+}
+
+.btn-green:active {
+  transform: scale(0.97);
+}
+
+.card-akupy {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #F3F4F6;
+}
+
+.chip-pill {
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+/* ── Bottom navigation padding for page content ── */
+@media (max-width: 1199px) {
+  .page-bottom-padding {
+    padding-bottom: 80px;
+  }
+}
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
     /* ── Hidden Hues Core Palette ── */
     --color-silver: #D9D5D2;
     --color-taupe: #8E867B;

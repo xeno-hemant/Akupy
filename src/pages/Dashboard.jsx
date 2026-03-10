@@ -160,19 +160,22 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen p-3 pt-20 md:p-16 md:pt-32" style={{ background: '#F3F0E2' }}>
-      <div className="max-w-4xl mx-auto rounded-[2rem] md:rounded-[2.5rem] shadow-sm border p-5 md:p-12" style={{ background: '#F0EADD', borderColor: '#D9D5D2' }}>
+    <div className="min-h-screen p-3 pt-20 md:p-16 md:pt-32 page-bottom-padding" style={{ background: '#F5F0E8' }}>
+      <div className="max-w-4xl mx-auto rounded-[2rem] md:rounded-[2.5rem] shadow-sm border p-5 md:p-12" style={{ background: '#FFFFFF', borderColor: '#F3F4F6' }}>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-6 mb-6 md:mb-12">
-          <h1 className="text-2xl md:text-4xl font-heading font-medium text-[#080808]">Business Dashboard</h1>
+          <h1 className="text-2xl md:text-4xl font-heading font-bold" style={{ color: '#1A1A1A' }}>{user.role === 'business' ? 'Business Dashboard' : 'My Profile'}</h1>
           <button
             onClick={logout}
-            className="px-6 py-2.5 md:py-3 rounded-full border border-black/20 hover:bg-black/5 transition-colors font-medium w-full md:w-auto text-sm md:text-base"
+            className="px-6 py-2.5 md:py-3 rounded-full border-2 font-semibold w-full md:w-auto text-sm md:text-base transition-colors"
+            style={{ borderColor: '#EF4444', color: '#EF4444' }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#EF4444'; e.currentTarget.style.color = '#fff'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#EF4444'; }}
           >
             Logout
           </button>
         </div>
 
-        <div className="bg-gray-50 rounded-2xl p-5 md:p-8 mb-6 md:mb-8 border border-black/5">
+        <div className="rounded-2xl p-5 md:p-8 mb-6 md:mb-8 border" style={{ background: '#F5F0E8', borderColor: '#F3F4F6' }}>
           <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
             {user.role === 'user' && (
               <div className="relative w-20 h-20 bg-white rounded-full border border-gray-200 shadow-sm overflow-hidden flex-shrink-0 flex items-center justify-center">
@@ -204,7 +207,7 @@ export default function Dashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* Total Earnings */}
                   <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm flex items-center gap-6">
-                    <div className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(142,134,123,0.12)', color: '#8E867B' }}>
+                    <div className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: '#DCFCE7', color: '#22C55E' }}>
                       <DollarSign className="w-6 h-6" />
                     </div>
                     <div>
@@ -212,13 +215,13 @@ export default function Dashboard() {
                       <h4 className="text-2xl font-heading font-bold text-[#080808]">
                         ${formData.products?.reduce((acc, curr) => acc + (Number(curr.price) * Math.floor(Math.random() * 5 + 1)), 0).toFixed(2) || '0.00'}
                       </h4>
-                      <p className="text-xs font-medium flex items-center gap-1 mt-1" style={{ color: '#7a9e7e' }}><TrendingUp className="w-3 h-3" /> Based on simulation</p>
+                      <p className="text-xs font-medium flex items-center gap-1 mt-1" style={{ color: '#22C55E' }}><TrendingUp className="w-3 h-3" /> Based on simulation</p>
                     </div>
                   </div>
 
                   {/* Items Sold */}
                   <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm flex items-center gap-6">
-                    <div className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(171,164,156,0.12)', color: '#aba49c' }}>
+                    <div className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: '#FEF3C7', color: '#F59E0B' }}>
                       <Package className="w-6 h-6" />
                     </div>
                     <div>
@@ -232,7 +235,7 @@ export default function Dashboard() {
 
                   {/* Store Views */}
                   <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm flex items-center gap-6">
-                    <div className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(196,168,130,0.12)', color: '#c4a882' }}>
+                    <div className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: '#EFF6FF', color: '#3B82F6' }}>
                       <Eye className="w-6 h-6" />
                     </div>
                     <div>

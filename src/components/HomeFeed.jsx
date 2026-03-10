@@ -1,13 +1,129 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { ShoppingCart, SlidersHorizontal, ChevronDown } from 'lucide-react';
+import ProductCard from './ProductCard';
 import useCartStore from '../store/useCartStore';
 import useFeatureStore from '../store/useFeatureStore';
-import { ShoppingBag, Globe2 } from 'lucide-react';
+
+// Promo Banner Component
+function PromoBanner() {
+  return (
+    <div
+      className="relative rounded-2xl overflow-hidden mb-6 flex items-center justify-between"
+      style={{
+        background: 'linear-gradient(135deg, #F5F0E8 0%, #EDE6D8 100%)',
+        border: '1px solid #E5E7EB',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+        minHeight: 140,
+      }}
+    >
+      {/* Left content */}
+      <div className="p-6 md:p-8 flex-1">
+        <span className="inline-block text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-3"
+          style={{ background: '#DCFCE7', color: '#16A34A' }}>
+          🔥 Limited Offer
+        </span>
+        <h2 className="text-xl md:text-2xl font-heading font-black mb-3" style={{ color: '#1A1A1A' }}>
+          Grab Upto <span style={{ color: '#22C55E' }}>50% Off</span><br />
+          On Selected Headphones
+        </h2>
+        <Link
+          to="/discover?category=Electronics"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white transition-all hover:shadow-lg active:scale-95"
+          style={{ background: '#22C55E' }}
+          onMouseEnter={e => e.currentTarget.style.background = '#16A34A'}
+          onMouseLeave={e => e.currentTarget.style.background = '#22C55E'}
+        >
+          Buy Now →
+        </Link>
+      </div>
+
+      {/* Right: product image */}
+      <div className="hidden sm:flex items-center justify-end pr-6 w-48 md:w-56 flex-shrink-0">
+        <img
+          src="https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=300&q=80"
+          alt="Headphones Offer"
+          className="w-36 md:w-44 object-contain animate-float drop-shadow-xl"
+          style={{ maxHeight: 160 }}
+        />
+      </div>
+
+      {/* Background decoration */}
+      <div
+        className="absolute -right-10 -top-10 w-48 h-48 rounded-full opacity-10 pointer-events-none"
+        style={{ background: '#22C55E' }}
+      />
+    </div>
+  );
+}
+
+// Filter chips
+function FilterChips({ sortBy, setSortBy }) {
+  const FILTERS = [
+    { label: 'Category ▾', value: '' },
+    { label: 'Price ▾', value: 'price_asc' },
+    { label: 'Review ▾', value: 'rating' },
+    { label: 'Color ▾', value: '' },
+    { label: 'Material ▾', value: '' },
+    { label: 'Offer ▾', value: '' },
+    { label: '⚙ All Filters', value: 'filters' },
+  ];
+
+  return (
+    <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar pb-1 mb-5">
+      {FILTERS.map((f) => (
+        <button
+          key={f.label}
+          onClick={() => f.value && f.value !== 'filters' && setSortBy(f.value)}
+          className="flex-shrink-0 px-3 py-1.5 text-xs font-semibold rounded-full border transition-all whitespace-nowrap"
+          style={
+            sortBy === f.value && f.value
+              ? { background: '#22C55E', color: '#fff', borderColor: '#22C55E' }
+              : { background: 'transparent', color: '#1A1A1A', borderColor: '#D1D5DB' }
+          }
+          onMouseEnter={e => {
+            if (!(sortBy === f.value && f.value)) {
+              e.currentTarget.style.borderColor = '#22C55E';
+              e.currentTarget.style.color = '#22C55E';
+            }
+          }}
+          onMouseLeave={e => {
+            if (!(sortBy === f.value && f.value)) {
+              e.currentTarget.style.borderColor = '#D1D5DB';
+              e.currentTarget.style.color = '#1A1A1A';
+            }
+          }}
+        >
+          {f.label}
+        </button>
+      ))}
+      <div className="ml-auto flex-shrink-0 flex items-center gap-1">
+        <span className="text-xs font-semibold" style={{ color: '#6B7280' }}>Sort by</span>
+        <ChevronDown className="w-3 h-3" style={{ color: '#6B7280' }} />
+      </div>
+    </div>
+  );
+}
+
+// SkeletonCard
+function SkeletonCard() {
+  return (
+    <div className="rounded-2xl overflow-hidden animate-pulse" style={{ background: '#FFFFFF', border: '1px solid #F3F4F6' }}>
+      <div className="aspect-square" style={{ background: '#EDE6D8' }} />
+      <div className="p-3 space-y-2">
+        <div className="h-2.5 rounded-full w-1/3" style={{ background: '#EDE6D8' }} />
+        <div className="h-3 rounded-full w-4/5" style={{ background: '#EDE6D8' }} />
+        <div className="h-3 rounded-full w-3/5" style={{ background: '#EDE6D8' }} />
+        <div className="h-4 rounded-full w-1/2 mt-2" style={{ background: '#EDE6D8' }} />
+      </div>
+    </div>
+  );
+}
 
 export default function HomeFeed() {
   const [feedItems, setFeedItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { addToCart } = useCartStore();
+  const [sortBy, setSortBy] = useState('');
   const { isGlobeShopActive, isIncognitoActive } = useFeatureStore();
 
   useEffect(() => {
@@ -17,141 +133,80 @@ export default function HomeFeed() {
         const rootUrl = isProd ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
         const apiUrl = import.meta.env.VITE_API_URL || rootUrl;
 
-        const res = await fetch(`${apiUrl}/api/businesses`);
+        // Try new API first
+        const res = await fetch(`${apiUrl}/api/v1/products?limit=24&sort=${sortBy}`);
         if (res.ok) {
-          const businesses = await res.json();
-          // Extract all products into a flat array
-          const allProducts = [];
+          const data = await res.json();
+          setFeedItems(data.products || []);
+          return;
+        }
 
+        // Fallback to old businesses API
+        const res2 = await fetch(`${apiUrl}/api/businesses`);
+        if (res2.ok) {
+          const businesses = await res2.json();
+          const allProducts = [];
           if (Array.isArray(businesses)) {
             businesses.forEach(biz => {
-              if (biz.products && biz.products.length > 0) {
+              if (biz.products?.length > 0) {
                 biz.products.forEach(product => {
                   allProducts.push({
                     ...product,
                     businessId: biz._id,
-                    businessName: biz.category + " Shop" // or biz.name if preferred, let's use biz.name
+                    businessName: biz.name || biz.category + ' Shop',
+                    shopId: { name: biz.name || biz.category + ' Shop' }
                   });
                 });
               }
             });
-
-            // Fix the businessName override
-            const formattedProducts = allProducts.map(p => ({
-              ...p,
-              businessName: businesses.find(b => b._id === p.businessId)?.name || 'Local Shop'
-            }));
-
-            // Optional: Shuffle the array for a dynamic feed
-            const shuffled = formattedProducts.sort(() => 0.5 - Math.random());
-            setFeedItems(shuffled);
           }
+          setFeedItems(allProducts.sort(() => 0.5 - Math.random()));
         }
       } catch (err) {
-        console.error("Failed to load global feed", err);
+        console.error("Failed to load feed", err);
+        // Demo data
+        setFeedItems([
+          { _id: 'p1', name: 'Sony WH-1000XM5 Headphones', price: 29990, originalPrice: 34990, discountPercent: 14, rating: 4.9, reviewCount: 890, images: ['https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=500&q=80'], shopId: { name: 'TechZone Electronics' }, tags: ['NEW'] },
+          { _id: 'p2', name: 'Vintage Acid Wash Oversized Tee', price: 1299, originalPrice: 1999, discountPercent: 35, rating: 4.8, reviewCount: 124, images: ['https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=500&q=80'], shopId: { name: 'UrbanThreads' }, tags: ['TRENDING'], garmentType: 'top' },
+          { _id: 'p3', name: 'Korean Style High Waist Cargo Pants', price: 1899, rating: 4.6, reviewCount: 45, images: ['https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=500&q=80'], shopId: { name: 'Kpop Fashion' }, garmentType: 'bottom' },
+          { _id: 'p4', name: 'Minimalist LED Desk Lamp', price: 899, originalPrice: 1500, discountPercent: 40, rating: 4.7, reviewCount: 200, images: ['https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=500&q=80'], shopId: { name: 'HomeLit' } },
+          { _id: 'p5', name: 'Soy Wax Candle Set (Pack of 3)', price: 699, rating: 4.9, reviewCount: 68, images: ['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=80'], shopId: { name: 'AromaBliss' } },
+          { _id: 'p6', name: 'Premium Leather Bifold Wallet', price: 1499, originalPrice: 2200, discountPercent: 32, rating: 4.5, reviewCount: 411, images: ['https://images.unsplash.com/photo-1627123373596-19e13bba1e2d?w=500&q=80'], shopId: { name: 'LeatherCraft Co.' } },
+          { _id: 'p7', name: 'Monstera Deliciosa Indoor Plant', price: 349, rating: 4.8, reviewCount: 88, images: ['https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=500&q=80'], shopId: { name: 'GreenThumb Nursery' } },
+          { _id: 'p8', name: 'TKL Mechanical Keyboard', price: 3499, originalPrice: 4999, discountPercent: 30, rating: 4.7, reviewCount: 250, images: ['https://images.unsplash.com/photo-1595044426077-d36d9236d54a?w=500&q=80'], shopId: { name: 'KeyMasters' } },
+        ]);
       } finally {
         setLoading(false);
       }
     };
     fetchFeed();
-  }, []);
-
-  if (loading) {
-    return (
-      <section className="py-20 md:py-32 px-6 md:px-16 max-w-7xl mx-auto text-center">
-        <div className="animate-pulse flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-full" style={{ background: '#E8E0D6' }} />
-          <div className="h-6 rounded w-48" style={{ background: '#E8E0D6' }} />
-        </div>
-      </section>
-    );
-  }
-
-  if (feedItems.length === 0) return null;
+  }, [sortBy]);
 
   return (
-    <section className="py-16 md:py-28 px-4 md:px-16 max-w-7xl mx-auto" style={{ borderTop: '1px solid rgba(61,56,48,0.12)' }}>
-      <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-          <h2 className="text-3xl md:text-5xl font-heading font-bold flex items-center gap-3" style={{ color: '#3d3830' }}>
-            <ShoppingBag className="w-8 h-8" style={{ color: '#8E867B' }} />
-            Discover {isGlobeShopActive ? "Global" : "Daily"}
-          </h2>
-          <p className="text-base md:text-lg mt-3 max-w-xl font-body" style={{ color: '#aba49c' }}>
-            {isGlobeShopActive
-              ? "Globe Shop is active. Exploring products from international sellers worldwide."
-              : "A curated feed of the best products and services from local businesses on Akupy."}
-          </p>
-        </div>
-        <Link to="/discover" className="font-semibold transition-colors whitespace-nowrap text-sm" style={{ color: '#8E867B' }}>
-          View all stores &rarr;
+    <section className="px-4 md:px-6 pb-24 xl:pb-6 max-w-[1400px] mx-auto">
+      <PromoBanner />
+      <FilterChips sortBy={sortBy} setSortBy={setSortBy} />
+
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl md:text-2xl font-heading font-black" style={{ color: '#1A1A1A' }}>
+          Products For You!
+        </h2>
+        <Link to="/discover" className="text-sm font-semibold" style={{ color: '#22C55E' }}>
+          View All →
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-        {feedItems.slice(0, 8).map((product, index) => {
-          const isGlobalItem = isGlobeShopActive && (index % 3 === 0 || index % 5 === 0);
-          const displayPrice = isGlobalItem ? (product.price * 0.9).toFixed(2) : Number(product.price).toFixed(2);
-          const currency = isGlobalItem ? '€' : '$';
-
-          return (
-            <div key={index} className="rounded-2xl overflow-hidden group transition-all duration-300 relative flex flex-col hover:-translate-y-1"
-              style={{ background: '#F0EADD', border: '1px solid #D9D5D2' }}
-              onMouseEnter={e => e.currentTarget.style.borderColor = '#8E867B'}
-              onMouseLeave={e => e.currentTarget.style.borderColor = '#D9D5D2'}>
-              <Link to={`/business/${product.businessId}`} className="block aspect-square overflow-hidden relative" style={{ background: '#E8E0D6' }}>
-                {product.imageUrl ? (
-                  <img src={product.imageUrl} alt={product.name} className={`w-full h-full object-cover transition-all duration-700 ${isIncognitoActive ? 'blur-md scale-110' : 'group-hover:scale-105'}`} />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-sm" style={{ color: '#8E867B' }}>No Image</div>
-                )}
-                {isGlobalItem && (
-                  <div className="absolute top-3 left-3 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider z-10 flex items-center gap-1"
-                    style={{ background: '#8E867B', color: '#F3F0E2' }}>
-                    <Globe2 className="w-3 h-3" /> Imported
-                  </div>
-                )}
-                {!product.inStock && (
-                  <div className="absolute top-3 right-3 backdrop-blur-sm text-red-400 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider z-10"
-                    style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)' }}>
-                    Out of Stock
-                  </div>
-                )}
-              </Link>
-              <div className="p-5 flex flex-col flex-grow">
-                <Link to={`/business/${product.businessId}`} className="text-xs font-mono tracking-wider uppercase mb-2 transition-colors flex items-center gap-2" style={{ color: '#8E867B' }}>
-                  {isIncognitoActive ? (
-                    <span className="rounded px-2 py-0.5 font-bold" style={{ background: 'rgba(171,164,156,0.2)', color: '#D9D5D2' }}>Anonymous Seller</span>
-                  ) : (
-                    <span className="transition-colors" style={{ color: '#8E867B' }}>{product.businessName} {isGlobalItem && "(International)"}</span>
-                  )}
-                </Link>
-                <h3 className="text-base font-heading font-bold mb-1.5 line-clamp-1" style={{ color: '#3d3830' }}>{product.name}</h3>
-                <p className="text-sm mb-5 line-clamp-2 min-h-[2.5rem] font-body" style={{ color: '#8E867B' }}>
-                  {isIncognitoActive ? "Product description hidden in incognito mode." : product.description}
-                </p>
-
-                <div className="flex items-center justify-between pt-4 mt-auto" style={{ borderTop: '1px solid #E8E0D6' }}>
-                  <span className="text-lg font-bold text-white">{currency}{displayPrice}</span>
-                  <button
-                    disabled={!product.inStock}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      addToCart(product, { _id: product.businessId, name: product.businessName });
-                    }}
-                    className="px-4 py-2 rounded-full text-sm font-semibold transition-all active:scale-95 disabled:opacity-40"
-                    style={product.inStock ? { background: 'rgba(142,134,123,0.12)', color: '#8E867B', border: '1px solid rgba(142,134,123,0.25)' } : { background: 'rgba(240,234,221,0.4)', color: '#aba49c' }}
-                    onMouseEnter={e => { if (product.inStock) { e.currentTarget.style.background = '#8E867B'; e.currentTarget.style.color = '#F3F0E2'; } }}
-                    onMouseLeave={e => { if (product.inStock) { e.currentTarget.style.background = 'rgba(142,134,123,0.12)'; e.currentTarget.style.color = '#8E867B'; } }}
-                  >
-                    {product.inStock ? 'Add to Cart' : 'Unavailable'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )
-        })}
-      </div>
+      {loading ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
+          {Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
+          {feedItems.slice(0, 24).map((product) => (
+            <ProductCard key={product._id || product.id} product={product} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

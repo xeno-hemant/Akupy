@@ -4,15 +4,15 @@ import { Trash2, ShoppingBag, ArrowRight, ShieldCheck, Tag, Plus, Minus } from '
 import useCartStore from '../store/useCartStore';
 import useFeatureStore from '../store/useFeatureStore';
 
-// Hidden Hues tokens
+// Akupy tokens
 const HH = {
-  ivory: '#F3F0E2',
-  cream: '#F0EADD',
-  linen: '#E8E0D6',
-  silver: '#D9D5D2',
-  taupe: '#8E867B',
-  dark: '#3d3830',
-  muted: '#aba49c',
+  ivory: '#F5F0E8',
+  cream: '#FFFFFF',
+  linen: '#F5F0E8',
+  silver: '#E5E7EB',
+  taupe: '#22C55E',
+  dark: '#1A1A1A',
+  muted: '#9CA3AF',
 };
 
 export default function CartPage() {
@@ -51,10 +51,10 @@ export default function CartPage() {
         <p className="mb-8" style={{ color: textSub }}>Looks like you haven't added anything yet.</p>
         <Link
           to="/discover"
-          className="px-8 py-4 rounded-full font-bold transition-transform shadow-sm active:scale-95"
-          style={{ background: HH.taupe, color: HH.ivory }}
-          onMouseEnter={e => e.currentTarget.style.background = '#7a7268'}
-          onMouseLeave={e => e.currentTarget.style.background = HH.taupe}
+          className="px-8 py-4 rounded-full font-bold transition-transform shadow-sm active:scale-95 text-white"
+          style={{ background: '#22C55E' }}
+          onMouseEnter={e => e.currentTarget.style.background = '#16A34A'}
+          onMouseLeave={e => e.currentTarget.style.background = '#22C55E'}
         >
           Start Shopping
         </Link>
@@ -63,7 +63,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen pb-24" style={{ background: pageBg, paddingTop: '120px' }}>
+    <div className="min-h-screen pb-24 page-bottom-padding" style={{ background: '#F5F0E8', paddingTop: '120px' }}>
       <div className="max-w-[1200px] mx-auto px-4 md:px-6">
 
         <div className="flex items-center justify-between mb-8">
@@ -192,16 +192,16 @@ export default function CartPage() {
                     value={couponCode}
                     onChange={e => setCouponCode(e.target.value)}
                     className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium outline-none border"
-                    style={{ background: HH.ivory, borderColor: HH.silver, color: HH.dark }}
-                    onFocus={e => e.target.style.borderColor = HH.taupe}
-                    onBlur={e => e.target.style.borderColor = HH.silver}
+                    style={{ background: '#FFFFFF', borderColor: '#E5E7EB', color: '#1A1A1A' }}
+                    onFocus={e => e.target.style.borderColor = '#22C55E'}
+                    onBlur={e => e.target.style.borderColor = '#E5E7EB'}
                   />
                   <button
                     type="submit"
-                    className="px-4 py-2.5 rounded-xl font-bold text-sm transition-colors"
-                    style={{ background: HH.taupe, color: HH.ivory }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#7a7268'}
-                    onMouseLeave={e => e.currentTarget.style.background = HH.taupe}
+                    className="px-4 py-2.5 rounded-xl font-bold text-sm transition-colors text-white"
+                    style={{ background: '#22C55E' }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#16A34A'}
+                    onMouseLeave={e => e.currentTarget.style.background = '#22C55E'}
                   >
                     Apply
                   </button>
@@ -253,16 +253,16 @@ export default function CartPage() {
 
               <button
                 onClick={() => navigate('/checkout')}
-                className="w-full py-4 rounded-xl font-black text-base flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
-                style={{ background: HH.dark, color: HH.ivory, minHeight: '56px' }}
-                onMouseEnter={e => e.currentTarget.style.background = HH.taupe}
-                onMouseLeave={e => e.currentTarget.style.background = HH.dark}
+                className="w-full py-4 rounded-xl font-black text-base flex items-center justify-center gap-2 transition-all active:scale-[0.99] text-white"
+                style={{ background: '#22C55E', minHeight: '56px' }}
+                onMouseEnter={e => e.currentTarget.style.background = '#16A34A'}
+                onMouseLeave={e => e.currentTarget.style.background = '#22C55E'}
               >
                 Proceed to Checkout <ArrowRight className="w-5 h-5" />
               </button>
 
-              <div className="flex items-center justify-center gap-2 mt-4 text-xs font-medium" style={{ color: HH.muted }}>
-                <ShieldCheck className="w-4 h-4" style={{ color: '#7a9e7e' }} />
+              <div className="flex items-center justify-center gap-2 mt-4 text-xs font-medium" style={{ color: '#9CA3AF' }}>
+                <ShieldCheck className="w-4 h-4" style={{ color: '#22C55E' }} />
                 Secured with 256-bit encryption
               </div>
             </div>

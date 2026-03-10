@@ -1,24 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle2, QrCode, Upload, ArrowLeft, ShieldCheck, CreditCard, Banknote, Landmark, MapPin } from 'lucide-react';
+import { CheckCircle2, QrCode, Upload, ArrowLeft, ShieldCheck, CreditCard, Banknote, Landmark } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import useCartStore from '../store/useCartStore';
 import useAuthStore from '../store/useAuthStore';
 import useFeatureStore from '../store/useFeatureStore';
 
-// Hidden Hues tokens
-const HH = {
-  ivory: '#F3F0E2',
-  cream: '#F0EADD',
-  linen: '#E8E0D6',
-  silver: '#D9D5D2',
-  taupe: '#8E867B',
-  dark: '#3d3830',
-  muted: '#aba49c',
-  sage: '#7a9e7e',
-  terra: '#b5776e',
-  amber: '#c4a882',
-};
+const G = '#22C55E';
+const GD = '#16A34A';
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
@@ -36,12 +25,6 @@ export default function CheckoutPage() {
   const [incognitoOrderId, setIncognitoOrderId] = useState(null);
 
   const incog = isIncognitoActive;
-  const pageBg = incog ? HH.dark : HH.ivory;
-  const cardBg = incog ? '#2e2a25' : HH.cream;
-  const cardBdr = incog ? HH.taupe : HH.silver;
-  const textMain = incog ? HH.ivory : HH.dark;
-  const textSub = incog ? HH.silver : HH.taupe;
-  const activeBg = incog ? '#3a3530' : HH.linen;
 
   useEffect(() => {
     if (cart.length === 0) navigate('/cart');
@@ -60,7 +43,6 @@ export default function CheckoutPage() {
   const submitOrder = async () => {
     if (paymentMethod === 'upi' && !upiStep) { setUpiStep(true); return; }
     if (paymentMethod === 'upi' && upiStep && !upiScreenshot) return;
-
     setIsProcessing(true);
     try {
       if (isIncognitoActive && anonId) {
@@ -68,13 +50,7 @@ export default function CheckoutPage() {
         const res = await fetch(`${apiUrl}/api/orders/incognito`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            anonId,
-            shopId: cart[0]?.businessId || '000000000000000000000000',
-            products: cart.map(i => ({ productId: i._id, name: i.name, price: i.price, quantity: i.quantity })),
-            totalAmount: finalTotal,
-            deliveryAddress: 'Address Only — No personal details'
-          })
+          body: JSON.stringify({ anonId, shopId: cart[0]?.businessId || '000000000000000000000000', products: cart.map(i => ({ productId: i._id, name: i.name, price: i.price, quantity: i.quantity })), totalAmount: finalTotal, deliveryAddress: 'Address Only — No personal details' })
         });
         if (res.ok) { const d = await res.json(); setIncognitoOrderId(d.order?.incognitoOrderId); }
       }
@@ -87,47 +63,45 @@ export default function CheckoutPage() {
 
   const getUpiUrl = () => `upi://pay?pa=merchant@upi&pn=Akupy&am=${finalTotal.toFixed(2)}&cu=INR`;
 
-  const inputCls = `w-full px-4 py-3 rounded-xl outline-none font-medium text-sm border transition-colors`;
-  const inputSty = { background: HH.ivory, borderColor: HH.silver, color: HH.dark };
+  const inputCls = 'w-full px-4 py-3 rounded-xl outline-none font-medium text-sm border-2 transition-colors';
+  const inputSty = { background: '#FFFFFF', borderColor: '#E5E7EB', color: '#1A1A1A' };
+  const focusBorderGreen = (e) => e.target.style.borderColor = G;
+  const blurBorderGray = (e) => e.target.style.borderColor = '#E5E7EB';
 
   const StepCircle = ({ n, done }) => (
-    <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm" style={{
-      background: done ? HH.sage : (activeStep === n ? HH.taupe : HH.linen),
-      color: done || activeStep === n ? HH.ivory : HH.taupe,
+    <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0" style={{
+      background: done ? G : (activeStep === n ? '#1A1A1A' : '#EDE6D8'),
+      color: done || activeStep === n ? '#FFFFFF' : '#6B7280',
     }}>
-      {done ? <CheckCircle2 className="w-5 h-5" /> : n}
+      {done ? <CheckCircle2 className="w-4 h-4" /> : n}
     </div>
   );
+
+  const cardSty = { background: '#FFFFFF', border: '1px solid #F3F4F6', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' };
 
   if (cart.length === 0) return null;
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen pt-32 pb-24 flex items-center justify-center" style={{ background: pageBg }}>
-        <div className="max-w-md w-full p-8 rounded-3xl text-center" style={{ background: cardBg, border: `1px solid ${cardBdr}` }}>
-          <div className="w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-6 relative" style={{ background: HH.linen }}>
-            <CheckCircle2 className="w-12 h-12" style={{ color: HH.sage }} />
-            {incog && (
-              <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full flex items-center justify-center border-4 text-white shadow-lg animate-bounce text-xl"
-                style={{ background: HH.taupe, borderColor: cardBg }}>
-                🕵️
-              </div>
-            )}
+      <div className="min-h-screen pt-32 pb-24 flex items-center justify-center" style={{ background: '#F5F0E8' }}>
+        <div className="max-w-md w-full p-8 rounded-3xl text-center" style={cardSty}>
+          <div className="w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-6" style={{ background: '#F0FDF4' }}>
+            <CheckCircle2 className="w-12 h-12" style={{ color: G }} />
           </div>
-          <h2 className="text-3xl font-heading font-black mb-4" style={{ color: textMain }}>
+          <h2 className="text-3xl font-heading font-black mb-4" style={{ color: '#1A1A1A' }}>
             {incog ? 'Anonymous Order Placed!' : 'Order Confirmed!'}
           </h2>
-          <p className="mb-8 font-medium" style={{ color: textSub }}>
-            {incog ? 'Your identity is completely hidden from the seller. They only receive the delivery address.' : 'Thank you! Confirmation sent to your email.'}
+          <p className="mb-8 font-medium" style={{ color: '#6B7280' }}>
+            {incog ? 'Your identity is completely hidden from the seller.' : 'Thank you! Confirmation sent to your email.'}
           </p>
           {incog && incognitoOrderId && (
-            <div className="p-4 rounded-2xl mb-8 text-left" style={{ background: HH.linen, border: `1px solid ${HH.silver}` }}>
-              <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: HH.taupe }}>Secure Tracking ID</p>
-              <p className="text-xl font-mono font-black" style={{ color: textMain }}>{incognitoOrderId}</p>
+            <div className="p-4 rounded-2xl mb-8 text-left" style={{ background: '#F5F0E8', border: '1px solid #E5E7EB' }}>
+              <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: '#6B7280' }}>Secure Tracking ID</p>
+              <p className="text-xl font-mono font-black" style={{ color: '#1A1A1A' }}>{incognitoOrderId}</p>
             </div>
           )}
-          <div className="inline-flex items-center gap-2 text-sm font-bold animate-pulse" style={{ color: HH.muted }}>
-            <div className="w-2 h-2 rounded-full" style={{ background: HH.taupe }}></div>
+          <div className="inline-flex items-center gap-2 text-sm font-bold animate-pulse" style={{ color: '#9CA3AF' }}>
+            <div className="w-2 h-2 rounded-full" style={{ background: G }}></div>
             Redirecting...
           </div>
         </div>
@@ -136,26 +110,24 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen pb-24" style={{ background: pageBg, paddingTop: '120px' }}>
+    <div className="min-h-screen pb-24 page-bottom-padding" style={{ background: '#F5F0E8', paddingTop: '120px' }}>
       <div className="max-w-[1000px] mx-auto px-4 md:px-6">
-
-        <button onClick={() => navigate('/cart')} className="flex items-center gap-2 font-bold mb-8 transition-colors" style={{ color: textSub }}>
+        <button onClick={() => navigate('/cart')} className="flex items-center gap-2 font-bold mb-8" style={{ color: '#6B7280' }}>
           <ArrowLeft className="w-4 h-4" /> Back to Cart
         </button>
 
         <div className="flex flex-col lg:flex-row gap-8">
-
           {/* LEFT: Steps */}
           <div className="flex-grow space-y-4">
 
             {/* STEP 1: ACCOUNT */}
-            <div className="rounded-3xl overflow-hidden" style={{ background: cardBg, border: `1px solid ${cardBdr}` }}>
-              <div className="p-6 flex items-center gap-4" style={{ background: activeStep === 1 ? activeBg : 'transparent' }}>
+            <div className="rounded-3xl overflow-hidden" style={cardSty}>
+              <div className="p-5 flex items-center gap-4">
                 <StepCircle n={1} done={activeStep > 1} />
                 <div>
-                  <h3 className="text-lg font-heading font-black" style={{ color: textMain }}>Account</h3>
-                  <p className="text-sm font-medium" style={{ color: textSub }}>
-                    {incog ? '🕵️ Checkout as Anonymous (Incognito Active)'
+                  <h3 className="text-base font-heading font-black" style={{ color: '#1A1A1A' }}>Account</h3>
+                  <p className="text-sm font-medium" style={{ color: '#6B7280' }}>
+                    {incog ? '🕵️ Checkout as Anonymous'
                       : user ? `Logged in as ${user.name || user.username || 'Akupy User'}` : 'Not logged in'}
                   </p>
                 </div>
@@ -163,42 +135,43 @@ export default function CheckoutPage() {
             </div>
 
             {/* STEP 2: DELIVERY */}
-            <div className="rounded-3xl overflow-hidden" style={{ background: cardBg, border: `1px solid ${cardBdr}` }}>
+            <div className="rounded-3xl overflow-hidden" style={cardSty}>
               <div
-                className="p-6 flex items-center justify-between cursor-pointer"
-                style={{ background: activeStep === 2 ? activeBg : 'transparent' }}
+                className="p-5 flex items-center justify-between cursor-pointer"
                 onClick={() => activeStep > 2 && setActiveStep(2)}
               >
                 <div className="flex items-center gap-4">
                   <StepCircle n={2} done={activeStep > 2} />
                   <div>
-                    <h3 className="text-lg font-heading font-black" style={{ color: textMain }}>Delivery Address</h3>
-                    {activeStep > 2 && <p className="text-sm font-medium mt-0.5" style={{ color: textSub }}>{address.street}, {address.city}</p>}
+                    <h3 className="text-base font-heading font-black" style={{ color: '#1A1A1A' }}>Delivery Address</h3>
+                    {activeStep > 2 && <p className="text-sm font-medium mt-0.5" style={{ color: '#6B7280' }}>{address.street}, {address.city}</p>}
                   </div>
                 </div>
-                {activeStep > 2 && <button className="text-sm font-bold" style={{ color: HH.taupe }}>Change</button>}
+                {activeStep > 2 && <button className="text-sm font-bold" style={{ color: G }}>Change</button>}
               </div>
-
               {activeStep === 2 && (
-                <div className="px-6 pb-6">
+                <div className="px-5 pb-5">
                   {incog && (
-                    <div className="p-3 rounded-xl mb-4 text-xs font-bold flex items-start gap-2" style={{ background: HH.linen, color: HH.taupe, border: `1px solid ${HH.silver}` }}>
+                    <div className="p-3 rounded-xl mb-4 text-xs font-bold flex items-start gap-2" style={{ background: '#F0FDF4', color: G, border: '1px solid #DCFCE7' }}>
                       <ShieldCheck className="w-4 h-4 mt-0.5 flex-shrink-0" />
                       <p>This address is forwarded only to the seller for delivery. It won't be stored in your account history.</p>
                     </div>
                   )}
                   <form onSubmit={(e) => { e.preventDefault(); handleNextStep(2); }} className="space-y-4 pt-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <input type="text" placeholder="Full Name" value={address.name} onChange={e => setAddress({ ...address, name: e.target.value })} required className={inputCls} style={inputSty} onFocus={e => e.target.style.borderColor = HH.taupe} onBlur={e => e.target.style.borderColor = HH.silver} />
-                      <input type="tel" placeholder="Mobile Number" value={address.phone} onChange={e => setAddress({ ...address, phone: e.target.value })} required className={inputCls} style={inputSty} onFocus={e => e.target.style.borderColor = HH.taupe} onBlur={e => e.target.style.borderColor = HH.silver} />
+                      <input type="text" placeholder="Full Name" value={address.name} onChange={e => setAddress({ ...address, name: e.target.value })} required className={inputCls} style={inputSty} onFocus={focusBorderGreen} onBlur={blurBorderGray} />
+                      <input type="tel" placeholder="Mobile Number" value={address.phone} onChange={e => setAddress({ ...address, phone: e.target.value })} required className={inputCls} style={inputSty} onFocus={focusBorderGreen} onBlur={blurBorderGray} />
                     </div>
-                    <input type="text" placeholder="House No., Street, Area" value={address.street} onChange={e => setAddress({ ...address, street: e.target.value })} required className={inputCls} style={inputSty} onFocus={e => e.target.style.borderColor = HH.taupe} onBlur={e => e.target.style.borderColor = HH.silver} />
+                    <input type="text" placeholder="House No., Street, Area" value={address.street} onChange={e => setAddress({ ...address, street: e.target.value })} required className={inputCls} style={inputSty} onFocus={focusBorderGreen} onBlur={blurBorderGray} />
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      <input type="text" placeholder="City" value={address.city} onChange={e => setAddress({ ...address, city: e.target.value })} required className={inputCls} style={inputSty} onFocus={e => e.target.style.borderColor = HH.taupe} onBlur={e => e.target.style.borderColor = HH.silver} />
-                      <input type="text" placeholder="State" value={address.state} onChange={e => setAddress({ ...address, state: e.target.value })} required className={inputCls} style={inputSty} onFocus={e => e.target.style.borderColor = HH.taupe} onBlur={e => e.target.style.borderColor = HH.silver} />
-                      <input type="text" placeholder="Pincode" value={address.pincode} onChange={e => setAddress({ ...address, pincode: e.target.value })} required className={inputCls} style={inputSty} onFocus={e => e.target.style.borderColor = HH.taupe} onBlur={e => e.target.style.borderColor = HH.silver} />
+                      <input type="text" placeholder="City" value={address.city} onChange={e => setAddress({ ...address, city: e.target.value })} required className={inputCls} style={inputSty} onFocus={focusBorderGreen} onBlur={blurBorderGray} />
+                      <input type="text" placeholder="State" value={address.state} onChange={e => setAddress({ ...address, state: e.target.value })} required className={inputCls} style={inputSty} onFocus={focusBorderGreen} onBlur={blurBorderGray} />
+                      <input type="text" placeholder="Pincode" value={address.pincode} onChange={e => setAddress({ ...address, pincode: e.target.value })} required className={inputCls} style={inputSty} onFocus={focusBorderGreen} onBlur={blurBorderGray} />
                     </div>
-                    <button type="submit" className="px-8 py-3.5 rounded-xl font-bold transition-colors mt-2" style={{ background: HH.taupe, color: HH.ivory }}>
+                    <button type="submit" className="px-8 py-3.5 rounded-xl font-bold transition-colors text-white"
+                      style={{ background: G }}
+                      onMouseEnter={e => e.currentTarget.style.background = GD}
+                      onMouseLeave={e => e.currentTarget.style.background = G}>
                       Deliver Here
                     </button>
                   </form>
@@ -207,42 +180,40 @@ export default function CheckoutPage() {
             </div>
 
             {/* STEP 3: ORDER SUMMARY */}
-            <div className="rounded-3xl overflow-hidden" style={{ background: cardBg, border: `1px solid ${cardBdr}` }}>
-              <div
-                className="p-6 flex items-center justify-between cursor-pointer"
-                style={{ background: activeStep === 3 ? activeBg : 'transparent' }}
-                onClick={() => activeStep > 3 && setActiveStep(3)}
-              >
+            <div className="rounded-3xl overflow-hidden" style={cardSty}>
+              <div className="p-5 flex items-center justify-between cursor-pointer" onClick={() => activeStep > 3 && setActiveStep(3)}>
                 <div className="flex items-center gap-4">
                   <StepCircle n={3} done={activeStep > 3} />
                   <div>
-                    <h3 className="text-lg font-heading font-black" style={{ color: textMain }}>Order Summary</h3>
-                    {activeStep > 3 && <p className="text-sm font-medium mt-0.5" style={{ color: textSub }}>{cart.length} items</p>}
+                    <h3 className="text-base font-heading font-black" style={{ color: '#1A1A1A' }}>Order Summary</h3>
+                    {activeStep > 3 && <p className="text-sm font-medium mt-0.5" style={{ color: '#6B7280' }}>{cart.length} items</p>}
                   </div>
                 </div>
-                {activeStep > 3 && <button className="text-sm font-bold" style={{ color: HH.taupe }}>Change</button>}
+                {activeStep > 3 && <button className="text-sm font-bold" style={{ color: G }}>Change</button>}
               </div>
-
               {activeStep === 3 && (
-                <div className="px-6 pb-6">
-                  <div className="space-y-3 pt-4 mb-6">
+                <div className="px-5 pb-5">
+                  <div className="space-y-3 pt-4 mb-5">
                     {cart.map((item) => (
-                      <div key={item.variantId} className="flex gap-4 p-4 rounded-2xl" style={{ background: HH.linen, border: `1px solid ${HH.silver}` }}>
-                        <div className="w-16 h-16 rounded-lg overflow-hidden" style={{ background: HH.silver }}>
+                      <div key={item.variantId} className="flex gap-4 p-4 rounded-2xl" style={{ background: '#F5F0E8', border: '1px solid #E5E7EB' }}>
+                        <div className="w-16 h-16 rounded-xl overflow-hidden" style={{ background: '#EDE6D8' }}>
                           <img src={item.images?.[0] || item.imageUrl} alt="" className="w-full h-full object-cover" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-bold text-sm line-clamp-1" style={{ color: textMain }}>{item.name}</h4>
-                          <p className="text-xs font-semibold mt-0.5" style={{ color: textSub }}>{item.shopName}</p>
+                          <h4 className="font-bold text-sm line-clamp-1" style={{ color: '#1A1A1A' }}>{item.name}</h4>
+                          <p className="text-xs font-semibold mt-0.5" style={{ color: '#6B7280' }}>{item.shopName}</p>
                           <div className="flex items-center justify-between mt-2">
-                            <span className="text-xs font-bold" style={{ color: textSub }}>Qty: {item.quantity}</span>
-                            <span className="font-black" style={{ color: textMain }}>₹{item.price * item.quantity}</span>
+                            <span className="text-xs font-bold" style={{ color: '#9CA3AF' }}>Qty: {item.quantity}</span>
+                            <span className="font-black" style={{ color: '#1A1A1A' }}>₹{item.price * item.quantity}</span>
                           </div>
                         </div>
                       </div>
                     ))}
                   </div>
-                  <button onClick={() => handleNextStep(3)} className="px-8 py-3.5 rounded-xl font-bold transition-colors" style={{ background: HH.taupe, color: HH.ivory }}>
+                  <button onClick={() => handleNextStep(3)} className="px-8 py-3.5 rounded-xl font-bold transition-colors text-white"
+                    style={{ background: G }}
+                    onMouseEnter={e => e.currentTarget.style.background = GD}
+                    onMouseLeave={e => e.currentTarget.style.background = G}>
                     Continue to Payment
                   </button>
                 </div>
@@ -250,30 +221,24 @@ export default function CheckoutPage() {
             </div>
 
             {/* STEP 4: PAYMENT */}
-            <div className="rounded-3xl overflow-hidden" style={{ background: cardBg, border: `1px solid ${cardBdr}` }}>
-              <div className="p-6 flex items-center gap-4" style={{ background: activeStep === 4 ? activeBg : 'transparent' }}>
+            <div className="rounded-3xl overflow-hidden" style={cardSty}>
+              <div className="p-5 flex items-center gap-4">
                 <StepCircle n={4} done={false} />
-                <h3 className="text-lg font-heading font-black" style={{ color: textMain }}>Payment Options</h3>
+                <h3 className="text-base font-heading font-black" style={{ color: '#1A1A1A' }}>Payment Options</h3>
               </div>
-
               {activeStep === 4 && (
-                <div className="px-6 pb-6">
+                <div className="px-5 pb-5">
                   {upiStep ? (
                     <div className="flex flex-col items-center pt-6 pb-4 text-center max-w-sm mx-auto animate-fade-in-up">
-                      <div className="w-16 h-16 rounded-full flex items-center justify-center mb-6" style={{ background: HH.linen, border: `1px solid ${HH.silver}` }}>
-                        <QrCode className="w-8 h-8" style={{ color: HH.taupe }} />
+                      <h3 className="text-2xl font-black mb-2" style={{ color: '#1A1A1A' }}>Scan to Pay</h3>
+                      <p className="text-sm font-medium mb-8" style={{ color: '#6B7280' }}>Use Google Pay, PhonePe, or Paytm.</p>
+                      <div className="p-4 rounded-3xl mb-8 hover:scale-105 transition-transform duration-500" style={{ background: 'white', border: '2px solid #E5E7EB' }}>
+                        <QRCodeSVG value={getUpiUrl()} size={200} bgColor="#ffffff" fgColor="#1A1A1A" level="H" />
                       </div>
-                      <h3 className="text-2xl font-black mb-2" style={{ color: textMain }}>Scan to Pay</h3>
-                      <p className="text-sm font-medium mb-8" style={{ color: textSub }}>Use Google Pay, PhonePe, or Paytm.</p>
-
-                      <div className="p-4 rounded-[2rem] mb-8 hover:scale-105 transition-transform duration-500" style={{ background: 'white', border: `1px solid ${HH.silver}` }}>
-                        <QRCodeSVG value={getUpiUrl()} size={200} bgColor="#ffffff" fgColor={HH.dark} level="H" />
-                      </div>
-
-                      <div className="w-full p-5 rounded-2xl" style={{ background: HH.linen, border: `1px solid ${HH.silver}` }}>
-                        <label className="block text-xs font-bold uppercase tracking-wider mb-3" style={{ color: HH.taupe }}>Upload Payment Proof</label>
+                      <div className="w-full p-5 rounded-2xl" style={{ background: '#F5F0E8', border: '1px solid #E5E7EB' }}>
+                        <label className="block text-xs font-bold uppercase tracking-wider mb-3" style={{ color: '#6B7280' }}>Upload Payment Proof</label>
                         <label className="flex flex-col items-center justify-center w-full p-5 border-2 border-dashed rounded-xl cursor-pointer transition-colors"
-                          style={{ borderColor: upiScreenshot ? HH.taupe : HH.silver, background: upiScreenshot ? HH.linen : HH.ivory, color: upiScreenshot ? HH.taupe : HH.muted }}>
+                          style={{ borderColor: upiScreenshot ? G : '#D1D5DB', background: upiScreenshot ? '#F0FDF4' : '#FFFFFF', color: upiScreenshot ? G : '#9CA3AF' }}>
                           <input type="file" accept="image/*" className="hidden" onChange={(e) => setUpiScreenshot(e.target.files[0])} />
                           <Upload className="w-6 h-6 mb-2" />
                           <span className="text-sm font-bold">{upiScreenshot ? `✓ ${upiScreenshot.name}` : 'Attach Screenshot'}</span>
@@ -291,40 +256,40 @@ export default function CheckoutPage() {
                           key={value}
                           className="flex items-center gap-4 p-5 rounded-2xl cursor-pointer transition-all"
                           style={{
-                            background: paymentMethod === value ? HH.linen : 'transparent',
-                            border: `1px solid ${paymentMethod === value ? HH.taupe : HH.silver}`,
-                            borderLeft: paymentMethod === value ? `3px solid ${HH.taupe}` : `1px solid ${HH.silver}`,
+                            background: paymentMethod === value ? '#F0FDF4' : 'transparent',
+                            border: `1.5px solid ${paymentMethod === value ? G : '#E5E7EB'}`,
+                            borderLeft: paymentMethod === value ? `4px solid ${G}` : '1.5px solid #E5E7EB',
                           }}
                         >
-                          <input type="radio" name="payment" value={value} checked={paymentMethod === value} onChange={() => setPaymentMethod(value)} className="w-5 h-5" style={{ accentColor: HH.taupe }} />
-                          <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: HH.linen, color: HH.taupe }}>
-                            <Icon className="w-6 h-6" />
+                          <input type="radio" name="payment" value={value} checked={paymentMethod === value} onChange={() => setPaymentMethod(value)} className="w-5 h-5" style={{ accentColor: G }} />
+                          <div className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: paymentMethod === value ? '#DCFCE7' : '#F5F0E8', color: paymentMethod === value ? G : '#6B7280' }}>
+                            <Icon className="w-5 h-5" />
                           </div>
                           <div>
-                            <h4 className="font-bold text-base" style={{ color: textMain }}>{label}</h4>
-                            <p className="text-sm font-medium" style={{ color: textSub }}>{sub}</p>
+                            <h4 className="font-bold text-base" style={{ color: '#1A1A1A' }}>{label}</h4>
+                            <p className="text-sm font-medium" style={{ color: '#6B7280' }}>{sub}</p>
                           </div>
                         </label>
                       ))}
                     </div>
                   )}
-
-                  <div className="mt-6 pt-5 flex flex-col sm:flex-row gap-3" style={{ borderTop: `1px solid ${HH.silver}` }}>
+                  <div className="mt-5 pt-5 flex flex-col sm:flex-row gap-3" style={{ borderTop: '1px solid #F3F4F6' }}>
                     {upiStep && (
-                      <button onClick={() => setUpiStep(false)} className="py-4 px-6 rounded-xl font-bold border flex-1 transition-colors" style={{ background: 'transparent', borderColor: HH.silver, color: HH.taupe }}>
+                      <button onClick={() => setUpiStep(false)} className="py-4 px-6 rounded-xl font-bold border flex-1 transition-colors" style={{ background: 'transparent', borderColor: '#E5E7EB', color: '#6B7280' }}>
                         Back
                       </button>
                     )}
                     <button
                       onClick={submitOrder}
                       disabled={isProcessing || (paymentMethod === 'upi' && upiStep && !upiScreenshot)}
-                      className="py-4 px-8 rounded-xl font-black text-lg flex items-center justify-center gap-2 flex-[2] transition-all active:scale-[0.98]"
+                      className="py-4 px-8 rounded-xl font-black text-lg flex items-center justify-center gap-2 flex-[2] transition-all active:scale-[0.98] text-white"
                       style={{
-                        background: (isProcessing || (paymentMethod === 'upi' && upiStep && !upiScreenshot)) ? HH.silver : HH.dark,
-                        color: (isProcessing || (paymentMethod === 'upi' && upiStep && !upiScreenshot)) ? HH.muted : HH.ivory,
+                        background: (isProcessing || (paymentMethod === 'upi' && upiStep && !upiScreenshot)) ? '#E5E7EB' : G,
                         cursor: isProcessing ? 'not-allowed' : 'pointer',
                         minHeight: '56px',
                       }}
+                      onMouseEnter={e => { if (!isProcessing) e.currentTarget.style.background = GD; }}
+                      onMouseLeave={e => { if (!isProcessing) e.currentTarget.style.background = G; }}
                     >
                       {isProcessing ? 'Processing...' : paymentMethod === 'upi' && !upiStep ? 'Generate UPI QR' : `Pay ₹${finalTotal} Securely`}
                     </button>
@@ -332,39 +297,36 @@ export default function CheckoutPage() {
                 </div>
               )}
             </div>
-
           </div>
 
-          {/* RIGHT: Summary Pillar */}
-          <div className="w-full lg:w-[340px] flex-shrink-0">
-            <div className="p-6 rounded-3xl sticky top-28" style={{ background: cardBg, border: `1px solid ${cardBdr}`, boxShadow: '0 4px 16px rgba(142,134,123,0.12)' }}>
-              <h3 className="text-lg font-heading font-black mb-4" style={{ color: textMain }}>Summary</h3>
+          {/* RIGHT: Summary */}
+          <div className="w-full lg:w-[320px] flex-shrink-0">
+            <div className="p-6 rounded-3xl sticky top-32" style={cardSty}>
+              <h3 className="text-lg font-heading font-black mb-4" style={{ color: '#1A1A1A' }}>Summary</h3>
               <div className="space-y-3 text-sm font-semibold mb-5">
                 <div className="flex justify-between">
-                  <span style={{ color: textSub }}>Items Total ({cart.length})</span>
-                  <span style={{ color: textMain }}>₹{cartTotal}</span>
+                  <span style={{ color: '#6B7280' }}>Items Total ({cart.length})</span>
+                  <span style={{ color: '#1A1A1A' }}>₹{cartTotal}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span style={{ color: textSub }}>Platform Fee</span>
-                  <span style={{ color: textMain }}>₹5</span>
+                  <span style={{ color: '#6B7280' }}>Platform Fee</span>
+                  <span style={{ color: '#1A1A1A' }}>₹5</span>
                 </div>
                 <div className="flex justify-between">
-                  <span style={{ color: textSub }}>Delivery</span>
-                  <span style={{ color: HH.sage }}>Free</span>
+                  <span style={{ color: '#6B7280' }}>Delivery</span>
+                  <span style={{ color: G }}>Free</span>
                 </div>
               </div>
-              <div className="my-4 h-px" style={{ background: HH.silver }}></div>
+              <div className="my-4 h-px" style={{ background: '#F3F4F6' }}></div>
               <div className="flex justify-between items-center">
-                <span className="text-base font-black" style={{ color: textMain }}>Total Pay</span>
-                <span className="text-2xl font-heading font-black" style={{ color: textMain }}>₹{finalTotal}</span>
+                <span className="text-base font-black" style={{ color: '#1A1A1A' }}>Total Pay</span>
+                <span className="text-2xl font-heading font-black" style={{ color: '#1A1A1A' }}>₹{finalTotal}</span>
               </div>
-
-              <div className="mt-5 flex items-center justify-center gap-2 text-xs font-bold p-3 rounded-xl" style={{ background: HH.linen, color: HH.sage }}>
+              <div className="mt-5 flex items-center justify-center gap-2 text-xs font-bold p-3 rounded-xl" style={{ background: '#F0FDF4', color: G }}>
                 <ShieldCheck className="w-4 h-4" /> Secure 256-bit Encryption
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>
