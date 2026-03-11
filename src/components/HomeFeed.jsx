@@ -150,11 +150,12 @@ export default function HomeFeed() {
           if (Array.isArray(businesses)) {
             businesses.forEach(biz => {
               if (biz.products?.length > 0) {
-                biz.products.forEach(product => {
-                  // Only add if not already in list (simple check)
-                  if (!products.some(p => (p._id || p.id) === (product._id || product.id))) {
+                biz.products.forEach((product, idx) => {
+                  const pId = product._id || product.id || `cat-${biz._id}-${idx}`;
+                  if (!products.some(p => (p._id || p.id) === pId)) {
                     products.push({
                       ...product,
+                      _id: pId,
                       businessId: biz._id,
                       businessName: biz.name || biz.category + ' Shop',
                       shopId: { name: biz.name || biz.category + ' Shop' }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Upload, Save, Instagram, Globe, Facebook } from 'lucide-react';
 import SellerLayout from '../layout/SellerLayout';
 import useAuthStore from '../../store/useAuthStore';
@@ -42,7 +42,7 @@ function Textarea({ rows = 4, ...props }) {
 }
 
 export default function SellerShopProfile() {
-    const { user } = useAuthStore();
+    const { user, token } = useAuthStore();
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
     const [banner, setBanner] = useState(null);
@@ -66,7 +66,7 @@ export default function SellerShopProfile() {
         const load = async () => {
             try {
                 const res = await fetch(`${getApiUrl()}/api/businesses/me`, {
-                    headers: { Authorization: `Bearer ${user?.token}` }
+                    headers: { Authorization: `Bearer ${token}` }
                 });
                 if (res.ok) {
                     const d = await res.json();
@@ -101,7 +101,7 @@ export default function SellerShopProfile() {
         try {
             const res = await fetch(`${getApiUrl()}/api/upload`, {
                 method: 'POST',
-                headers: { Authorization: `Bearer ${user?.token}` },
+                headers: { Authorization: `Bearer ${token}` },
                 body: data
             });
             if (res.ok) {
@@ -140,7 +140,7 @@ export default function SellerShopProfile() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${user?.token}`
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify(payload)
             });

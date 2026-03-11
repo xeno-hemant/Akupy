@@ -200,7 +200,8 @@ export default function Dashboard() {
           handleProductChange(index, 'imageUrl', fullUrl);
         }
       } else {
-        alert("Image upload failed");
+        const errData = await res.json().catch(() => ({}));
+        alert(`Image upload failed: ${errData.message || res.statusText}. Please check backend logs.`);
       }
     } catch (err) {
       console.error(err);
