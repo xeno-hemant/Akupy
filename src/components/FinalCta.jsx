@@ -71,7 +71,7 @@ export default function FinalCta() {
     setStatus('loading');
     const success = await login(email, password);
     if (success) {
-      navigate(role === 'seller' ? '/seller/dashboard' : '/dashboard');
+      navigate(role === 'seller' ? '/seller/dashboard' : '/shop');
     } else {
       setStatus('error');
     }
@@ -134,7 +134,7 @@ export default function FinalCta() {
       if (response.ok) {
         await login(email, password);
         setShowOtpField(false);
-        navigate(role === 'seller' ? '/seller/dashboard' : '/dashboard');
+        navigate(role === 'seller' ? '/seller/dashboard' : '/shop');
       } else {
         const errData = await response.json();
         useAuthStore.setState({ error: errData.message || 'User already exists or invalid data' });
@@ -162,7 +162,7 @@ export default function FinalCta() {
 
       if (response.ok) {
         const success = await login(email, password);
-        if (success) navigate(role === 'seller' ? '/seller/dashboard' : '/dashboard');
+        if (success) navigate(role === 'seller' ? '/seller/dashboard' : '/shop');
         else setStatus('error');
       } else {
         const errData = await response.json();
@@ -226,11 +226,10 @@ export default function FinalCta() {
               Logged in as <span className="font-bold">{user.email}</span>
             </div>
             <button
-              onClick={() => navigate((user.role === 'seller' || location.pathname === '/sell') ? '/seller/dashboard' : '/dashboard')}
               className="rounded-full px-12 py-4 text-lg font-semibold transition-all hover:scale-105 active:scale-95 duration-200"
               style={{ background: '#3d3830', color: '#F3F0E2', boxShadow: '0 0 30px rgba(61,56,48,0.35)' }}
             >
-              Go to Dashboard
+              Go to Mall
             </button>
           </div>
         ) : (

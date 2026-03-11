@@ -81,7 +81,7 @@ export default function Navbar() {
         <div className="max-w-[1400px] mx-auto px-4 md:px-6 h-[60px] flex items-center justify-between gap-4">
 
           {/* Logo */}
-          <Link to="/" className="flex-shrink-0">
+          <Link to="/shop" className="flex-shrink-0">
             <AkupyLogo size="sm" dark={isIncognitoActive} />
           </Link>
 

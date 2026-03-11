@@ -327,6 +327,53 @@
   scrollbar-width: none;
 }
 
+/* ── FIX 7: GLOBAL MOBILE UI SCALING (<= 768px) ── */
+@media (max-width: 768px) {
+  html, body {
+    font-size: 14px !important;
+  }
+
+  h1 { font-size: 24px !important; }
+  h2 { font-size: 20px !important; }
+  h3 { font-size: 18px !important; }
+
+  /* Reduce common paddings/margins */
+  .p-16, .md\:p-16 { padding: 3.5rem !important; }
+  .py-28, .md\:py-28 { padding-top: 5rem !important; padding-bottom: 5rem !important; }
+  .px-16, .md\:px-16 { padding-left: 2.5rem !important; padding-right: 2.5rem !important; }
+
+  /* Bottom Nav scaling */
+  nav.fixed.bottom-0 div.flex.h-\[75px\] {
+    height: 65px !important;
+  }
+
+  /* FAB scaling */
+  nav.fixed.bottom-0 .w-16.h-16 {
+    width: 56px !important;
+    height: 56px !important;
+  }
+  
+  nav.fixed.bottom-0 .w-16.h-16 svg {
+    width: 24px !important;
+    height: 24px !important;
+  }
+
+  /* Product Card scaling */
+  .group.block.rounded-2xl h3 {
+    font-size: 13px !important;
+    min-height: 2rem !important;
+  }
+
+  .group.block.rounded-2xl span.font-black.text-base {
+    font-size: 14px !important;
+  }
+
+  /* Aspect ratio reduction for mobile */
+  .group.block.rounded-2xl .aspect-square {
+    aspect-ratio: 1 / 0.8 !important;
+  }
+}
+
 /* ── Akupy utility classes ── */
 .btn-green {
   background: #22C55E;

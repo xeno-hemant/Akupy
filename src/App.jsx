@@ -40,16 +40,18 @@ gsap.registerPlugin(ScrollTrigger);
 
 import useAuthStore from './store/useAuthStore';
 
-function useIsSellerRoute() {
+function useIsSeller() {
+  const { user } = useAuthStore();
   const location = useLocation();
-  return location.pathname.startsWith('/seller');
+  return location.pathname.startsWith('/seller') || user?.role === 'seller';
 }
 
 function AppInner({ subdomainShopId }) {
   const { user } = useAuthStore();
   const { isIncognitoActive } = useFeatureStore();
   const [toastMessage, setToastMessage] = useState('');
-  const isSellerRoute = useIsSellerRoute();
+  const isSeller = useIsSeller();
+  const location = useLocation();
 
   const { setIncognito } = useFeatureStore();
 
@@ -76,14 +78,14 @@ function AppInner({ subdomainShopId }) {
 
   return (
     <main className="w-full min-h-screen relative transition-colors duration-500"
-      style={{ background: isSellerRoute ? '#F8F9FA' : isIncognitoActive ? '#2C2A27' : '#F5F0E8' }}>
+      style={{ background: isSeller ? '#F8F9FA' : isIncognitoActive ? '#2C2A27' : '#F5F0E8' }}>
 
-      {isIncognitoActive && !isSellerRoute && (
+      {isIncognitoActive && !isSeller && (
         <div className="fixed inset-0 pointer-events-none z-[9990] opacity-100 transition-opacity duration-1000"
           style={{ boxShadow: 'inset 0 0 150px rgba(44,42,39,0.5)' }}></div>
       )}
 
-      {!isSellerRoute && <TryOnOnboardingModal />}
+      {!isSeller && <TryOnOnboardingModal />}
 
       {toastMessage && (
         <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[10000] bg-[#2C2A27]/95 text-white px-6 py-3 rounded-full text-sm font-semibold border border-white/10 shadow-lg animate-fade-in flex items-center gap-3 backdrop-blur-md">
@@ -91,8 +93,8 @@ function AppInner({ subdomainShopId }) {
         </div>
       )}
 
-      {!isSellerRoute && location.pathname !== '/' && <Navbar />}
-      {!isSellerRoute && location.pathname !== '/' && <BottomNav />}
+      {!isSeller && location.pathname !== '/' && <Navbar />}
+      {!isSeller && location.pathname !== '/' && <BottomNav />}
       <TryOnModal />
       <AiAssistantDrawer />
 
@@ -101,7 +103,11 @@ function AppInner({ subdomainShopId }) {
       ) : (
         <Routes>
           {/* Shopper Routeswrapped in Shopper Protection */}
-          <Route path="/" element={<Gateway />} />
+          <Route path="/" element={
+            user ? (
+              user.role === 'seller' ? <Navigate to="/seller/dashboard" replace /> : <Navigate to="/shop" replace />
+            ) : <Gateway />
+          } />
           <Route path="/shop" element={<ProtectedShopperRoute><ShopHome /></ProtectedShopperRoute>} />
           <Route path="/sell" element={<SellLanding />} />
           <Route path="/discover" element={<ProtectedShopperRoute><Discover /></ProtectedShopperRoute>} />

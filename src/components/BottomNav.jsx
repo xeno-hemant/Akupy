@@ -113,14 +113,15 @@ export default function BottomNav() {
 
                         if (item.isFab) {
                             return (
-                                <button
-                                    key={item.id}
-                                    onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                    className="relative -translate-y-6 flex items-center justify-center w-16 h-16 rounded-full bg-[#22C55E] text-white shadow-[0_8px_25px_rgba(34,197,94,0.4)] border-4 border-white transition-all duration-500 hover:scale-110 active:scale-95 z-[1001]"
-                                    style={{ transform: `translateY(-24px) rotate(${isMenuOpen ? '135deg' : '0deg'})` }}
-                                >
-                                    <Plus className="w-8 h-8" />
-                                </button>
+                                <div key={item.id} className="w-16 h-16 flex-shrink-0 relative">
+                                    <button
+                                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                        className="absolute left-1/2 -translate-x-1/2 -translate-y-8 flex items-center justify-center w-16 h-16 rounded-full bg-[#22C55E] text-white shadow-[0_8px_25px_rgba(34,197,94,0.4)] border-4 border-white transition-all duration-500 hover:scale-110 active:scale-95 z-[1001]"
+                                        style={{ transform: `translate(-50%, -12px) rotate(${isMenuOpen ? '135deg' : '0deg'})` }}
+                                    >
+                                        <Plus className="w-8 h-8" />
+                                    </button>
+                                </div>
                             );
                         }
 

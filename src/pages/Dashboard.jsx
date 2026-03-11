@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { DollarSign, Package, Eye, TrendingUp, Ticket, MapPin, Headphones, Smartphone, User as UserIcon, Star, History, Heart, Bell, Globe, ChevronRight } from 'lucide-react';
+import { useNavigate, Navigate } from 'react-router-dom';
 import useAuthStore from '../store/useAuthStore';
-import { Navigate } from 'react-router-dom';
-import { DollarSign, Package, Eye, TrendingUp } from 'lucide-react';
 
 const getApiUrl = () => {
   if (!import.meta.env.DEV && window.location.hostname.includes('akupy.in')) {
@@ -9,22 +9,53 @@ const getApiUrl = () => {
   }
   return `http://${window.location.hostname}:5000`;
 };
+const QuickAction = ({ icon, label, onClick, color }) => (
+  <button
+    onClick={onClick}
+    className="flex flex-col items-center justify-center p-6 rounded-3xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all active:scale-[0.98] group"
+  >
+    <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110" style={{ background: `${color}15`, color: color }}>
+      {icon}
+    </div>
+    <span className="text-sm font-black text-gray-800 tracking-tight">{label}</span>
+  </button>
+);
+
+const Section = ({ title, children }) => (
+  <div className="animate-fade-in">
+    <h3 className="text-xl font-black mb-4 text-[#080808] px-1">{title}</h3>
+    <div className="bg-white border border-gray-100 rounded-[2.5rem] p-3 shadow-sm">
+      {children}
+    </div>
+  </div>
+);
+
+const ListItem = ({ icon, label, onClick }) => (
+  <button
+    onClick={onClick}
+    className="w-full flex items-center justify-between py-4 px-4 border-b border-gray-50 last:border-0 group transition-colors hover:bg-gray-50/50 rounded-2xl"
+  >
+    <div className="flex items-center gap-4 text-gray-700">
+      <div className="p-2 rounded-lg bg-gray-50 group-hover:bg-white transition-colors">
+        {icon}
+      </div>
+      <span className="font-semibold">{label}</span>
+    </div>
+    <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-gray-500 transition-colors" />
+  </button>
+);
 
 export default function Dashboard() {
   const { user, logout } = useAuthStore();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saveStatus, setSaveStatus] = useState('idle');
 
   // Form State
   const [formData, setFormData] = useState({
     // Business specific
-    name: '',
-    shopId: '',
-    category: '',
-    operatingHours: '',
-    description: '',
-    products: [],
-    // Shared / Consumer specific
+    fullName: '',
+    email: '',
     address: '',
     phone: '',
     avatarUrl: ''
@@ -61,6 +92,8 @@ export default function Dashboard() {
             const data = await res.json();
             setFormData(prev => ({
               ...prev,
+              fullName: data.fullName || '',
+              email: data.email || '',
               address: data.address || '',
               phone: data.phone || '',
               avatarUrl: data.avatarUrl || ''
@@ -161,40 +194,22 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen p-3 pt-20 md:p-16 md:pt-32 page-bottom-padding" style={{ background: '#F5F0E8' }}>
-      <div className="max-w-4xl mx-auto rounded-[2rem] md:rounded-[2.5rem] shadow-sm border p-5 md:p-12" style={{ background: '#FFFFFF', borderColor: '#F3F4F6' }}>
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-6 mb-6 md:mb-12">
-          <h1 className="text-2xl md:text-4xl font-heading font-bold" style={{ color: '#1A1A1A' }}>{user.role === 'seller' ? 'Business Dashboard' : 'My Profile'}</h1>
-          <button
-            onClick={logout}
-            className="px-6 py-2.5 md:py-3 rounded-full border-2 font-semibold w-full md:w-auto text-sm md:text-base transition-colors"
-            style={{ borderColor: '#EF4444', color: '#EF4444' }}
-            onMouseEnter={e => { e.currentTarget.style.background = '#EF4444'; e.currentTarget.style.color = '#fff'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#EF4444'; }}
-          >
-            Logout
-          </button>
-        </div>
-
-        <div className="rounded-2xl p-5 md:p-8 mb-6 md:mb-8 border" style={{ background: '#F5F0E8', borderColor: '#F3F4F6' }}>
-          <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
-            {user.role === 'user' && (
-              <div className="relative w-20 h-20 bg-white rounded-full border border-gray-200 shadow-sm overflow-hidden flex-shrink-0 flex items-center justify-center">
-                {formData.avatarUrl ? (
-                  <img src={formData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-gray-400 text-2xl font-semibold">{user.email.charAt(0).toUpperCase()}</span>
-                )}
-              </div>
-            )}
-            <div>
-              <h2 className="text-xl font-semibold mb-2 text-[#080808]">Account Details</h2>
-              <div className="flex flex-col md:flex-row gap-4 md:gap-8 mt-2 text-sm break-all">
-                <div><span className="block" style={{ color: '#aba49c' }}>Email</span><span className="font-mono" style={{ color: '#3d3830' }}>{user.email}</span></div>
-                <div><span className="block" style={{ color: '#aba49c' }}>Account Type</span><span className="capitalize font-medium" style={{ color: '#8E867B' }}>{user.role === 'user' ? 'Shopper' : 'Business'}</span></div>
-              </div>
-            </div>
+      <div className={`max-w-4xl mx-auto ${user.role === 'user' ? 'overflow-hidden' : 'p-5 md:p-12'} rounded-[2rem] md:rounded-[2.5rem] shadow-sm border`} style={{ background: '#FFFFFF', borderColor: '#F3F4F6' }}>
+        {user.role === 'seller' && (
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-6 mb-6 md:mb-12">
+            <h1 className="text-2xl md:text-4xl font-heading font-bold" style={{ color: '#1A1A1A' }}>Business Dashboard</h1>
+            <button
+              onClick={logout}
+              className="px-6 py-2.5 md:py-3 rounded-full border-2 font-semibold w-full md:w-auto text-sm md:text-base transition-colors"
+              style={{ borderColor: '#EF4444', color: '#EF4444' }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#EF4444'; e.currentTarget.style.color = '#fff'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#EF4444'; }}
+            >
+              Logout
+            </button>
           </div>
-        </div>
+        )}
+
 
         {user.role === 'seller' && (
           loading ? (
@@ -476,118 +491,105 @@ export default function Dashboard() {
           loading ? (
             <div className="py-12 text-center text-gray-500">Loading profile data...</div>
           ) : (
-            <div className="space-y-12 animate-fade-in">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-semibold text-[#080808]">Edit Profile</h2>
+            <div className="animate-fade-in -mx-5 md:-mx-12 -mt-6">
+              {/* User Banner */}
+              <div className="px-5 md:px-12 py-8 mb-8 flex justify-between items-center rounded-b-3xl" style={{ background: '#EEF2FF', color: '#1A1A1A' }}>
+                <div>
+                  <h2 className="text-lg font-medium opacity-60">Welcome back,</h2>
+                  <h1 className="text-2xl md:text-3xl font-black">{formData.fullName || user.email.split('@')[0]}</h1>
+                </div>
+                <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-sm overflow-hidden flex items-center justify-center flex-shrink-0" style={{ background: '#22C55E' }}>
+                  {formData.avatarUrl ? (
+                    <img src={formData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-white text-2xl md:text-3xl font-black">{(formData.fullName || user.email).charAt(0).toUpperCase()}</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="px-5 md:px-12 space-y-10">
+                {/* Quick Actions Grid (2x2) */}
+                <div className="grid grid-cols-2 gap-3 md:gap-6">
+                  <QuickAction
+                    icon={<Package className="w-6 h-6" />}
+                    label="My Orders"
+                    onClick={() => navigate('/orders')}
+                    color="#6366F1"
+                  />
+                  <QuickAction
+                    icon={<Ticket className="w-6 h-6" />}
+                    label="Coupons"
+                    onClick={() => navigate('/coupons')}
+                    color="#F59E0B"
+                  />
+                  <QuickAction
+                    icon={<MapPin className="w-6 h-6" />}
+                    label="Addresses"
+                    onClick={() => navigate('/addresses')}
+                    color="#10B981"
+                  />
+                  <QuickAction
+                    icon={<Headphones className="w-6 h-6" />}
+                    label="Help Center"
+                    onClick={() => navigate('/help')}
+                    color="#EC4899"
+                  />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Phone Number</label>
-                    <input
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary outline-none transition-colors"
-                      placeholder="+1 (555) 000-0000"
-                    />
-                  </div>
+                {/* Account Settings */}
+                <Section title="Account Settings">
+                  <ListItem icon={<Smartphone className="w-5 h-5" />} label="Manage Devices" onClick={() => navigate('/devices')} />
+                  <ListItem icon={<UserIcon className="w-5 h-5" />} label="Edit Profile" onClick={() => navigate('/edit-profile')} />
+                </Section>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Primary Delivery Address</label>
-                    <input
-                      type="text"
-                      value={formData.address}
-                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary outline-none transition-colors"
-                      placeholder="123 Main St, Apt 4B"
-                    />
-                  </div>
+                {/* My Activity */}
+                <Section title="My Activity">
+                  <ListItem icon={<Star className="w-5 h-5" />} label="Reviews & Ratings" onClick={() => navigate('/reviews')} />
+                  <ListItem icon={<History className="w-5 h-5" />} label="Order History" onClick={() => navigate('/orders')} />
+                  <ListItem icon={<Heart className="w-5 h-5" />} label="Wishlist" onClick={() => navigate('/wishlist')} />
+                </Section>
 
-                  <div className="space-y-2 md:col-span-2">
-                    <label className="text-sm font-medium text-gray-700">Profile Picture URL (or Upload)</label>
-                    <div className="flex flex-col md:flex-row gap-3">
-                      <input
-                        type="url"
-                        value={formData.avatarUrl}
-                        onChange={(e) => setFormData({ ...formData, avatarUrl: e.target.value })}
-                        className="flex-grow px-4 py-3 rounded-xl border border-gray-200 focus:border-primary outline-none transition-colors"
-                        placeholder="Paste URL..."
-                      />
-                      <div className="relative">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={async (e) => {
-                            const file = e.target.files[0];
-                            if (!file) return;
-                            const uploadData = new FormData();
-                            uploadData.append('image', file);
-                            try {
-                              const res = await fetch(`${getApiUrl()}/api/upload`, {
-                                method: 'POST',
-                                headers: { Authorization: `Bearer ${user.token}` },
-                                body: uploadData
-                              });
-                              if (res.ok) {
-                                const data = await res.json();
-                                setFormData({ ...formData, avatarUrl: getApiUrl() + data.imageUrl });
-                              }
-                            } catch (err) { console.error('Upload failed'); }
-                          }}
-                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                        />
-                        <button
-                          type="button"
-                          className="w-full md:w-auto px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-colors"
-                        >
-                          Upload Image
-                        </button>
+                {/* Preferences */}
+                <Section title="Preferences">
+                  <div className="flex items-center justify-between py-4 border-b border-gray-50 last:border-0 group">
+                    <div className="flex items-center gap-4 text-gray-700">
+                      <div className="p-2 rounded-lg bg-gray-50 group-hover:bg-gray-100 transition-colors">
+                        <Bell className="w-5 h-5" />
                       </div>
+                      <span className="font-semibold">Notifications</span>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        className="sr-only peer" 
+                        defaultChecked={localStorage.getItem('akupy_notifications') === 'true'}
+                        onChange={(e) => localStorage.setItem('akupy_notifications', e.target.checked)}
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#22C55E]"></div>
+                    </label>
+                  </div>
+                  <div className="flex items-center justify-between py-4 last:border-0 group">
+                    <div className="flex items-center gap-4 text-gray-700">
+                      <div className="p-2 rounded-lg bg-gray-50 group-hover:bg-gray-100 transition-colors">
+                        <Globe className="w-5 h-5" />
+                      </div>
+                      <span className="font-semibold">Language</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-400 font-medium text-sm">
+                      English <ChevronRight className="w-4 h-4" />
                     </div>
                   </div>
-                </div>
+                </Section>
 
-                <div className="pt-2 flex items-center gap-4">
+                {/* Logout Button */}
+                <div className="pt-4 pb-12">
                   <button
-                    type="submit"
-                    disabled={saveStatus === 'saving'}
-                    className="font-semibold px-8 py-3 rounded-full transition-transform active:scale-95 disabled:opacity-70"
-                    style={{ background: '#3d3830', color: '#F3F0E2' }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#8E867B'}
-                    onMouseLeave={e => e.currentTarget.style.background = '#3d3830'}
+                    onClick={logout}
+                    className="w-full py-4 rounded-2xl font-black text-lg transition-all active:scale-[0.98] border-2 border-[#EF4444]/10 bg-[#EF4444]/5"
+                    style={{ color: '#EF4444' }}
                   >
-                    {saveStatus === 'saving' ? 'Saving...' : 'Save Changes'}
+                    Logout
                   </button>
-                  {saveStatus === 'success' && <span className="font-medium text-sm" style={{ color: '#7a9e7e' }}>Updated successfully!</span>}
-                  {saveStatus === 'error' && <span className="font-medium text-sm" style={{ color: '#b5776e' }}>Error updating profile.</span>}
-                </div>
-              </form>
-
-              <hr className="border-gray-100" />
-
-              <div>
-                <h2 className="text-2xl font-semibold text-[#080808] mb-6">My Activity</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="bg-white border border-gray-100 rounded-3xl p-8 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ background: 'rgba(142,134,123,0.1)', color: '#8E867B' }}>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" /></svg>
-                    </div>
-                    <h3 className="text-lg font-semibold mb-2">Saved Stores</h3>
-                    <p className="text-gray-500 text-sm">You haven't saved any stores to your favorites yet.</p>
-                    <div className="mt-4 pt-4 border-t border-gray-100">
-                      <a href="/discover" className="font-medium text-sm hover:underline" style={{ color: '#8E867B' }}>Explore businesses →</a>
-                    </div>
-                  </div>
-
-                  <div className="bg-white border border-gray-100 rounded-3xl p-8 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ background: 'rgba(171,164,156,0.1)', color: '#aba49c' }}>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /></svg>
-                    </div>
-                    <h3 className="text-lg font-semibold mb-2">My Reviews</h3>
-                    <p className="text-gray-500 text-sm">Your past reviews and ratings will appear here.</p>
-                  </div>
                 </div>
               </div>
             </div>

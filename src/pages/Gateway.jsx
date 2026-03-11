@@ -1,10 +1,21 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingBag, Store } from 'lucide-react';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import gsap from 'gsap';
 import { AkupyLogo } from '../components/Navbar';
+import useAuthStore from '../store/useAuthStore';
 
 export default function Gateway() {
+  const { user } = useAuthStore();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      if (user.role === 'seller') navigate('/seller/dashboard');
+      else navigate('/shop');
+    }
+  }, [user, navigate]);
+
   useEffect(() => {
     gsap.fromTo('.gateway-card',
       { opacity: 0, y: 20 },

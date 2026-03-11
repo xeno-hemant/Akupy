@@ -55,6 +55,21 @@ export default function SellerTopbar({ onMenuClick, sidebarWidth = 240 }) {
                 <Menu className="w-5 h-5" />
             </button>
 
+            {/* Logo */}
+            <Link to="/seller/dashboard" className="mr-6 hidden xl:block">
+                <div className="flex items-center gap-2">
+                    <svg viewBox="0 0 100 100" className="w-8 h-8">
+                        <line x1="2" y1="30" x2="24" y2="30" stroke="#22C55E" strokeWidth="9" strokeLinecap="round" />
+                        <line x1="0" y1="50" x2="20" y2="50" stroke="#22C55E" strokeWidth="9" strokeLinecap="round" />
+                        <line x1="4" y1="70" x2="24" y2="70" stroke="#22C55E" strokeWidth="9" strokeLinecap="round" />
+                        <path d="M22 22 L78 22 L72 78 L28 78 Z" fill="#22C55E" />
+                        <circle cx="38" cy="90" r="8" fill="#16A34A" />
+                        <circle cx="62" cy="90" r="8" fill="#16A34A" />
+                    </svg>
+                    <div className="text-xl font-black" style={{ color: '#0F172A' }}>akupy<span style={{ color: '#22C55E' }}>.</span></div>
+                </div>
+            </Link>
+
             {/* Page Title */}
             <h1 className="text-lg font-black flex-shrink-0 hidden md:block" style={{ color: '#0F172A' }}>{title}</h1>
 
