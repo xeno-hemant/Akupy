@@ -7,19 +7,6 @@ import useAuthStore from '../../store/useAuthStore';
 const getApiUrl = () => (!import.meta.env.DEV && window.location.hostname.includes('akupy.in'))
     ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
 
-const DEMO_PRODUCTS = Array.from({ length: 18 }, (_, i) => ({
-    _id: `prod_${i + 1}`,
-    name: ['Acid Wash Oversized Tee', 'Sony WH-1000XM5', 'Monstera Deliciosa', 'Leather Bifold Wallet', 'Soy Wax Candle Set', 'LED Desk Lamp', 'Cotton Paisley Kurta', 'Handcrafted Mug', 'Denim Jacket', 'Wireless Speaker'][i % 10],
-    category: ['Fashion', 'Electronics', 'Plants', 'Accessories', 'Lifestyle', 'Home', 'Fashion', 'Lifestyle', 'Fashion', 'Electronics'][i % 10],
-    price: [1299, 29990, 349, 1499, 699, 1199, 899, 449, 2499, 3999][i % 10],
-    salePrice: [999, null, 299, null, null, 899, null, 349, 1999, null][i % 10],
-    stock: [42, 8, 0, 15, 3, 0, 24, 56, 11, 7][i % 10],
-    status: ['active', 'active', 'out_of_stock', 'active', 'low_stock', 'out_of_stock', 'active', 'active', 'active', 'low_stock'][i % 10],
-    sales: [61, 84, 0, 37, 28, 0, 45, 22, 18, 31][i % 10],
-    sku: `SKU-${1000 + i}`,
-    emoji: ['👕', '🎧', '🌿', '👜', '🕯️', '💡', '👗', '☕', '🧥', '🔊'][i % 10],
-}));
-
 function StockBadge({ qty, status }) {
     if (status === 'out_of_stock') return <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: '#FEE2E2', color: '#DC2626' }}>Out of Stock</span>;
     if (status === 'low_stock' || qty <= 5) return <span className="text-xs font-bold" style={{ color: '#F59E0B' }}>{qty} left</span>;
@@ -47,9 +34,9 @@ export default function SellerProducts() {
             setLoading(true);
             try {
                 const res = await fetch(`${getApiUrl()}/api/businesses/products`, { headers: { Authorization: `Bearer ${user?.token}` } });
-                if (res.ok) { const d = await res.json(); setProducts(d.length ? d : DEMO_PRODUCTS); }
-                else setProducts(DEMO_PRODUCTS);
-            } catch { setProducts(DEMO_PRODUCTS); }
+                if (res.ok) { const d = await res.json(); setProducts(d); }
+                else setProducts([]);
+            } catch { setProducts([]); }
             finally { setLoading(false); }
         };
         load();

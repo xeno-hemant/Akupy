@@ -30,10 +30,10 @@ export default function SellerTopbar({ onMenuClick, sidebarWidth = 240 }) {
 
     return (
         <header
-            className="fixed top-0 right-0 z-30 flex items-center gap-4 px-4 md:px-6 h-[60px] transition-all duration-300"
+            className="fixed top-0 right-0 z-30 flex items-center gap-4 px-4 h-[60px] transition-all duration-300"
             style={{
                 left: 0,
-                paddingLeft: `${sidebarWidth + 16}px`,
+                paddingLeft: window.innerWidth >= 1280 ? `${sidebarWidth + 16}px` : '16px',
                 background: '#FFFFFF',
                 borderBottom: '1px solid #F1F5F9',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.08)',

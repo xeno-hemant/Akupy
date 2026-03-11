@@ -4,16 +4,7 @@ import SellerLayout from '../layout/SellerLayout';
 import useAuthStore from '../../store/useAuthStore';
 import StatCard from '../components/StatCard';
 
-const DEMO = Array.from({ length: 14 }, (_, i) => ({
-    _id: `inv_${i + 1}`,
-    emoji: ['👕', '🎧', '🌿', '👜', '🕯️', '💡', '👗', '☕', '🧥', '🔊', '📚', '🖼️', '🎁', '🧴'][i],
-    name: ['Acid Wash Tee', 'Sony WH-1000XM5', 'Monstera Deliciosa', 'Leather Wallet', 'Soy Candles', 'LED Lamp', 'Cotton Kurta', 'Handcrafted Mug', 'Denim Jacket', 'Wireless Speaker', 'Art of Living', 'Canvas Print', 'Gift Box Set', 'Skincare Kit'][i],
-    sku: `SKU-${1000 + i}`,
-    category: ['Fashion', 'Electronics', 'Plants', 'Accessories', 'Lifestyle', 'Home', 'Fashion', 'Lifestyle', 'Fashion', 'Electronics', 'Books', 'Home', 'Lifestyle', 'Beauty'][i],
-    stock: [42, 8, 0, 15, 3, 0, 24, 56, 11, 7, 32, 0, 4, 19][i],
-    threshold: 5,
-    updated: 'Mar 10, 2026',
-}));
+const DEMO = [];
 
 function getStatus(stock) {
     if (stock === 0) return 'out';

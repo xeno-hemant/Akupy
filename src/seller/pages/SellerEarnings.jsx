@@ -3,22 +3,11 @@ import { DollarSign, ArrowUpRight, Calendar, Download, Landmark } from 'lucide-r
 import SellerLayout from '../layout/SellerLayout';
 import StatCard from '../components/StatCard';
 
-const MONTHLY = [18000, 24000, 19000, 31000, 28000, 22000, 35000, 29000, 41000, 37000, 28400, 12300];
+const MONTHLY = Array(12).fill(0);
 const MONTHS = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
 
-const PAYOUTS = [
-    { id: 'PAY-001', date: 'Mar 1, 2026', amount: '₹24,500', bank: 'HDFC ****4521', status: 'paid' },
-    { id: 'PAY-002', date: 'Feb 1, 2026', amount: '₹18,200', bank: 'HDFC ****4521', status: 'paid' },
-    { id: 'PAY-003', date: 'Jan 1, 2026', amount: '₹31,000', bank: 'HDFC ****4521', status: 'paid' },
-    { id: 'PAY-004', date: 'Mar 15, 2026', amount: '₹12,300', bank: 'HDFC ****4521', status: 'processing' },
-];
-
-const TRANSACTIONS = [
-    { orderId: '#AK-00341', product: 'Acid Wash Tee', buyer: 'Priya S.', amount: '₹1,299', fee: '₹26', net: '₹1,273', date: 'Mar 11' },
-    { orderId: '#AK-00340', product: 'Sony Headphones', buyer: 'Rahul M.', amount: '₹29,990', fee: '₹600', net: '₹29,390', date: 'Mar 10' },
-    { orderId: '#AK-00339', product: 'Monstera Plant', buyer: 'Ayesha K.', amount: '₹349', fee: '₹8', net: '₹341', date: 'Mar 10' },
-    { orderId: '#AK-00338', product: 'Leather Wallet', buyer: 'Vikram S.', amount: '₹1,499', fee: '₹30', net: '₹1,469', date: 'Mar 9' },
-];
+const PAYOUTS = [];
+const TRANSACTIONS = [];
 
 function BarChart({ data, labels }) {
     const max = Math.max(...data);
@@ -63,10 +52,10 @@ export default function SellerEarnings() {
 
                 {/* Top Stats */}
                 <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-                    <StatCard title="Total Earned (Lifetime)" value="₹3,45,200" icon={DollarSign} accentColor="#F59E0B" />
-                    <StatCard title="This Month" value="₹28,400" trendValue="+14%" trend="up" subtext="vs last month" icon={ArrowUpRight} accentColor="#22C55E" />
-                    <StatCard title="Pending Payout" value="₹12,300" icon={Calendar} accentColor="#8B5CF6" />
-                    <StatCard title="Next Payout Date" value="Mar 15" icon={Landmark} accentColor="#3B82F6" subtext="3 days away" />
+                    <StatCard title="Total Earned (Lifetime)" value="₹0" icon={DollarSign} accentColor="#F59E0B" />
+                    <StatCard title="This Month" value="₹0" trendValue="0%" trend="up" subtext="vs last month" icon={ArrowUpRight} accentColor="#22C55E" />
+                    <StatCard title="Pending Payout" value="₹0" icon={Calendar} accentColor="#8B5CF6" />
+                    <StatCard title="Next Payout Date" value="--" icon={Landmark} accentColor="#3B82F6" subtext="No pending payout" />
                 </div>
 
                 {/* Earnings Chart */}
@@ -88,7 +77,7 @@ export default function SellerEarnings() {
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div>
                             <h3 className="text-xl font-black" style={{ color: '#78350F' }}>Pending Balance</h3>
-                            <p className="text-3xl font-black mt-1" style={{ color: '#92400E' }}>₹12,300</p>
+                            <p className="text-3xl font-black mt-1" style={{ color: '#92400E' }}>₹0</p>
                             <p className="text-sm mt-1" style={{ color: '#B45309' }}>Available for withdrawal. Minimum payout: ₹500</p>
                             <div className="flex items-center gap-2 mt-2 text-sm font-semibold" style={{ color: '#B45309' }}>
                                 <Landmark className="w-4 h-4" />

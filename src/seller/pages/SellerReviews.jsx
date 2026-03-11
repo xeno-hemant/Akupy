@@ -4,20 +4,14 @@ import SellerLayout from '../layout/SellerLayout';
 
 const GREEN = '#22C55E';
 
-const REVIEWS = [
-    { id: 1, customer: 'Priya S.', initials: 'PS', rating: 5, text: 'Absolutely love the quality! The fabric is super soft and the fit is perfect. Will definitely buy from this shop again. Highly recommend!', product: 'Acid Wash Oversized Tee', productEmoji: '👕', date: 'Mar 10, 2026', helpful: 12, reply: '' },
-    { id: 2, customer: 'Rahul M.', initials: 'RM', rating: 4, text: 'Great product overall. The headphones sound quality is amazing. Packaging could have been a bit better, but the product itself is 10/10.', product: 'Sony WH-1000XM5', productEmoji: '🎧', date: 'Mar 9, 2026', helpful: 8, reply: 'Thank you Rahul! We are working on improving our packaging. Glad you love the sound quality!' },
-    { id: 3, customer: 'Ayesha K.', initials: 'AK', rating: 5, text: 'The monstera arrived in perfect condition, well-packed with care. Healthy leaves, beautiful plant. Worth every rupee!', product: 'Monstera Deliciosa', productEmoji: '🌿', date: 'Mar 8, 2026', helpful: 24, reply: '' },
-    { id: 4, customer: 'Vikram S.', initials: 'VS', rating: 3, text: 'The wallet is decent quality but the stitching on one corner seems a bit off. Customer service was helpful though.', product: 'Leather Bifold Wallet', productEmoji: '👜', date: 'Mar 7, 2026', helpful: 3, reply: '' },
-    { id: 5, customer: 'Sneha P.', initials: 'SP', rating: 5, text: 'The candles smell absolutely divine! They last for hours. Already ordered a second set as gifts.', product: 'Soy Wax Candle Set', productEmoji: '🕯️', date: 'Mar 6, 2026', helpful: 18, reply: '' },
-];
+const REVIEWS = [];
 
 const RATING_DIST = [
-    { stars: 5, pct: 60, count: 144 },
-    { stars: 4, pct: 25, count: 60 },
-    { stars: 3, pct: 10, count: 24 },
-    { stars: 2, pct: 3, count: 7 },
-    { stars: 1, pct: 2, count: 5 },
+    { stars: 5, pct: 0, count: 0 },
+    { stars: 4, pct: 0, count: 0 },
+    { stars: 3, pct: 0, count: 0 },
+    { stars: 2, pct: 0, count: 0 },
+    { stars: 1, pct: 0, count: 0 },
 ];
 
 function Stars({ n, small }) {
@@ -48,7 +42,7 @@ export default function SellerReviews() {
         setReplyText('');
     };
 
-    const avgRating = (REVIEWS.reduce((s, r) => s + r.rating, 0) / REVIEWS.length).toFixed(1);
+    const avgRating = REVIEWS.length ? (REVIEWS.reduce((s, r) => s + r.rating, 0) / REVIEWS.length).toFixed(1) : "0.0";
 
     return (
         <SellerLayout>
@@ -59,8 +53,8 @@ export default function SellerReviews() {
                     <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
                         <div className="text-center flex-shrink-0">
                             <div className="text-6xl font-black" style={{ color: '#0F172A' }}>{avgRating}</div>
-                            <Stars n={Math.round(avgRating)} />
-                            <div className="text-xs mt-1 font-semibold" style={{ color: '#94A3B8' }}>240 reviews</div>
+                            <Stars n={Math.round(Number(avgRating))} />
+                            <div className="text-xs mt-1 font-semibold" style={{ color: '#94A3B8' }}>{REVIEWS.length} reviews</div>
                         </div>
                         <div className="flex-1 min-w-0 space-y-2">
                             {RATING_DIST.map(({ stars, pct, count }) => (

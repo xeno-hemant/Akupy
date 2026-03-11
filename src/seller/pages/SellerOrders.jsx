@@ -22,30 +22,20 @@ function StatusBadge({ status }) {
     );
 }
 
-const DEMO = Array.from({ length: 25 }, (_, i) => ({
-    _id: `AK-${String(340 - i).padStart(5, '0')}`,
-    customer: ['Priya Sharma', 'Rahul Mehta', 'Ayesha Khan', 'Vikram Singh', 'Sneha Patel', 'Arjun Doe', 'Meera Nair'][i % 7],
-    product: ['Acid Wash Tee', 'Sony Headphones', 'Monstera Plant', 'Leather Wallet', 'Soy Candles', 'LED Lamp', 'Cotton Kurta'][i % 7],
-    amount: [1299, 29990, 349, 1499, 699, 1199, 899][i % 7],
-    payment: ['upi', 'card', 'cod', 'upi', 'card'][i % 5],
-    status: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'][i % 5],
-    date: `Mar ${11 - Math.floor(i / 3)}, 2026`,
-}));
-
 const TABS = [
-    { label: 'All', value: 'all', count: 340 },
-    { label: 'Pending', value: 'pending', count: 12 },
-    { label: 'Processing', value: 'processing', count: 28 },
-    { label: 'Shipped', value: 'shipped', count: 80 },
-    { label: 'Delivered', value: 'delivered', count: 110 },
-    { label: 'Cancelled', value: 'cancelled', count: 10 },
+    { label: 'All', value: 'all', count: 0 },
+    { label: 'Pending', value: 'pending', count: 0 },
+    { label: 'Processing', value: 'processing', count: 0 },
+    { label: 'Shipped', value: 'shipped', count: 0 },
+    { label: 'Delivered', value: 'delivered', count: 0 },
+    { label: 'Cancelled', value: 'cancelled', count: 0 },
 ];
 
 const PAYMENT_ICONS = { upi: '📱', card: '💳', cod: '💵' };
 
 export default function SellerOrders() {
     const { user } = useAuthStore();
-    const [orders, setOrders] = useState(DEMO);
+    const [orders, setOrders] = useState([]);
     const [activeTab, setActiveTab] = useState('all');
     const [search, setSearch] = useState('');
     const [selected, setSelected] = useState([]);
