@@ -106,7 +106,7 @@ export default function SellerShopProfile() {
             });
             if (res.ok) {
                 const d = await res.json();
-                const url = getApiUrl() + d.imageUrl;
+                const url = d.imageUrl; // Absolute Cloudinary URL
                 if (type === 'logo') setLogo(url);
                 else setBanner(url);
             }

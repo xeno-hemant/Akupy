@@ -182,8 +182,7 @@ export default function Dashboard() {
 
       if (res.ok) {
         const data = await res.json();
-        const baseUrl = getApiUrl();
-        const fullUrl = baseUrl + data.imageUrl;
+        const fullUrl = data.imageUrl; // Cloudinary URL is now absolute
         
         if (isAvatar) {
           setFormData(prev => ({ ...prev, avatarUrl: fullUrl }));
