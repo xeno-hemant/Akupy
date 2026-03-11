@@ -1,5 +1,5 @@
 const BASE = import.meta.env.VITE_API_URL 
-  || (import.meta.env.DEV ? 'http://localhost:5000' : 'https://akupybackend.onrender.com');
+  || (import.meta.env.DEV ? 'http://localhost:5000' : 'https://akupybackend-1.onrender.com');
 
 export const API = {
   // Auth
