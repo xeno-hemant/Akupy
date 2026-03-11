@@ -12,7 +12,7 @@ export default function FinalCta() {
   const containerRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, login, error: authError, clearError } = useAuthStore();
+  const { user, login, verifyLogin, error: authError, clearError } = useAuthStore();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -61,7 +61,11 @@ export default function FinalCta() {
         executeResetPassword();
       }
     } else if (authMode === 'login') {
-      executeLogin();
+      if (!showOtpField) {
+        executeLogin();
+      } else {
+        executeVerifyLogin();
+      }
     } else if (!showOtpField) {
       requestOtp();
     } else {
@@ -71,9 +75,27 @@ export default function FinalCta() {
 
   const executeLogin = async () => {
     setStatus('loading');
-    const success = await login(email, password);
-    if (success) {
-      navigate(role === 'seller' ? '/seller/dashboard' : '/dashboard');
+    const result = await login(email, password);
+    if (result.success) {
+      if (result.otpRequired) {
+        setShowOtpField(true);
+        setStatus('idle');
+      } else {
+        // Fallback for direct login if backend allows it
+        const roleToUse = result.user?.role || role; 
+        navigate(roleToUse === 'seller' ? '/seller/dashboard' : '/dashboard');
+      }
+    } else {
+      setStatus('error');
+    }
+  };
+
+  const executeVerifyLogin = async () => {
+    setStatus('loading');
+    const result = await verifyLogin(email, otp);
+    if (result.success) {
+      const roleToUse = result.user.role;
+      navigate(roleToUse === 'seller' ? '/seller/dashboard' : '/dashboard');
     } else {
       setStatus('error');
     }
@@ -153,25 +175,28 @@ export default function FinalCta() {
   const verifyOtpAndRegister = async () => {
     setStatus('loading');
     try {
-      const otpRes = await requestWithWakeup(() => api.post(API.VERIFY_OTP, { email, otp }));
-      if (!otpRes.data) {
-        useAuthStore.setState({ error: 'Invalid OTP' });
-        setStatus('error');
-        return;
+      const payload = { email, password, role };
+      if (role === 'seller' && monetizationPlan) {
+        payload.monetizationPlan = monetizationPlan;
       }
-
-      const response = await requestWithWakeup(() => api.post(API.REGISTER, payload));
-      if (response.data) {
-        await login(email, password);
+      const otpRes = await requestWithWakeup(() => api.post(API.VERIFY_REGISTER, { ...payload, otp }));
+      if (otpRes.data && otpRes.data.success) {
+        // Registration successful! The backend already logged us in (returned token + user)
+        const loggedInUser = otpRes.data.user;
+        const token = otpRes.data.token;
+        
+        // Update store
+        useAuthStore.getState().setAuth(loggedInUser, token);
+        
         setShowOtpField(false);
-        navigate(role === 'seller' ? '/seller/dashboard' : '/dashboard');
+        const roleToUse = loggedInUser.role || role;
+        navigate(roleToUse === 'seller' ? '/seller/dashboard' : '/dashboard');
       } else {
-        const errData = response.data;
-        useAuthStore.setState({ error: errData?.message || 'User already exists or invalid data' });
+        useAuthStore.setState({ error: otpRes.data?.message || 'Invalid OTP' });
         setStatus('error');
       }
     } catch (err) {
-      useAuthStore.setState({ error: 'Server error. Please check your connection.' });
+      useAuthStore.setState({ error: err.response?.data?.message || 'Server error. Please check your connection.' });
       setStatus('error');
     }
   };
