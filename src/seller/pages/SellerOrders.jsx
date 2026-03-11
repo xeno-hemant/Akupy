@@ -1,10 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Filter, Download, Eye, Check, X as XIcon, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
-import SellerLayout from '../layout/SellerLayout';
-import useAuthStore from '../../store/useAuthStore';
-
-const getApiUrl = () => (!import.meta.env.DEV && window.location.hostname.includes('akupy.in'))
-    ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
+import API from '../../config/apiRoutes';
+import api from '../../utils/apiHelper';
+import axios from 'axios';
 
 function StatusBadge({ status }) {
     const MAP = {
@@ -44,9 +40,18 @@ export default function SellerOrders() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        setLoading(true);
-        const t = setTimeout(() => setLoading(false), 600);
-        return () => clearTimeout(t);
+        const fetchOrders = async () => {
+            setLoading(true);
+            try {
+                const res = await api.get(API.SELLER_ORDERS);
+                if (res.data) setOrders(res.data);
+            } catch (err) {
+                console.error("Fetch orders failed", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchOrders();
     }, []);
 
     const filtered = orders.filter(o => {

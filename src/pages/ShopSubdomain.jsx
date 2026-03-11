@@ -1,14 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import useCartStore from '../store/useCartStore';
-import useFeatureStore from '../store/useFeatureStore';
-
-const getApiUrl = () => {
-  if (import.meta.env.VITE_API_URL && import.meta.env.VITE_API_URL !== 'http://localhost:5000') {
-    return import.meta.env.VITE_API_URL;
-  }
-  return `http://${window.location.hostname}:5000`;
-};
+import API from '../config/apiRoutes';
+import api from '../utils/apiHelper';
 
 export default function ShopSubdomain({ shopId: propShopId }) {
   const { shopId: paramShopId } = useParams();
@@ -23,9 +14,8 @@ export default function ShopSubdomain({ shopId: propShopId }) {
   useEffect(() => {
     const fetchBusiness = async () => {
       try {
-        const res = await fetch(`${getApiUrl()}/api/businesses/shop/${shopId}`);
-        if (res.ok) {
-          const data = await res.json();
+        const data = await api.get(API.BUSINESS_BY_SHOP_ID(shopId));
+        if (data) {
           setBusiness(data);
         } else {
           setError(true);

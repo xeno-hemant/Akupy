@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, Ruler, Camera, ChevronRight, Info, Shield, RotateCw, CheckCircle, Loader2 } from 'lucide-react';
 import gsap from 'gsap';
 import useAuthStore from '../store/useAuthStore';
+import API from '../config/apiRoutes';
+import api from '../utils/apiHelper';
 
 export default function TryOnModal() {
     const { token } = useAuthStore();
@@ -146,23 +148,12 @@ export default function TryOnModal() {
 
         // 2. Save to Backend
         try {
-            const apiurl = !import.meta.env.DEV && window.location.hostname.includes('akupy.in') 
-              ? 'https://akupybackend.onrender.com' 
-              : `http://${window.location.hostname}:5000`;
-
-            await fetch(`${apiurl}/api/profile/measurements`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    ...measurements,
-                    calculatedSizeTop: topSize,
-                    calculatedSizeBottom: botSize,
-                    bmi: bmiVal.toFixed(1),
-                    bmiCategory
-                })
+            await api.put(API.MEASUREMENTS, {
+                ...measurements,
+                calculatedSizeTop: topSize,
+                calculatedSizeBottom: botSize,
+                bmi: bmiVal.toFixed(1),
+                bmiCategory
             });
 
             setSuccessMessage("✅ Measurements saved! We'll recommend your size on products.");

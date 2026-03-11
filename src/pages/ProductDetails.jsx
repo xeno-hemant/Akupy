@@ -1,9 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Star, ChevronRight, Heart, Share2, ShieldCheck, MapPin, Truck, ChevronDown, ShoppingCart } from 'lucide-react';
-import useCartStore from '../store/useCartStore';
-import useTryOnStore from '../store/useTryOnStore';
 import useFeatureStore from '../store/useFeatureStore';
+import API from '../config/apiRoutes';
+import api from '../utils/apiHelper';
 
 // Hidden Hues tokens
 const HH = {
@@ -39,11 +36,8 @@ export default function ProductDetails() {
         const fetchProd = async () => {
             setLoading(true);
             try {
-                const isProd = !import.meta.env.DEV && window.location.hostname.includes('akupy.in');
-                const url = import.meta.env.VITE_API_URL || (isProd ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`);
-                const res = await fetch(`${url}/api/products/${productId}`);
-                if (res.ok) {
-                    const data = await res.json();
+                const data = await api.get(`${API.PRODUCTS}/${productId}`);
+                if (data) {
                     setProduct(data);
                     if (data.images?.length > 0) setActiveImage(data.images[0]);
                 } else {

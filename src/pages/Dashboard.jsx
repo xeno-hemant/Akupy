@@ -2,13 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { DollarSign, Package, Eye, TrendingUp, Ticket, MapPin, Headphones, Smartphone, User as UserIcon, Star, History, Heart, Bell, Globe, ChevronRight, Pencil } from 'lucide-react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import useAuthStore from '../store/useAuthStore';
+import API from '../config/apiRoutes';
+import api from '../utils/apiHelper';
 
-const getApiUrl = () => {
-  if (!import.meta.env.DEV && window.location.hostname.includes('akupy.in')) {
-    return 'https://akupybackend.onrender.com';
-  }
-  return `http://${window.location.hostname}:5000`;
-};
 const QuickAction = ({ icon, label, onClick, color }) => (
   <button
     onClick={onClick}
@@ -74,38 +70,30 @@ export default function Dashboard() {
     const fetchProfile = async () => {
       try {
         if (user.role === 'seller') {
-          const res = await fetch(`${getApiUrl()}/api/businesses/me`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          if (res.ok) {
-            const data = await res.json();
-            setFormData(prev => ({
-              ...prev,
-              name: data.name || '',
-              shopId: data.shopId || '',
-              category: data.category || '',
-              address: data.address || '',
-              operatingHours: data.operatingHours || '',
-              description: data.description || '',
-              products: data.products || []
-            }));
-          }
+          const res = await api.get(API.SELLER_SHOP);
+          const data = res.data.shop || res.data;
+          setFormData(prev => ({
+            ...prev,
+            name: data.name || '',
+            shopId: data.shopId || '',
+            category: data.category || '',
+            address: data.address || '',
+            operatingHours: data.operatingHours || '',
+            description: data.description || '',
+            products: data.products || []
+          }));
         } else {
           // Fetch Consumer Profile
-          const res = await fetch(`${getApiUrl()}/api/auth/profile`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          if (res.ok) {
-            const data = await res.json();
-            setFormData(prev => ({
-              ...prev,
-              fullName: data.fullName || '',
-              email: data.email || '',
-              address: data.address || '',
-              phone: data.phone || '',
-              avatarUrl: data.avatarUrl || ''
-            }));
-          }
+          const res = await api.get(API.ME);
+          const data = res.data.user || res.data;
+          setFormData(prev => ({
+            ...prev,
+            fullName: data.fullName || '',
+            email: data.email || '',
+            address: data.address || '',
+            phone: data.phone || '',
+            avatarUrl: data.avatarUrl || ''
+          }));
         }
       } catch (err) {
         console.error("Failed to load profile", err);
@@ -121,27 +109,15 @@ export default function Dashboard() {
     setSaveStatus('saving');
 
     try {
-      const endpoint = user.role === 'seller' ? '/api/businesses' : '/api/auth/profile';
-      const method = user.role === 'seller' ? 'POST' : 'PUT';
+      const endpoint = user.role === 'seller' ? API.SELLER_SHOP : API.UPDATE_PROFILE;
+      const res = await api.put(endpoint, formData);
 
-      const res = await fetch(`${getApiUrl()}${endpoint}`, {
-        method: method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(formData)
-      });
-
-      if (res.ok) {
-        setSaveStatus('success');
-        setTimeout(() => setSaveStatus('idle'), 3000);
-      } else {
-        const errorData = await res.json();
-        setSaveStatus(errorData.message || 'error');
-      }
+      setSaveStatus('success');
+      setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (err) {
-      setSaveStatus('error');
+      const msg = err.response?.data?.message || 'Error saving profile.';
+      console.error("Save error:", err);
+      setSaveStatus(msg);
     }
   };
 
@@ -174,37 +150,20 @@ export default function Dashboard() {
     uploadData.append('image', file);
 
     try {
-      const res = await fetch(`${getApiUrl()}/api/upload`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: uploadData
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        const fullUrl = data.imageUrl; // Cloudinary URL is now absolute
-        
-        if (isAvatar) {
-          setFormData(prev => ({ ...prev, avatarUrl: fullUrl }));
-          // Auto-save avatar for shopper
-          await fetch(`${getApiUrl()}/api/auth/profile`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify({ ...formData, avatarUrl: fullUrl })
-          });
-        } else {
-          handleProductChange(index, 'imageUrl', fullUrl);
-        }
+      const res = await api.post(API.UPLOAD, uploadData, true);
+      const fullUrl = res.data.imageUrl; // Cloudinary URL is now absolute
+      
+      if (isAvatar) {
+        setFormData(prev => ({ ...prev, avatarUrl: fullUrl }));
+        // Auto-save avatar for shopper
+        await api.put(API.UPDATE_PROFILE, { ...formData, avatarUrl: fullUrl });
       } else {
-        const errData = await res.json().catch(() => ({}));
-        alert(`Image upload failed: ${errData.message || res.statusText}. Please check backend logs.`);
+        handleProductChange(index, 'imageUrl', fullUrl);
       }
     } catch (err) {
-      console.error(err);
-      alert("Error uploading image");
+      console.error("Upload error:", err);
+      const msg = err.response?.data?.message || err.message;
+      alert(`Image upload failed: ${msg}. Please check backend logs.`);
     }
   };
 

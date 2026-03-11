@@ -5,6 +5,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { X, Search, MapPin, Star, ArrowRight, Store, ShoppingBag, Utensils, Scissors, Shirt } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
+import API from '../config/apiRoutes';
+import api from '../utils/apiHelper';
 
 const CATEGORY_COLORS = {
   Retail: '#8E867B',  // taupe
@@ -51,17 +53,14 @@ export default function GlobeShopOverlay({ onClose }) {
   const fetchShops = async (query = '', country = '', city = '') => {
     setIsLoading(true);
     try {
-      const url = new URL(import.meta.env.VITE_API_URL + '/api/businesses/global');
-      if (query) url.searchParams.append('search', query);
-      if (country) url.searchParams.append('country', country);
-      if (city) url.searchParams.append('city', city);
+      const params = new URLSearchParams();
+      if (query) params.append('search', query);
+      if (country) params.append('country', country);
+      if (city) params.append('city', city);
 
-      const res = await fetch(url.toString());
-      if (res.ok) {
-        const data = await res.json();
-        setShops(data);
-        setFilteredShops(data);
-      }
+      const res = await api.get(`${API.GLOBAL_SHOPS}?${params.toString()}`);
+      setShops(res.data);
+      setFilteredShops(res.data);
     } catch (err) {
       console.error('Error fetching global shops:', err);
     } finally {
@@ -438,8 +437,10 @@ export default function GlobeShopOverlay({ onClose }) {
         {hoveredShop && (
           <div
             ref={tooltipRef}
-            className="absolute z-50 pointer-events-none transform -translate-x-1/2 -translate-y-[120%] backdrop-blur-md rounded-xl p-3 shadow-xl w-max" style={{ background: 'rgba(240,234,221,0.93)', border: '1px solid #D9D5D2' }}
+            className="absolute z-50 pointer-events-none transform -translate-x-1/2 -translate-y-[120%] backdrop-blur-md rounded-xl p-3 shadow-xl w-max"
             style={{
+              background: 'rgba(240,234,221,0.93)',
+              border: '1px solid #D9D5D2',
               left: tooltipPos.x,
               top: tooltipPos.y,
               borderLeft: `3px solid ${CATEGORY_COLORS[hoveredShop.category] || CATEGORY_COLORS.Default}`
@@ -524,11 +525,17 @@ export default function GlobeShopOverlay({ onClose }) {
               {filteredShops.map(shop => (
                 <div
                   key={shop._id}
-                  className="rounded-2xl p-4 transition-all group cursor-pointer" style={{ background: '#F0EADD', border: '1px solid #D9D5D2' }}
-                  onMouseEnter={e => e.currentTarget.style.background = '#E8E0D6'}
+                  className="rounded-2xl p-4 transition-all group cursor-pointer"
+                  style={{ 
+                    background: '#F0EADD', 
+                    border: '1px solid #D9D5D2',
+                    borderLeft: `3px solid ${CATEGORY_COLORS[shop.category] || CATEGORY_COLORS.Default}` 
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = '#E8E0D6';
+                    rotateToShop(shop);
+                  }}
                   onMouseLeave={e => e.currentTarget.style.background = '#F0EADD'}
-                  style={{ borderLeft: `3px solid ${CATEGORY_COLORS[shop.category] || CATEGORY_COLORS.Default}` }}
-                  onMouseEnter={() => rotateToShop(shop)}
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div>

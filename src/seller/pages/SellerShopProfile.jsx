@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Upload, Save, Instagram, Globe, Facebook } from 'lucide-react';
 import SellerLayout from '../layout/SellerLayout';
 import useAuthStore from '../../store/useAuthStore';
+import API from '../../config/apiRoutes';
+import api from '../../utils/apiHelper';
 
 const GREEN = '#22C55E';
-const getApiUrl = () => (!import.meta.env.DEV && window.location.hostname.includes('akupy.in'))
-    ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
 
 function Field({ label, children, hint }) {
     return (
@@ -65,29 +65,28 @@ export default function SellerShopProfile() {
     useEffect(() => {
         const load = async () => {
             try {
-                const res = await fetch(`${getApiUrl()}/api/businesses/me`, {
-                    headers: { Authorization: `Bearer ${token}` }
+                const res = await api.get(API.SELLER_SHOP);
+                const d = res.data;
+                const shop = d.shop || d; // Handle both direct and nested response
+                setForm({
+                    shopName: shop.name || '',
+                    tagline: shop.tagline || '',
+                    businessType: shop.businessType || 'individual',
+                    gst: shop.gst || '',
+                    address: shop.address || '',
+                    email: shop.email || user?.email || '',
+                    phone: shop.phone || '',
+                    returnPolicy: shop.returnPolicy || 'Returns accepted within 7 days of delivery for unused items in original packaging.',
+                    shippingPolicy: shop.shippingPolicy || 'Orders are processed within 1-2 business days. Delivery in 3-7 business days.',
+                    instagram: shop.socialLinks?.instagram || '',
+                    facebook: shop.socialLinks?.facebook || '',
+                    website: shop.socialLinks?.website || '',
                 });
-                if (res.ok) {
-                    const d = await res.json();
-                    setForm({
-                        shopName: d.name || '',
-                        tagline: d.tagline || '',
-                        businessType: d.businessType || 'individual',
-                        gst: d.gst || '',
-                        address: d.address || '',
-                        email: d.email || user?.email || '',
-                        phone: d.phone || '',
-                        returnPolicy: d.returnPolicy || 'Returns accepted within 7 days of delivery for unused items in original packaging.',
-                        shippingPolicy: d.shippingPolicy || 'Orders are processed within 1-2 business days. Delivery in 3-7 business days.',
-                        instagram: d.socialLinks?.instagram || '',
-                        facebook: d.socialLinks?.facebook || '',
-                        website: d.socialLinks?.website || '',
-                    });
-                    setLogo(d.logo);
-                    setBanner(d.banner);
-                }
-            } catch (err) { console.error(err); }
+                setLogo(shop.logo);
+                setBanner(shop.banner);
+            } catch (err) {
+                console.error("Error loading shop profile:", err);
+            }
         };
         load();
     }, [user]);
@@ -99,18 +98,13 @@ export default function SellerShopProfile() {
         const data = new FormData();
         data.append('image', file);
         try {
-            const res = await fetch(`${getApiUrl()}/api/upload`, {
-                method: 'POST',
-                headers: { Authorization: `Bearer ${token}` },
-                body: data
-            });
-            if (res.ok) {
-                const d = await res.json();
-                const url = d.imageUrl; // Absolute Cloudinary URL
-                if (type === 'logo') setLogo(url);
-                else setBanner(url);
-            }
-        } catch (err) { console.error(err); }
+            const res = await api.post(API.UPLOAD, data, true);
+            const url = res.data.imageUrl; // Absolute Cloudinary URL
+            if (type === 'logo') setLogo(url);
+            else setBanner(url);
+        } catch (err) {
+            console.error("Upload error:", err);
+        }
     };
 
     const handleSave = async (e) => {
@@ -136,21 +130,14 @@ export default function SellerShopProfile() {
                 banner
             };
 
-            const res = await fetch(`${getApiUrl()}/api/businesses`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify(payload)
-            });
+            const res = await api.put(API.SELLER_SHOP, payload);
 
-            if (res.ok) {
-                setSaved(true);
-                setTimeout(() => setSaved(false), 3000);
-            }
+            setSaved(true);
+            setTimeout(() => setSaved(false), 3000);
         } catch (err) {
-            console.error(err);
+            console.error("Save failed:", err);
+            const msg = err.response?.data?.message || err.message;
+            alert("Failed to save changes: " + msg);
         } finally {
             setSaving(false);
         }

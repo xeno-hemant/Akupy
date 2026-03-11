@@ -3,9 +3,8 @@ import { Link } from 'react-router-dom';
 import { Search, Plus, Grid, List, Edit2, Copy, Trash2, Filter } from 'lucide-react';
 import SellerLayout from '../layout/SellerLayout';
 import useAuthStore from '../../store/useAuthStore';
-
-const getApiUrl = () => (!import.meta.env.DEV && window.location.hostname.includes('akupy.in'))
-    ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
+import API from '../../config/apiRoutes';
+import api from '../../utils/apiHelper';
 
 function StockBadge({ qty, status }) {
     if (status === 'out_of_stock') return <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: '#FEE2E2', color: '#DC2626' }}>Out of Stock</span>;
@@ -33,10 +32,12 @@ export default function SellerProducts() {
         const load = async () => {
             setLoading(true);
             try {
-                const res = await fetch(`${getApiUrl()}/api/businesses/products`, { headers: { Authorization: `Bearer ${user?.token}` } });
-                if (res.ok) { const d = await res.json(); setProducts(d); }
-                else setProducts([]);
-            } catch { setProducts([]); }
+                const res = await api.get(API.SELLER_PRODUCTS);
+                setProducts(res.data);
+            } catch (err) {
+                console.error("Load products failed:", err);
+                setProducts([]);
+            }
             finally { setLoading(false); }
         };
         load();
@@ -235,7 +236,16 @@ export default function SellerProducts() {
                                 <button className="flex-1 py-2.5 rounded-lg border font-semibold text-sm" style={{ borderColor: '#E2E8F0', color: '#64748B' }}
                                     onClick={() => setConfirmDelete(null)}>Cancel</button>
                                 <button className="flex-1 py-2.5 rounded-lg font-bold text-sm text-white" style={{ background: '#EF4444' }}
-                                    onClick={() => { setProducts(prev => prev.filter(p => p._id !== confirmDelete)); setConfirmDelete(null); }}>
+                                    onClick={async () => {
+                                        try {
+                                            await api.delete(`${API.SELLER_PRODUCTS}/${confirmDelete}`);
+                                            setProducts(prev => prev.filter(p => p._id !== confirmDelete));
+                                            setConfirmDelete(null);
+                                        } catch (err) {
+                                            console.error("Delete failed:", err);
+                                            alert("Failed to delete product: " + (err.response?.data?.message || err.message));
+                                        }
+                                    }}>
                                     Delete
                                 </button>
                             </div>

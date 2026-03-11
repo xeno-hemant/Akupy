@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Send, Bot, User, Sparkles } from 'lucide-react';
 import gsap from 'gsap';
+import API from '../config/apiRoutes';
+import api from '../utils/apiHelper';
 
 export default function AiAssistantDrawer() {
     const [isOpen, setIsOpen] = useState(false);
@@ -49,27 +51,15 @@ export default function AiAssistantDrawer() {
         setIsLoading(true);
 
         try {
-            const isProd = !import.meta.env.DEV && window.location.hostname.includes('akupy.in');
-            const rootUrl = isProd ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
-            const apiUrl = import.meta.env.VITE_API_URL || rootUrl;
-
-            const res = await fetch(`${apiUrl}/api/v1/ai/chat`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: currentInput })
-            });
-
-            if (res.ok) {
-                const data = await res.json();
-                setMessages(prev => [...prev, {
-                    role: 'assistant',
-                    text: data.reply,
-                    recommendations: data.recommendations
-                }]);
-            } else {
-                throw new Error('Failed to get a response');
-            }
+            const res = await api.post(API.AI_CHAT, { message: currentInput });
+            const data = res.data;
+            setMessages(prev => [...prev, {
+                role: 'assistant',
+                text: data.reply,
+                recommendations: data.recommendations
+            }]);
         } catch (error) {
+            console.error("AI Chat error:", error);
             setMessages(prev => [...prev, {
                 role: 'assistant',
                 text: "I'm sorry, I'm having trouble connecting to my brain right now. Please try again in a moment!"

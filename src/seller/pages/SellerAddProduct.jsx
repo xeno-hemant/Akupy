@@ -3,9 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Upload, X, ChevronDown, Save } from 'lucide-react';
 import SellerLayout from '../layout/SellerLayout';
 import useAuthStore from '../../store/useAuthStore';
-
-const getApiUrl = () => (!import.meta.env.DEV && window.location.hostname.includes('akupy.in'))
-    ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
+import API from '../../config/apiRoutes';
+import api from '../../utils/apiHelper';
 
 const GREEN = '#22C55E';
 const CATEGORIES = ['Fashion', 'Electronics', 'Home & Living', 'Plants', 'Books', 'Food & Beverage', 'Sports', 'Lifestyle', 'Accessories', 'Toys'];
@@ -91,6 +90,7 @@ export default function SellerAddProduct() {
     const [status, setStatus] = useState('draft');
     const [chargeTax, setChargeTax] = useState(true);
     const [trackQty, setTrackQty] = useState(true);
+    const [imageFiles, setImageFiles] = useState([]); // Store actual File objects
 
     const [form, setForm] = useState({
         name: '', description: '', category: '', price: '', mrp: '', cost: '',
@@ -107,8 +107,13 @@ export default function SellerAddProduct() {
     const handleImageDrop = (e) => {
         e.preventDefault();
         const files = Array.from(e.dataTransfer?.files || e.target.files || []);
+        
+        // Add to preview
         const urls = files.map(f => URL.createObjectURL(f));
         setImages(prev => [...prev, ...urls]);
+        
+        // Add actual files for later upload
+        setImageFiles(prev => [...prev, ...files]);
     };
 
     const toggleSize = (s) => setSelectedSizes(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
@@ -124,13 +129,60 @@ export default function SellerAddProduct() {
     const handleSave = async (publish = false) => {
         setSaving(true);
         try {
-            const body = { ...form, status: publish ? 'active' : status, images, tags, hasVariants, sizes: selectedSizes };
-            const url = isEdit ? `${getApiUrl()}/api/businesses/products/${id}` : `${getApiUrl()}/api/businesses/products`;
-            const method = isEdit ? 'PUT' : 'POST';
-            await fetch(url, { method, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.token}` }, body: JSON.stringify(body) });
+            // 1. Upload new images first
+            const finalImages = [];
+            
+            // Loop through existing images (if editing, some might be URLs already)
+            for (let i = 0; i < images.length; i++) {
+                const img = images[i];
+                if (img.startsWith('http')) {
+                    // Keep existing Cloudinary URLs
+                    finalImages.push({ url: img });
+                } else if (img.startsWith('blob:')) {
+                    // Find corresponding File object and upload
+                    const fileIndex = images.slice(0, i).filter(u => u.startsWith('blob:')).length;
+                    const file = imageFiles[fileIndex];
+                    if (file) {
+                        const data = new FormData();
+                        data.append('image', file);
+                        const uploadRes = await api.post(API.UPLOAD, data, true);
+                        finalImages.push({ 
+                            url: uploadRes.data.imageUrl,
+                            cloudinaryPublicId: uploadRes.data.cloudinaryPublicId 
+                        });
+                    }
+                }
+            }
+
+            // 2. Prepare product body
+            const body = { 
+                ...form, 
+                status: publish ? 'active' : status, 
+                images: finalImages, 
+                tags, 
+                hasVariants, 
+                sizes: selectedSizes,
+                weight: Number(form.weight) || 0,
+                quantity: Number(form.quantity) || 0,
+                price: Number(form.price) || 0,
+                mrp: Number(form.mrp) || 0,
+                cost: Number(form.cost) || 0
+            };
+
+            // 3. Save to backend
+            const url = isEdit ? `${API.SELLER_PRODUCTS}/${id}` : API.SELLER_PRODUCTS;
+            if (isEdit) {
+                await api.put(url, body);
+            } else {
+                await api.post(url, body);
+            }
+
             setSaved(true);
             setTimeout(() => { navigate('/seller/products'); }, 1500);
-        } catch (err) { console.error(err); }
+        } catch (err) { 
+            console.error("Save failed:", err);
+            alert("Failed to save product: " + (err.response?.data?.message || err.message));
+        }
         finally { setSaving(false); }
     };
 

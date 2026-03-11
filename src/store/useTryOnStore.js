@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import API from '../config/apiRoutes';
+import api from '../utils/apiHelper';
 
 const useTryOnStore = create((set, get) => ({
     // Core Data
@@ -40,23 +42,11 @@ const useTryOnStore = create((set, get) => ({
     openScanner: () => set({ isScannerOpen: true, isOnboardingOptionsOpen: false }),
 
     // Save via API
-    saveManualProfile: async (formData, token) => {
+    saveManualProfile: async (formData) => {
         try {
-            const isProd = !import.meta.env.DEV && window.location.hostname.includes('akupy.in');
-            const rootUrl = isProd ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
-            const apiUrl = import.meta.env.VITE_API_URL || rootUrl;
+            const data = await api.post(API.TRYON_PROFILE, formData);
 
-            const res = await fetch(`${apiUrl}/api/tryon/profile`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(formData)
-            });
-
-            if (res.ok) {
-                const data = await res.json();
+            if (data) {
                 set({
                     bodyProfile: data,
                     isManualFormOpen: false,
@@ -72,17 +62,10 @@ const useTryOnStore = create((set, get) => ({
         }
     },
 
-    fetchProfile: async (token) => {
+    fetchProfile: async () => {
         try {
-            const isProd = !import.meta.env.DEV && window.location.hostname.includes('akupy.in');
-            const rootUrl = isProd ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
-            const apiUrl = import.meta.env.VITE_API_URL || rootUrl;
-
-            const res = await fetch(`${apiUrl}/api/tryon/profile`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (res.ok) {
-                const data = await res.json();
+            const data = await api.get(API.TRYON_PROFILE);
+            if (data) {
                 set({ bodyProfile: data });
             }
         } catch (err) {

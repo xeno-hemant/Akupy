@@ -1,10 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { CheckCircle2, QrCode, Upload, ArrowLeft, ShieldCheck, CreditCard, Banknote, Landmark } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
-import useCartStore from '../store/useCartStore';
-import useAuthStore from '../store/useAuthStore';
 import useFeatureStore from '../store/useFeatureStore';
+import API from '../config/apiRoutes';
+import api from '../utils/apiHelper';
 
 const G = '#22C55E';
 const GD = '#16A34A';
@@ -46,13 +42,14 @@ export default function CheckoutPage() {
     setIsProcessing(true);
     try {
       if (isIncognitoActive && anonId) {
-        const apiUrl = (!import.meta.env.DEV && window.location.hostname.includes('akupy.in')) ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
-        const res = await fetch(`${apiUrl}/api/orders/incognito`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ anonId, shopId: cart[0]?.businessId || '000000000000000000000000', products: cart.map(i => ({ productId: i._id, name: i.name, price: i.price, quantity: i.quantity })), totalAmount: finalTotal, deliveryAddress: 'Address Only — No personal details' })
+        const data = await api.post(API.ORDERS_INCOGNITO, { 
+          anonId, 
+          shopId: cart[0]?.businessId || '000000000000000000000000', 
+          products: cart.map(i => ({ productId: i._id, name: i.name, price: i.price, quantity: i.quantity })), 
+          totalAmount: finalTotal, 
+          deliveryAddress: 'Address Only — No personal details' 
         });
-        if (res.ok) { const d = await res.json(); setIncognitoOrderId(d.order?.incognitoOrderId); }
+        if (data) { setIncognitoOrderId(data.order?.incognitoOrderId); }
       }
       setTimeout(() => {
         setIsProcessing(false); setIsSuccess(true);

@@ -1,8 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import useAuthStore from '../store/useAuthStore';
+import API from '../config/apiRoutes';
+import api from '../utils/apiHelper';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -28,23 +26,16 @@ export default function FinalCta() {
   const [isWakingUp, setIsWakingUp] = useState(false);
 
   const isProdHost = !import.meta.env.DEV && window.location.hostname.includes('akupy.in');
-  const fallbackUrl = isProdHost ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
-  const apiUrl = import.meta.env.VITE_API_URL || fallbackUrl;
 
-  // Helper with 65s timeout and wakeup message after 4s
-  const fetchWithTimeout = async (url, options) => {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 65000);
+  // Helper with wakeup logic for Render
+  const requestWithWakeup = async (apiCallFn) => {
     let wakeupTimer = null;
-    if (isProdHost) {
-      wakeupTimer = setTimeout(() => setIsWakingUp(true), 4000);
-    }
+    if (isProdHost) wakeupTimer = setTimeout(() => setIsWakingUp(true), 4000);
     try {
-      const response = await fetch(url, { ...options, signal: controller.signal });
+      const response = await apiCallFn();
       return response;
     } finally {
-      clearTimeout(timeoutId);
-      clearTimeout(wakeupTimer);
+      if (wakeupTimer) clearTimeout(wakeupTimer);
       setIsWakingUp(false);
     }
   };
@@ -87,31 +78,24 @@ export default function FinalCta() {
   const requestOtp = async () => {
     setStatus('loading');
     try {
-      const response = await fetchWithTimeout(`${apiUrl}/api/auth/send-otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
-      if (response.ok) {
-        const data = await response.json();
+      const res = await requestWithWakeup(() => api.post(`${API.URL_BASE || ''}/api/auth/send-otp`, { email }));
+      if (res.data) {
         setShowOtpField(true);
         setStatus('idle');
         if (showPricingModal) setShowPricingModal(false);
         
-        // Log OTP to console for user if dev fallback triggered
-        if (data.devOtp) {
-          console.log('%c[AKUPY DEV MODE]', 'color: #22C55E; font-weight: bold; font-size: 14px;', `Your verification code is: ${data.devOtp}`);
-          alert(`Dev Mode: Verification code is ${data.devOtp} (also logged to console)`);
+        if (res.data.devOtp) {
+          console.log('%c[AKUPY DEV MODE]', 'color: #22C55E; font-weight: bold; font-size: 14px;', `Your verification code is: ${res.data.devOtp}`);
+          alert(`Dev Mode: Verification code is ${res.data.devOtp} (also logged to console)`);
         }
       } else {
-        const errData = await response.json();
-        const errorMsg = errData.message || 'Error sending OTP';
+        const errorMsg = 'Error sending OTP';
         useAuthStore.setState({ error: errorMsg });
         setStatus('error');
         setShowPricingModal(false);
       }
     } catch (err) {
-      if (err.name === 'AbortError') {
+      if (err.name === 'AbortError' || err.message?.includes('timeout')) {
         useAuthStore.setState({ error: 'Request timed out. Server may be waking up. Please try again.' });
       } else {
         useAuthStore.setState({ error: 'Server error. Please check your connection.' });
@@ -125,12 +109,8 @@ export default function FinalCta() {
   const executeResetPassword = async () => {
     setStatus('loading');
     try {
-      const response = await fetchWithTimeout(`${apiUrl}/api/auth/reset-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, otp, password })
-      });
-      if (response.ok) {
+      const res = await requestWithWakeup(() => api.post(`${API.URL_BASE || ''}/api/auth/reset-password`, { email, otp, password }));
+      if (res.data) {
         alert('Password reset successful! You can now log in.');
         setAuthMode('login');
         setShowOtpField(false);
@@ -142,19 +122,16 @@ export default function FinalCta() {
       }
     } catch (err) {
       setStatus('error');
+      console.error(err);
     }
   };
 
   const requestResetOtp = async () => {
     setStatus('loading');
     try {
-      const response = await fetchWithTimeout(`${apiUrl}/api/auth/forgot-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
-      if (response.ok) {
-        const data = await response.json();
+      const res = await requestWithWakeup(() => api.post(`${API.URL_BASE || ''}/api/auth/forgot-password`, { email }));
+      if (res.data) {
+        const data = res.data;
         setShowOtpField(true);
         setStatus('idle');
         if (data.devOtp) {
@@ -165,20 +142,16 @@ export default function FinalCta() {
       }
     } catch (err) {
       setStatus('error');
+      console.error(err);
     }
   };
 
   const verifyOtpAndRegister = async () => {
     setStatus('loading');
     try {
-      const otpRes = await fetchWithTimeout(`${apiUrl}/api/auth/verify-otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, otp })
-      });
-      if (!otpRes.ok) {
-        const errData = await otpRes.json();
-        useAuthStore.setState({ error: errData.message || 'Invalid OTP' });
+      const otpRes = await requestWithWakeup(() => api.post(`${API.URL_BASE || ''}/api/auth/verify-otp`, { email, otp }));
+      if (!otpRes.data) {
+        useAuthStore.setState({ error: 'Invalid OTP' });
         setStatus('error');
         return;
       }
@@ -187,12 +160,8 @@ export default function FinalCta() {
       if (role === 'seller' && monetizationPlan) {
         payload.monetizationPlan = monetizationPlan;
       }
-      const response = await fetchWithTimeout(`${apiUrl}/api/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (response.ok) {
+      const response = await requestWithWakeup(() => api.post(`${API.URL_BASE || ''}/api/auth/register`, payload));
+      if (response.data) {
         await login(email, password);
         setShowOtpField(false);
         navigate(role === 'seller' ? '/seller/dashboard' : '/dashboard');

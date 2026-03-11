@@ -1,9 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import useAuthStore from '../store/useAuthStore';
-import useCartStore from '../store/useCartStore';
-import useFeatureStore from '../store/useFeatureStore';
 import useTryOnStore from '../store/useTryOnStore';
+import API from '../config/apiRoutes';
+import api from '../utils/apiHelper';
 
 export default function BusinessProfile() {
   const { id } = useParams();
@@ -23,18 +20,14 @@ export default function BusinessProfile() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const isProd = !import.meta.env.DEV && window.location.hostname.includes('akupy.in');
-      const rootUrl = isProd ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
-      const apiUrl = import.meta.env.VITE_API_URL || rootUrl;
-
       try {
-        const [bizRes, revRes] = await Promise.all([
-          fetch(`${apiUrl}/api/businesses/${id}`),
-          fetch(`${apiUrl}/api/businesses/${id}/reviews`)
+        const [bizData, revData] = await Promise.all([
+          api.get(API.BUSINESS_BY_ID(id)),
+          api.get(API.BUSINESS_REVIEWS(id))
         ]);
 
-        if (bizRes.ok) setBusiness(await bizRes.json());
-        if (revRes.ok) setReviews(await revRes.json());
+        if (bizData) setBusiness(bizData);
+        if (revData) setReviews(revData);
       } catch (err) {
         console.error("Failed to load profile details", err);
       } finally {
@@ -50,32 +43,19 @@ export default function BusinessProfile() {
     setReviewStatus('submitting');
 
     try {
-      const isProd = !import.meta.env.DEV && window.location.hostname.includes('akupy.in');
-      const rootUrl = isProd ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
-      const apiUrl = import.meta.env.VITE_API_URL || rootUrl;
+      const data = await api.post(API.BUSINESS_REVIEWS(id), { rating, comment });
 
-      const res = await fetch(`${apiUrl}/api/businesses/${id}/reviews`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ rating, comment })
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
+      if (data) {
         setReviewStatus('success');
         // Add new review to top of list
         setReviews([{ ...data, user: { email: user.email } }, ...reviews]);
         setComment('');
       } else {
         setReviewStatus('error');
-        alert(data.message || 'Error submitting review');
       }
     } catch (err) {
       setReviewStatus('error');
+      alert(err.message || 'Error submitting review');
     }
   };
 

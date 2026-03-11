@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Star, ArrowRight, ShieldCheck, Globe } from 'lucide-react';
+import API from '../config/apiRoutes';
+import api from '../utils/apiHelper';
 
 export default function ShopDiscovery() {
     const [shops, setShops] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch(`${import.meta.env.VITE_API_URL}/api/businesses`)
-            .then(res => res.json())
-            .then(data => {
+        api.get(API.BUSINESSES)
+            .then(res => {
+                const data = res.data;
                 if (!data || data.length === 0) throw new Error('No shops yet');
                 setShops(data);
             })

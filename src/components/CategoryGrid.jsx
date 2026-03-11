@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import API from '../config/apiRoutes';
+import api from '../utils/apiHelper';
 
 const CATEGORY_UI = {
     Fashion: { icon: '👗' },
@@ -21,9 +23,9 @@ export default function CategoryGrid() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch(`${import.meta.env.VITE_API_URL}/api/categories`)
-            .then(res => res.json())
-            .then(data => {
+        api.get(API.CATEGORIES)
+            .then(res => {
+                const data = res.data;
                 if (!data || data.length === 0) {
                     setCategories(Object.keys(CATEGORY_UI).map(name => ({ name, count: Math.floor(Math.random() * 500) + 10 })));
                 } else {

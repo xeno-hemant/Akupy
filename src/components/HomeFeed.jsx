@@ -4,6 +4,8 @@ import { ShoppingCart, SlidersHorizontal, ChevronDown } from 'lucide-react';
 import ProductCard from './ProductCard';
 import useCartStore from '../store/useCartStore';
 import useFeatureStore from '../store/useFeatureStore';
+import API from '../config/apiRoutes';
+import api from '../utils/apiHelper';
 
 // Promo Banner Component
 function PromoBanner() {
@@ -131,40 +133,31 @@ export default function HomeFeed() {
   useEffect(() => {
     const fetchFeed = async () => {
       try {
-        const isProd = !import.meta.env.DEV && window.location.hostname.includes('akupy.in');
-        const rootUrl = isProd ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
-        const apiUrl = import.meta.env.VITE_API_URL || rootUrl;
-
         // Try new API first
-        const res = await fetch(`${apiUrl}/api/v1/products?limit=24&sort=${sortBy}`);
-        let products = [];
-        if (res.ok) {
-          const data = await res.json();
-          products = data.products || [];
-        }
+        const res = await api.get(`${API.PRODUCTS}?limit=24&sort=${sortBy}`);
+        let products = res.data.products || [];
 
         // If no products from v1, or we want to augment with Business catalog
-        const res2 = await fetch(`${apiUrl}/api/businesses`);
-        if (res2.ok) {
-          const businesses = await res2.json();
-          if (Array.isArray(businesses)) {
-            businesses.forEach(biz => {
-              if (biz.products?.length > 0) {
-                biz.products.forEach((product, idx) => {
-                  const pId = product._id || product.id || `cat-${biz._id}-${idx}`;
-                  if (!products.some(p => (p._id || p.id) === pId)) {
-                    products.push({
-                      ...product,
-                      _id: pId,
-                      businessId: biz._id,
-                      businessName: biz.name || biz.category + ' Shop',
-                      shopId: { name: biz.name || biz.category + ' Shop' }
-                    });
-                  }
-                });
-              }
-            });
-          }
+        // Assuming SHops or Businesses are mapped to API.SHOPS
+        const res2 = await api.get(API.SHOPS);
+        const businesses = res2.data;
+        if (Array.isArray(businesses)) {
+          businesses.forEach(biz => {
+            if (biz.products?.length > 0) {
+              biz.products.forEach((product, idx) => {
+                const pId = product._id || product.id || `cat-${biz._id}-${idx}`;
+                if (!products.some(p => (p._id || p.id) === pId)) {
+                  products.push({
+                    ...product,
+                    _id: pId,
+                    businessId: biz._id,
+                    businessName: biz.name || biz.category + ' Shop',
+                    shopId: { name: biz.name || biz.category + ' Shop' }
+                  });
+                }
+              });
+            }
+          });
         }
         
         setFeedItems(products.length > 0 ? products : []);

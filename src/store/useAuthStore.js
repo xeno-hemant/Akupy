@@ -1,22 +1,11 @@
 import { create } from 'zustand';
+import API from '../config/apiRoutes';
 
 // Check local storage for initial state
 const storedUser = JSON.parse(localStorage.getItem('akupy_user') || 'null');
 const storedToken = localStorage.getItem('akupy_token') || null;
 
-// Dynamic API URL for local network testing
-const getApiUrl = () => {
-  if (import.meta.env.VITE_API_URL && import.meta.env.VITE_API_URL !== 'http://localhost:5000') {
-    return import.meta.env.VITE_API_URL;
-  }
-
-  if (!import.meta.env.DEV && window.location.hostname.includes('akupy.in')) {
-    return 'https://akupybackend.onrender.com';
-  }
-
-  return `http://${window.location.hostname}:5000`;
-};
-
+""
 const useAuthStore = create((set) => ({
   user: storedUser,
   token: storedToken,
@@ -26,7 +15,7 @@ const useAuthStore = create((set) => ({
   login: async (email, password) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await fetch(`${getApiUrl()}/api/auth/login`, {
+      const response = await fetch(API.LOGIN, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

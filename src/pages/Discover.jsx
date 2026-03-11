@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
-import ProductCard from '../components/ProductCard';
 import { SlidersHorizontal, ChevronDown, X, Star, Search } from 'lucide-react';
+import API from '../config/apiRoutes';
+import api from '../utils/apiHelper';
 
 const SORT_OPTIONS = [
   { label: 'Relevance', value: '' },
@@ -57,9 +56,7 @@ export default function Discover() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const isProd = !import.meta.env.DEV && window.location.hostname.includes('akupy.in');
-      const rootUrl = isProd ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
-      let url = `${rootUrl}/api/v1/products?page=1&limit=24`;
+      let url = `${API.PRODUCTS}?page=1&limit=24`;
       if (query) url += `&search=${encodeURIComponent(query)}`;
       if (category && category !== 'for-you') url += `&category=${encodeURIComponent(category)}`;
       if (sortBy) url += `&sort=${sortBy}`;
@@ -68,9 +65,8 @@ export default function Discover() {
       if (rating) url += `&rating=${rating}`;
       if (discount) url += `&discount=${discount}`;
 
-      const res = await fetch(url);
-      if (res.ok) {
-        const data = await res.json();
+      const data = await api.get(url);
+      if (data) {
         setProducts(data.products || []);
         setTotal(data.total || 0);
       } else throw new Error('API error');
