@@ -26,7 +26,7 @@ export default function SellerTopbar({ onMenuClick, sidebarWidth = 240 }) {
     const [searchValue, setSearchValue] = useState('');
 
     const title = PAGE_TITLES[location.pathname] || 'Seller Portal';
-    const notifications = 3; // Demo
+    const notifications = 0; // Reset dummy data
 
     return (
         <header
@@ -81,7 +81,7 @@ export default function SellerTopbar({ onMenuClick, sidebarWidth = 240 }) {
                     </Link>
                     <div className="w-1 h-1 rounded-full bg-gray-300 hidden md:block" />
                 </div>
-                <h1 className="text-sm md:text-xl font-bold text-[#1E293B] truncate max-w-[200px] md:max-w-none">
+                <h1 className="text-sm md:text-lg font-bold text-[#1E293B] truncate max-w-[150px] md:max-w-none">
                     {title}
                 </h1>
             </div>

@@ -137,33 +137,37 @@ export default function HomeFeed() {
 
         // Try new API first
         const res = await fetch(`${apiUrl}/api/v1/products?limit=24&sort=${sortBy}`);
+        let products = [];
         if (res.ok) {
           const data = await res.json();
-          setFeedItems(data.products || []);
-          return;
+          products = data.products || [];
         }
 
-        // Fallback to old businesses API
+        // If no products from v1, or we want to augment with Business catalog
         const res2 = await fetch(`${apiUrl}/api/businesses`);
         if (res2.ok) {
           const businesses = await res2.json();
-          const allProducts = [];
           if (Array.isArray(businesses)) {
             businesses.forEach(biz => {
               if (biz.products?.length > 0) {
                 biz.products.forEach(product => {
-                  allProducts.push({
-                    ...product,
-                    businessId: biz._id,
-                    businessName: biz.name || biz.category + ' Shop',
-                    shopId: { name: biz.name || biz.category + ' Shop' }
-                  });
+                  // Only add if not already in list (simple check)
+                  if (!products.some(p => (p._id || p.id) === (product._id || product.id))) {
+                    products.push({
+                      ...product,
+                      businessId: biz._id,
+                      businessName: biz.name || biz.category + ' Shop',
+                      shopId: { name: biz.name || biz.category + ' Shop' }
+                    });
+                  }
                 });
               }
             });
           }
-          setFeedItems(allProducts.sort(() => 0.5 - Math.random()));
         }
+        
+        setFeedItems(products.length > 0 ? products : []);
+        if (products.length > 0) return;
       } catch (err) {
         console.error("Failed to load feed", err);
         // Demo data

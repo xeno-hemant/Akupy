@@ -131,7 +131,7 @@ export default function SellerSidebar({ isOpen, onClose, collapsed }) {
                                     onClick={(e) => {
                                         if (item.path === '/seller/help') {
                                             e.preventDefault();
-                                            window.dispatchEvent(new CustomEvent('open-ai-chat'));
+                                            window.dispatchEvent(new CustomEvent('open-ai-help'));
                                         }
                                         onClose?.();
                                     }}

@@ -16,6 +16,7 @@ import BottomNav from './components/BottomNav';
 import TryOnModal from './components/TryOnModal';
 import AiAssistantDrawer from './components/AiAssistantDrawer';
 import AiHelpAgent from './components/AiHelpAgent';
+import ProfileSubPages from './pages/ProfileSubPages';
 import { ProtectedSellerRoute, ProtectedShopperRoute } from './components/ProtectedRoute';
 import CustomCursor from './components/CustomCursor';
 import TryOnOnboardingModal from './components/tryon/TryOnOnboardingModal';
@@ -84,13 +85,19 @@ function AppInner({ subdomainShopId }) {
       setIsAiHelpOpen(true);
     };
 
+    const handleOpenAiAssistant = () => {
+      // Logic for main assistant handled in AiAssistantDrawer
+    };
+
     window.addEventListener('incognito-toast', handleToast);
     window.addEventListener('toggle-incognito', handleToggleIncognito);
-    window.addEventListener('open-ai-chat', handleOpenAiHelp);
+    window.addEventListener('open-ai-help', handleOpenAiHelp);
+    window.addEventListener('open-ai-chat', handleOpenAiAssistant);
     return () => {
       window.removeEventListener('incognito-toast', handleToast);
       window.removeEventListener('toggle-incognito', handleToggleIncognito);
-      window.removeEventListener('open-ai-chat', handleOpenAiHelp);
+      window.removeEventListener('open-ai-help', handleOpenAiHelp);
+      window.removeEventListener('open-ai-chat', handleOpenAiAssistant);
     };
   }, [isIncognitoActive, setIncognito]);
 
@@ -136,6 +143,15 @@ function AppInner({ subdomainShopId }) {
           <Route path="/checkout" element={<ProtectedShopperRoute><CheckoutPage /></ProtectedShopperRoute>} />
           <Route path="/wardrobe" element={<ProtectedShopperRoute><TryOnGalleryPage /></ProtectedShopperRoute>} />
           <Route path="/product/:productId" element={<ProductDetails />} />
+
+          {/* Shopper Profile Sub-Pages */}
+          <Route path="/orders" element={<ProtectedShopperRoute><ProfileSubPages type="orders" /></ProtectedShopperRoute>} />
+          <Route path="/coupons" element={<ProtectedShopperRoute><ProfileSubPages type="coupons" /></ProtectedShopperRoute>} />
+          <Route path="/addresses" element={<ProtectedShopperRoute><ProfileSubPages type="addresses" /></ProtectedShopperRoute>} />
+          <Route path="/devices" element={<ProtectedShopperRoute><ProfileSubPages type="devices" /></ProtectedShopperRoute>} />
+          <Route path="/edit-profile" element={<ProtectedShopperRoute><ProfileSubPages type="edit-profile" /></ProtectedShopperRoute>} />
+          <Route path="/reviews" element={<ProtectedShopperRoute><ProfileSubPages type="reviews" /></ProtectedShopperRoute>} />
+          <Route path="/wishlist" element={<ProtectedShopperRoute><ProfileSubPages type="wishlist" /></ProtectedShopperRoute>} />
 
           {/* Seller Portal Routes */}
           <Route path="/seller" element={<ProtectedSellerRoute><SellerDashboard /></ProtectedSellerRoute>} />

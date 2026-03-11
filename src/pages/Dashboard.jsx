@@ -167,14 +167,13 @@ export default function Dashboard() {
     setFormData(prev => ({ ...prev, products: updatedProducts }));
   };
 
-  const handleImageUpload = async (index, file) => {
+  const handleImageUpload = async (index, file, isAvatar = false) => {
     if (!file) return;
 
     const uploadData = new FormData();
     uploadData.append('image', file);
 
     try {
-      // Show uploading state here if desired (e.g. by setting a temporary string 'Uploading...')
       const res = await fetch(`${getApiUrl()}/api/upload`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
@@ -184,8 +183,22 @@ export default function Dashboard() {
       if (res.ok) {
         const data = await res.json();
         const baseUrl = getApiUrl();
-        // handleProductChange updates the state
-        handleProductChange(index, 'imageUrl', baseUrl + data.imageUrl);
+        const fullUrl = baseUrl + data.imageUrl;
+        
+        if (isAvatar) {
+          setFormData(prev => ({ ...prev, avatarUrl: fullUrl }));
+          // Auto-save avatar for shopper
+          await fetch(`${getApiUrl()}/api/auth/profile`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ ...formData, avatarUrl: fullUrl })
+          });
+        } else {
+          handleProductChange(index, 'imageUrl', fullUrl);
+        }
       } else {
         alert("Image upload failed");
       }
@@ -505,7 +518,14 @@ export default function Dashboard() {
                   <h2 className="text-[13px] font-semibold opacity-70 tracking-wide uppercase mb-1">Welcome back,</h2>
                   <h1 className="text-[22px] md:text-[26px] font-black tracking-tight">{formData.fullName || user?.email?.split('@')[0] || 'User'}</h1>
                 </div>
-                <div className="relative">
+                <div className="relative group cursor-pointer" onClick={() => document.getElementById('avatar-input').click()}>
+                  <input 
+                    type="file" 
+                    id="avatar-input" 
+                    className="hidden" 
+                    accept="image/*"
+                    onChange={(e) => handleImageUpload(null, e.target.files[0], true)}
+                  />
                   <div className="w-12 h-12 rounded-full shadow-sm overflow-hidden flex items-center justify-center flex-shrink-0" style={{ background: '#22C55E' }}>
                     {formData.avatarUrl ? (
                       <img src={formData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
@@ -513,7 +533,7 @@ export default function Dashboard() {
                       <span className="text-white text-[24px] font-bold">{(formData.fullName || user?.email || 'U').charAt(0).toUpperCase()}</span>
                     )}
                   </div>
-                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center border border-gray-100 shadow-sm">
+                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center border border-gray-100 shadow-sm opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                     <Pencil className="w-3 h-3 text-gray-400" />
                   </div>
                 </div>
@@ -543,7 +563,7 @@ export default function Dashboard() {
                   <QuickAction
                     icon={<Headphones className="w-6 h-6" />}
                     label="Help Center"
-                    onClick={() => window.dispatchEvent(new CustomEvent('open-ai-chat'))}
+                    onClick={() => window.dispatchEvent(new CustomEvent('open-ai-help'))}
                     color="#EC4899"
                   />
                 </div>

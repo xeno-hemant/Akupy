@@ -4,6 +4,8 @@ import SellerLayout from '../layout/SellerLayout';
 import useAuthStore from '../../store/useAuthStore';
 
 const GREEN = '#22C55E';
+const getApiUrl = () => (!import.meta.env.DEV && window.location.hostname.includes('akupy.in'))
+    ? 'https://akupybackend.onrender.com' : `http://${window.location.hostname}:5000`;
 
 function Field({ label, children, hint }) {
     return (
@@ -46,8 +48,8 @@ export default function SellerShopProfile() {
     const [banner, setBanner] = useState(null);
     const [logo, setLogo] = useState(null);
     const [form, setForm] = useState({
-        shopName: user?.businessName || 'My Shop',
-        tagline: 'Quality products, fast delivery',
+        shopName: user?.businessName || '',
+        tagline: '',
         businessType: 'individual',
         gst: '',
         address: '',
@@ -60,12 +62,98 @@ export default function SellerShopProfile() {
         website: '',
     });
 
+    useEffect(() => {
+        const load = async () => {
+            try {
+                const res = await fetch(`${getApiUrl()}/api/businesses/me`, {
+                    headers: { Authorization: `Bearer ${user?.token}` }
+                });
+                if (res.ok) {
+                    const d = await res.json();
+                    setForm({
+                        shopName: d.name || '',
+                        tagline: d.tagline || '',
+                        businessType: d.businessType || 'individual',
+                        gst: d.gst || '',
+                        address: d.address || '',
+                        email: d.email || user?.email || '',
+                        phone: d.phone || '',
+                        returnPolicy: d.returnPolicy || 'Returns accepted within 7 days of delivery for unused items in original packaging.',
+                        shippingPolicy: d.shippingPolicy || 'Orders are processed within 1-2 business days. Delivery in 3-7 business days.',
+                        instagram: d.socialLinks?.instagram || '',
+                        facebook: d.socialLinks?.facebook || '',
+                        website: d.socialLinks?.website || '',
+                    });
+                    setLogo(d.logo);
+                    setBanner(d.banner);
+                }
+            } catch (err) { console.error(err); }
+        };
+        load();
+    }, [user]);
+
     const F = k => e => setForm(p => ({ ...p, [k]: e.target.value }));
 
-    const handleSave = (e) => {
+    const handleUpload = async (file, type) => {
+        if (!file) return;
+        const data = new FormData();
+        data.append('image', file);
+        try {
+            const res = await fetch(`${getApiUrl()}/api/upload`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${user?.token}` },
+                body: data
+            });
+            if (res.ok) {
+                const d = await res.json();
+                const url = getApiUrl() + d.imageUrl;
+                if (type === 'logo') setLogo(url);
+                else setBanner(url);
+            }
+        } catch (err) { console.error(err); }
+    };
+
+    const handleSave = async (e) => {
         e?.preventDefault();
         setSaving(true);
-        setTimeout(() => { setSaving(false); setSaved(true); setTimeout(() => setSaved(false), 3000); }, 1200);
+        try {
+            const payload = {
+                name: form.shopName,
+                tagline: form.tagline,
+                businessType: form.businessType,
+                gst: form.gst,
+                address: form.address,
+                email: form.email,
+                phone: form.phone,
+                returnPolicy: form.returnPolicy,
+                shippingPolicy: form.shippingPolicy,
+                socialLinks: {
+                    instagram: form.instagram,
+                    facebook: form.facebook,
+                    website: form.website
+                },
+                logo,
+                banner
+            };
+
+            const res = await fetch(`${getApiUrl()}/api/businesses`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${user?.token}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                setSaved(true);
+                setTimeout(() => setSaved(false), 3000);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setSaving(false);
+        }
     };
 
     return (
@@ -84,7 +172,7 @@ export default function SellerShopProfile() {
                                     <Upload className="w-4 h-4" /> Upload Banner (1200×300)
                                 </div>
                             </div>
-                            <input id="banner-input" type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files[0]; if (f) setBanner(URL.createObjectURL(f)); }} />
+                             <input id="banner-input" type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files[0]; if (f) handleUpload(f, 'banner'); }} />
 
                             {/* Shop logo */}
                             <div className="absolute -bottom-8 left-6 w-16 h-16 rounded-full border-4 border-white shadow-lg cursor-pointer overflow-hidden"
@@ -92,10 +180,10 @@ export default function SellerShopProfile() {
                                 onClick={ev => { ev.stopPropagation(); document.getElementById('logo-input').click(); }}>
                                 {logo ? <img src={logo} className="w-full h-full object-cover" /> :
                                     <div className="w-full h-full flex items-center justify-center text-xl font-black text-white">
-                                        {form.shopName.charAt(0).toUpperCase()}
+                                        {(form.shopName || user?.businessName || 'S').charAt(0).toUpperCase()}
                                     </div>
                                 }
-                                <input id="logo-input" type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files[0]; if (f) setLogo(URL.createObjectURL(f)); }} />
+                                <input id="logo-input" type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files[0]; if (f) handleUpload(f, 'logo'); }} />
                             </div>
                         </div>
                         <div className="px-6 pt-12 pb-6">

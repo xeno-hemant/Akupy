@@ -5,16 +5,7 @@ import SellerLayout from '../layout/SellerLayout';
 const ICON_MAP = { order: Package, review: Star, payout: DollarSign, system: Settings, default: Bell };
 const COLOR_MAP = { order: '#3B82F6', review: '#F59E0B', payout: '#22C55E', system: '#8B5CF6', default: '#64748B' };
 
-const NOTIFS = [
-    { id: 1, type: 'order', title: 'New Order Received!', desc: 'Order #AK-00341 from Priya Sharma — ₹1,299', time: '2 min ago', read: false },
-    { id: 2, type: 'review', title: 'New 5★ Review', desc: 'Ayesha Khan left a 5-star review on Monstera Deliciosa', time: '1 hr ago', read: false },
-    { id: 3, type: 'payout', title: 'Payout Processed ✓', desc: '₹24,500 has been credited to your HDFC account', time: '2 hr ago', read: false },
-    { id: 4, type: 'order', title: 'Order Shipped', desc: 'Order #AK-00338 has been marked as shipped by you', time: '5 hr ago', read: true },
-    { id: 5, type: 'system', title: 'Portal Updated', desc: 'The seller portal has been updated with new features', time: '1 day ago', read: true },
-    { id: 6, type: 'review', title: 'New 3★ Review', desc: 'Vikram Singh left a 3-star review on Leather Wallet', time: '1 day ago', read: true },
-    { id: 7, type: 'payout', title: 'Payout Scheduled', desc: 'Your next payout of ₹12,300 is scheduled for Mar 15', time: '2 days ago', read: true },
-    { id: 8, type: 'order', title: 'Order Cancelled', desc: 'Order #AK-00337 was cancelled by the customer', time: '3 days ago', read: true },
-];
+const NOTIFS = [];
 
 const FILTERS = ['All', 'Orders', 'Reviews', 'Payouts', 'System'];
 
