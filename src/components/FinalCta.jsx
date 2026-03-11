@@ -1,3 +1,7 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import useAuthStore from '../store/useAuthStore';
 import API from '../config/apiRoutes';
 import api from '../utils/apiHelper';
@@ -78,7 +82,7 @@ export default function FinalCta() {
   const requestOtp = async () => {
     setStatus('loading');
     try {
-      const res = await requestWithWakeup(() => api.post(`${API.URL_BASE || ''}/api/auth/send-otp`, { email }));
+      const res = await requestWithWakeup(() => api.post(API.SEND_OTP, { email }));
       if (res.data) {
         setShowOtpField(true);
         setStatus('idle');
@@ -109,7 +113,7 @@ export default function FinalCta() {
   const executeResetPassword = async () => {
     setStatus('loading');
     try {
-      const res = await requestWithWakeup(() => api.post(`${API.URL_BASE || ''}/api/auth/reset-password`, { email, otp, password }));
+      const res = await requestWithWakeup(() => api.post(API.RESET_PASSWORD, { email, otp, password }));
       if (res.data) {
         alert('Password reset successful! You can now log in.');
         setAuthMode('login');
@@ -129,7 +133,7 @@ export default function FinalCta() {
   const requestResetOtp = async () => {
     setStatus('loading');
     try {
-      const res = await requestWithWakeup(() => api.post(`${API.URL_BASE || ''}/api/auth/forgot-password`, { email }));
+      const res = await requestWithWakeup(() => api.post(API.FORGOT_PASSWORD, { email }));
       if (res.data) {
         const data = res.data;
         setShowOtpField(true);
@@ -149,25 +153,21 @@ export default function FinalCta() {
   const verifyOtpAndRegister = async () => {
     setStatus('loading');
     try {
-      const otpRes = await requestWithWakeup(() => api.post(`${API.URL_BASE || ''}/api/auth/verify-otp`, { email, otp }));
+      const otpRes = await requestWithWakeup(() => api.post(API.VERIFY_OTP, { email, otp }));
       if (!otpRes.data) {
         useAuthStore.setState({ error: 'Invalid OTP' });
         setStatus('error');
         return;
       }
 
-      const payload = { email, password, role };
-      if (role === 'seller' && monetizationPlan) {
-        payload.monetizationPlan = monetizationPlan;
-      }
-      const response = await requestWithWakeup(() => api.post(`${API.URL_BASE || ''}/api/auth/register`, payload));
+      const response = await requestWithWakeup(() => api.post(API.REGISTER, payload));
       if (response.data) {
         await login(email, password);
         setShowOtpField(false);
         navigate(role === 'seller' ? '/seller/dashboard' : '/dashboard');
       } else {
-        const errData = await response.json();
-        useAuthStore.setState({ error: errData.message || 'User already exists or invalid data' });
+        const errData = response.data;
+        useAuthStore.setState({ error: errData?.message || 'User already exists or invalid data' });
         setStatus('error');
       }
     } catch (err) {
@@ -184,24 +184,20 @@ export default function FinalCta() {
         payload.monetizationPlan = monetizationPlan;
       }
 
-      const response = await fetchWithTimeout(`${apiUrl}/api/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      const response = await requestWithWakeup(() => api.post(API.REGISTER, payload));
 
-      if (response.ok) {
+      if (response.data) {
         const success = await login(email, password);
         if (success) navigate(role === 'seller' ? '/seller/dashboard' : '/shop');
         else setStatus('error');
       } else {
-        const errData = await response.json();
-        useAuthStore.setState({ error: errData.message || 'Registration failed. Please try again.' });
+        const errData = response.data;
+        useAuthStore.setState({ error: errData?.message || 'Registration failed. Please try again.' });
         setStatus('error');
         setShowPricingModal(false);
       }
     } catch (err) {
-      if (err.name === 'AbortError') {
+      if (err.name === 'AbortError' || err.message?.includes('timeout')) {
         useAuthStore.setState({ error: 'Server took too long. Please wait a moment and try again.' });
       } else {
         useAuthStore.setState({ error: 'Server error. Please check your connection.' });
@@ -256,10 +252,11 @@ export default function FinalCta() {
               Logged in as <span className="font-bold">{user.email}</span>
             </div>
             <button
+              onClick={() => navigate(user.role === 'seller' ? '/seller/dashboard' : '/shop')}
               className="rounded-full px-12 py-4 text-lg font-semibold transition-all hover:scale-105 active:scale-95 duration-200"
               style={{ background: '#3d3830', color: '#F3F0E2', boxShadow: '0 0 30px rgba(61,56,48,0.35)' }}
             >
-              Go to Mall
+              Go to Shop
             </button>
           </div>
         ) : (

@@ -1,5 +1,5 @@
 const BASE = import.meta.env.VITE_API_URL 
-  || (import.meta.env.DEV ? `http://${window.location.hostname}:5000` : 'https://akupybackend.onrender.com');
+  || (import.meta.env.DEV ? 'http://localhost:5000' : 'https://akupybackend.onrender.com');
 
 export const API = {
   // Auth
@@ -9,6 +9,10 @@ export const API = {
   VERIFY_REGISTER: `${BASE}/api/v1/auth/verify-register`,
   ME: `${BASE}/api/v1/auth/me`,
   UPDATE_PROFILE: `${BASE}/api/v1/auth/update-profile`,
+  SEND_OTP: `${BASE}/api/v1/auth/send-otp`,
+  VERIFY_OTP: `${BASE}/api/v1/auth/verify-otp`,
+  FORGOT_PASSWORD: `${BASE}/api/v1/auth/forgot-password`,
+  RESET_PASSWORD: `${BASE}/api/v1/auth/reset-password`,
   
   // Profile / Measurements
   MEASUREMENTS: `${BASE}/api/v1/profile/measurements`,
