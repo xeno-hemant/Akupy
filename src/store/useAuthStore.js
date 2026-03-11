@@ -2,6 +2,7 @@ import { create } from 'zustand';
 
 // Check local storage for initial state
 const storedUser = JSON.parse(localStorage.getItem('akupy_user') || 'null');
+const storedToken = localStorage.getItem('akupy_token') || null;
 
 // Dynamic API URL for local network testing
 const getApiUrl = () => {
@@ -13,12 +14,12 @@ const getApiUrl = () => {
     return 'https://akupybackend.onrender.com';
   }
 
-  // If we are on a mobile device on local network, point to the current computer's IP
   return `http://${window.location.hostname}:5000`;
 };
 
 const useAuthStore = create((set) => ({
   user: storedUser,
+  token: storedToken,
   isLoading: false,
   error: null,
 
@@ -40,8 +41,14 @@ const useAuthStore = create((set) => ({
       }
 
       // Save to localStorage
-      localStorage.setItem('akupy_user', JSON.stringify(data));
-      set({ user: data, isLoading: false });
+      localStorage.setItem('akupy_user', JSON.stringify(data.user || data));
+      localStorage.setItem('akupy_token', data.token);
+      
+      set({ 
+        user: data.user || data, 
+        token: data.token,
+        isLoading: false 
+      });
       return true;
     } catch (error) {
       set({ error: error.message, isLoading: false });
@@ -51,10 +58,17 @@ const useAuthStore = create((set) => ({
 
   logout: () => {
     localStorage.removeItem('akupy_user');
-    set({ user: null });
+    localStorage.removeItem('akupy_token');
+    set({ user: null, token: null });
   },
 
-  clearError: () => set({ error: null })
+  clearError: () => set({ error: null }),
+  
+  setAuth: (user, token) => {
+    localStorage.setItem('akupy_user', JSON.stringify(user));
+    localStorage.setItem('akupy_token', token);
+    set({ user, token });
+  }
 }));
 
 export default useAuthStore;

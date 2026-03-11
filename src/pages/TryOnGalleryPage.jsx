@@ -6,7 +6,7 @@ import VirtualTryOnCanvas from '../components/tryon/VirtualTryOnCanvas';
 import { Share2, Tag, Shirt, Trash2, ArrowLeft } from 'lucide-react';
 
 export default function TryOnGalleryPage() {
-    const { user } = useAuthStore();
+    const { user, token } = useAuthStore();
     const { bodyProfile, fetchProfile } = useTryOnStore();
     const [loading, setLoading] = useState(true);
 
@@ -18,12 +18,12 @@ export default function TryOnGalleryPage() {
     ]);
 
     useEffect(() => {
-        if (user) {
-            fetchProfile(user.token).finally(() => setLoading(false));
+        if (token) {
+            fetchProfile(token).finally(() => setLoading(false));
         } else {
             setLoading(false);
         }
-    }, [user]);
+    }, [token]);
 
     if (!user) {
         return (

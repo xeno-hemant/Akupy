@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { DollarSign, Package, Eye, TrendingUp, Ticket, MapPin, Headphones, Smartphone, User as UserIcon, Star, History, Heart, Bell, Globe, ChevronRight } from 'lucide-react';
+import { DollarSign, Package, Eye, TrendingUp, Ticket, MapPin, Headphones, Smartphone, User as UserIcon, Star, History, Heart, Bell, Globe, ChevronRight, Pencil } from 'lucide-react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import useAuthStore from '../store/useAuthStore';
 
@@ -12,19 +12,19 @@ const getApiUrl = () => {
 const QuickAction = ({ icon, label, onClick, color }) => (
   <button
     onClick={onClick}
-    className="flex flex-col items-center justify-center p-6 rounded-3xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all active:scale-[0.98] group"
+    className="flex flex-col items-center justify-center h-20 w-full rounded-xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all active:scale-[0.98] group p-3"
   >
-    <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110" style={{ background: `${color}15`, color: color }}>
-      {icon}
+    <div className="w-10 h-10 rounded-full flex items-center justify-center mb-1 transition-transform group-hover:scale-110" style={{ background: `${color}15`, color: color }}>
+      {React.cloneElement(icon, { className: 'w-5 h-5' })}
     </div>
-    <span className="text-sm font-black text-gray-800 tracking-tight">{label}</span>
+    <span className="text-[12px] font-bold text-gray-800 tracking-tight">{label}</span>
   </button>
 );
 
 const Section = ({ title, children }) => (
-  <div className="animate-fade-in">
-    <h3 className="text-xl font-black mb-4 text-[#080808] px-1">{title}</h3>
-    <div className="bg-white border border-gray-100 rounded-[2.5rem] p-3 shadow-sm">
+  <div className="animate-fade-in mt-4">
+    <h3 className="text-[14px] font-bold mb-2 text-[#1A1A1A] px-1">{title}</h3>
+    <div className="bg-white border border-gray-100 rounded-2xl p-1 shadow-sm">
       {children}
     </div>
   </div>
@@ -33,20 +33,20 @@ const Section = ({ title, children }) => (
 const ListItem = ({ icon, label, onClick }) => (
   <button
     onClick={onClick}
-    className="w-full flex items-center justify-between py-4 px-4 border-b border-gray-50 last:border-0 group transition-colors hover:bg-gray-50/50 rounded-2xl"
+    className="w-full flex items-center justify-between h-11 px-3 border-b border-gray-50 last:border-0 group transition-colors hover:bg-gray-50/50 rounded-lg"
   >
-    <div className="flex items-center gap-4 text-gray-700">
-      <div className="p-2 rounded-lg bg-gray-50 group-hover:bg-white transition-colors">
-        {icon}
+    <div className="flex items-center gap-3 text-gray-700">
+      <div className="transition-colors">
+        {React.cloneElement(icon, { className: 'w-[18px] h-[18px]' })}
       </div>
-      <span className="font-semibold">{label}</span>
+      <span className="text-[13px] font-semibold">{label}</span>
     </div>
-    <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-gray-500 transition-colors" />
+    <ChevronRight className="w-[14px] h-[14px] text-gray-300 group-hover:text-gray-500 transition-colors" />
   </button>
 );
 
 export default function Dashboard() {
-  const { user, logout } = useAuthStore();
+  const { user, token, logout } = useAuthStore();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saveStatus, setSaveStatus] = useState('idle');
@@ -54,9 +54,16 @@ export default function Dashboard() {
   // Form State
   const [formData, setFormData] = useState({
     // Business specific
+    name: '',
+    shopId: '',
+    category: '',
+    address: '',
+    operatingHours: '',
+    description: '',
+    products: [],
+    // Consumer/Shopper specific
     fullName: '',
     email: '',
-    address: '',
     phone: '',
     avatarUrl: ''
   });
@@ -68,7 +75,7 @@ export default function Dashboard() {
       try {
         if (user.role === 'seller') {
           const res = await fetch(`${getApiUrl()}/api/businesses/me`, {
-            headers: { Authorization: `Bearer ${user.token}` }
+            headers: { Authorization: `Bearer ${token}` }
           });
           if (res.ok) {
             const data = await res.json();
@@ -86,7 +93,7 @@ export default function Dashboard() {
         } else {
           // Fetch Consumer Profile
           const res = await fetch(`${getApiUrl()}/api/auth/profile`, {
-            headers: { Authorization: `Bearer ${user.token}` }
+            headers: { Authorization: `Bearer ${token}` }
           });
           if (res.ok) {
             const data = await res.json();
@@ -107,7 +114,7 @@ export default function Dashboard() {
       }
     };
     fetchProfile();
-  }, [user]);
+  }, [user, token]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -121,7 +128,7 @@ export default function Dashboard() {
         method: method,
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${user.token}`
+          Authorization: `Bearer ${token}`
         },
         body: JSON.stringify(formData)
       });
@@ -170,7 +177,7 @@ export default function Dashboard() {
       // Show uploading state here if desired (e.g. by setting a temporary string 'Uploading...')
       const res = await fetch(`${getApiUrl()}/api/upload`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${user.token}` },
+        headers: { Authorization: `Bearer ${token}` },
         body: uploadData
       });
 
@@ -193,8 +200,8 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen p-3 pt-20 md:p-16 md:pt-32 page-bottom-padding" style={{ background: '#F5F0E8' }}>
-      <div className={`max-w-4xl mx-auto ${user.role === 'user' ? 'overflow-hidden' : 'p-5 md:p-12'} rounded-[2rem] md:rounded-[2.5rem] shadow-sm border`} style={{ background: '#FFFFFF', borderColor: '#F3F4F6' }}>
+    <div className="min-h-screen pt-4 md:py-10 page-bottom-padding" style={{ background: '#F5F5F7' }}>
+      <div className={`max-w-xl mx-auto ${user.role !== 'seller' ? 'shadow-sm border border-gray-100 min-h-[calc(100vh-160px)] pb-20' : 'p-5 md:p-12 rounded-[2rem] md:rounded-[2.5rem] border shadow-sm'}`} style={{ background: '#FFFFFF', borderColor: '#F3F4F6' }}>
         {user.role === 'seller' && (
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-6 mb-6 md:mb-12">
             <h1 className="text-2xl md:text-4xl font-heading font-bold" style={{ color: '#1A1A1A' }}>Business Dashboard</h1>
@@ -228,7 +235,7 @@ export default function Dashboard() {
                     <div>
                       <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Total Earnings</p>
                       <h4 className="text-2xl font-heading font-bold text-[#080808]">
-                        ${formData.products?.reduce((acc, curr) => acc + (Number(curr.price) * Math.floor(Math.random() * 5 + 1)), 0).toFixed(2) || '0.00'}
+                        ${(formData.products || []).reduce((acc, curr, idx) => acc + (Number(curr.price || 0) * (idx % 3 + 1)), 0).toFixed(2)}
                       </h4>
                       <p className="text-xs font-medium flex items-center gap-1 mt-1" style={{ color: '#22C55E' }}><TrendingUp className="w-3 h-3" /> Based on simulation</p>
                     </div>
@@ -242,7 +249,7 @@ export default function Dashboard() {
                     <div>
                       <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Items Sold</p>
                       <h4 className="text-2xl font-heading font-bold text-[#080808]">
-                        {formData.products?.length * Math.floor(Math.random() * 10 + 2) || '0'}
+                        {(formData.products || []).length * 12 || '0'}
                       </h4>
                       <p className="text-xs text-gray-400 font-medium flex items-center gap-1 mt-1">Total lifetime sales</p>
                     </div>
@@ -256,7 +263,7 @@ export default function Dashboard() {
                     <div>
                       <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Store Views</p>
                       <h4 className="text-2xl font-heading font-bold text-[#080808]">
-                        {formData.products?.length * 452 || '0'}
+                        {(formData.products || []).length * 452 || '0'}
                       </h4>
                       <p className="text-xs font-medium flex items-center gap-1 mt-1" style={{ color: '#c4a882' }}>This month</p>
                     </div>
@@ -268,7 +275,7 @@ export default function Dashboard() {
               <div className="mt-8">
                 <h2 className="text-2xl font-semibold mb-6 text-[#080808]">Recent Transactions</h2>
                 <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm overflow-hidden">
-                  {formData.products?.length > 0 ? (
+                  {(formData.products || []).length > 0 ? (
                     <div className="space-y-4">
                       {formData.products.slice(0, 3).map((item, idx) => (
                         <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
@@ -487,29 +494,34 @@ export default function Dashboard() {
           )
         )}
 
-        {user.role === 'user' && (
+        {user.role !== 'seller' && (
           loading ? (
             <div className="py-12 text-center text-gray-500">Loading profile data...</div>
           ) : (
-            <div className="animate-fade-in -mx-5 md:-mx-12 -mt-6">
+            <div className="animate-fade-in">
               {/* User Banner */}
-              <div className="px-5 md:px-12 py-8 mb-8 flex justify-between items-center rounded-b-3xl" style={{ background: '#EEF2FF', color: '#1A1A1A' }}>
+              <div className="px-6 py-10 md:py-12 mb-8 flex justify-between items-center border-b border-gray-100" style={{ background: '#EEF2FF', color: '#1A1A1A' }}>
                 <div>
-                  <h2 className="text-lg font-medium opacity-60">Welcome back,</h2>
-                  <h1 className="text-2xl md:text-3xl font-black">{formData.fullName || user.email.split('@')[0]}</h1>
+                  <h2 className="text-[13px] font-semibold opacity-70 tracking-wide uppercase mb-1">Welcome back,</h2>
+                  <h1 className="text-[22px] md:text-[26px] font-black tracking-tight">{formData.fullName || user?.email?.split('@')[0] || 'User'}</h1>
                 </div>
-                <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-sm overflow-hidden flex items-center justify-center flex-shrink-0" style={{ background: '#22C55E' }}>
-                  {formData.avatarUrl ? (
-                    <img src={formData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-white text-2xl md:text-3xl font-black">{(formData.fullName || user.email).charAt(0).toUpperCase()}</span>
-                  )}
+                <div className="relative">
+                  <div className="w-12 h-12 rounded-full shadow-sm overflow-hidden flex items-center justify-center flex-shrink-0" style={{ background: '#22C55E' }}>
+                    {formData.avatarUrl ? (
+                      <img src={formData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-white text-[24px] font-bold">{(formData.fullName || user?.email || 'U').charAt(0).toUpperCase()}</span>
+                    )}
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center border border-gray-100 shadow-sm">
+                    <Pencil className="w-3 h-3 text-gray-400" />
+                  </div>
                 </div>
               </div>
 
-              <div className="px-5 md:px-12 space-y-10">
+              <div className="px-6 space-y-8">
                 {/* Quick Actions Grid (2x2) */}
-                <div className="grid grid-cols-2 gap-3 md:gap-6">
+                <div className="grid grid-cols-2 gap-2">
                   <QuickAction
                     icon={<Package className="w-6 h-6" />}
                     label="My Orders"
@@ -551,12 +563,10 @@ export default function Dashboard() {
 
                 {/* Preferences */}
                 <Section title="Preferences">
-                  <div className="flex items-center justify-between py-4 border-b border-gray-50 last:border-0 group">
-                    <div className="flex items-center gap-4 text-gray-700">
-                      <div className="p-2 rounded-lg bg-gray-50 group-hover:bg-gray-100 transition-colors">
-                        <Bell className="w-5 h-5" />
-                      </div>
-                      <span className="font-semibold">Notifications</span>
+                  <div className="flex items-center justify-between h-11 px-3 border-b border-gray-50 last:border-0 group">
+                    <div className="flex items-center gap-3 text-gray-700">
+                      <Bell className="w-[18px] h-[18px]" />
+                      <span className="text-[13px] font-semibold">Notifications</span>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input 
@@ -565,27 +575,25 @@ export default function Dashboard() {
                         defaultChecked={localStorage.getItem('akupy_notifications') === 'true'}
                         onChange={(e) => localStorage.setItem('akupy_notifications', e.target.checked)}
                       />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#22C55E]"></div>
+                      <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#22C55E]"></div>
                     </label>
                   </div>
-                  <div className="flex items-center justify-between py-4 last:border-0 group">
-                    <div className="flex items-center gap-4 text-gray-700">
-                      <div className="p-2 rounded-lg bg-gray-50 group-hover:bg-gray-100 transition-colors">
-                        <Globe className="w-5 h-5" />
-                      </div>
-                      <span className="font-semibold">Language</span>
+                  <div className="flex items-center justify-between h-11 px-3 last:border-0 group">
+                    <div className="flex items-center gap-3 text-gray-700">
+                      <Globe className="w-[18px] h-[18px]" />
+                      <span className="text-[13px] font-semibold">Language</span>
                     </div>
-                    <div className="flex items-center gap-2 text-gray-400 font-medium text-sm">
-                      English <ChevronRight className="w-4 h-4" />
+                    <div className="flex items-center gap-1 text-gray-400 font-medium text-xs">
+                      English <ChevronRight className="w-3.5 h-3.5" />
                     </div>
                   </div>
                 </Section>
 
                 {/* Logout Button */}
-                <div className="pt-4 pb-12">
+                <div className="pt-2 pb-12">
                   <button
                     onClick={logout}
-                    className="w-full py-4 rounded-2xl font-black text-lg transition-all active:scale-[0.98] border-2 border-[#EF4444]/10 bg-[#EF4444]/5"
+                    className="w-full h-11 rounded-xl font-bold text-[14px] transition-all active:scale-[0.98] border border-[#FEE2E2] bg-[#FFF5F5]"
                     style={{ color: '#EF4444' }}
                   >
                     Logout

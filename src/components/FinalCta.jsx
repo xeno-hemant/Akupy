@@ -71,7 +71,7 @@ export default function FinalCta() {
     setStatus('loading');
     const success = await login(email, password);
     if (success) {
-      navigate(role === 'seller' ? '/seller/dashboard' : '/shop');
+      navigate(role === 'seller' ? '/seller/dashboard' : '/dashboard');
     } else {
       setStatus('error');
     }
@@ -86,12 +86,20 @@ export default function FinalCta() {
         body: JSON.stringify({ email })
       });
       if (response.ok) {
+        const data = await response.json();
         setShowOtpField(true);
         setStatus('idle');
         if (showPricingModal) setShowPricingModal(false);
+        
+        // Log OTP to console for user if dev fallback triggered
+        if (data.devOtp) {
+          console.log('%c[AKUPY DEV MODE]', 'color: #22C55E; font-weight: bold; font-size: 14px;', `Your verification code is: ${data.devOtp}`);
+          alert(`Dev Mode: Verification code is ${data.devOtp} (also logged to console)`);
+        }
       } else {
         const errData = await response.json();
-        useAuthStore.setState({ error: errData.message || 'Error sending OTP' });
+        const errorMsg = errData.message || 'Error sending OTP';
+        useAuthStore.setState({ error: errorMsg });
         setStatus('error');
         setShowPricingModal(false);
       }
@@ -134,7 +142,7 @@ export default function FinalCta() {
       if (response.ok) {
         await login(email, password);
         setShowOtpField(false);
-        navigate(role === 'seller' ? '/seller/dashboard' : '/shop');
+        navigate(role === 'seller' ? '/seller/dashboard' : '/dashboard');
       } else {
         const errData = await response.json();
         useAuthStore.setState({ error: errData.message || 'User already exists or invalid data' });

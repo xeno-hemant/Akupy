@@ -4,7 +4,7 @@ import useAuthStore from '../../store/useAuthStore';
 import { Camera, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
 
 export default function CameraScanner() {
-    const { user } = useAuthStore();
+    const { user, token } = useAuthStore();
     const { saveManualProfile } = useTryOnStore();
     const videoRef = useRef(null);
 
@@ -74,7 +74,7 @@ export default function CameraScanner() {
             measurementSource: 'scan'
         };
 
-        await saveManualProfile(aiDerivedData, user.token);
+        await saveManualProfile(aiDerivedData, token);
     };
 
     return (

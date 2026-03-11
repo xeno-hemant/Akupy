@@ -23,6 +23,7 @@ import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
 import TryOnGalleryPage from './pages/TryOnGalleryPage';
 import ProductDetails from './pages/ProductDetails';
+import LoginPage from './pages/LoginPage';
 
 // Seller Portal Pages
 import SellerDashboard from './seller/pages/SellerDashboard';
@@ -41,9 +42,15 @@ gsap.registerPlugin(ScrollTrigger);
 import useAuthStore from './store/useAuthStore';
 
 function useIsSeller() {
-  const { user } = useAuthStore();
   const location = useLocation();
-  return location.pathname.startsWith('/seller') || user?.role === 'seller';
+  return location.pathname.startsWith('/seller');
+}
+
+function RootRedirect() {
+  const { user } = useAuthStore();
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.role === 'seller') return <Navigate to="/seller/dashboard" replace />;
+  return <Navigate to="/shop" replace />;
 }
 
 function AppInner({ subdomainShopId }) {
@@ -52,6 +59,9 @@ function AppInner({ subdomainShopId }) {
   const [toastMessage, setToastMessage] = useState('');
   const isSeller = useIsSeller();
   const location = useLocation();
+
+  const isSellerRoute = location.pathname.startsWith('/seller');
+  const isAuthRoute = location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register';
 
   const { setIncognito } = useFeatureStore();
 
@@ -93,8 +103,8 @@ function AppInner({ subdomainShopId }) {
         </div>
       )}
 
-      {!isSeller && location.pathname !== '/' && <Navbar />}
-      {!isSeller && location.pathname !== '/' && <BottomNav />}
+      {!isSellerRoute && !isAuthRoute && <Navbar />}
+      {!isSellerRoute && !isAuthRoute && <BottomNav />}
       <TryOnModal />
       <AiAssistantDrawer />
 
@@ -102,19 +112,15 @@ function AppInner({ subdomainShopId }) {
         <ShopSubdomain shopId={subdomainShopId} />
       ) : (
         <Routes>
-          {/* Shopper Routeswrapped in Shopper Protection */}
-          <Route path="/" element={
-            user ? (
-              user.role === 'seller' ? <Navigate to="/seller/dashboard" replace /> : <Navigate to="/shop" replace />
-            ) : <Gateway />
-          } />
-          <Route path="/shop" element={<ProtectedShopperRoute><ShopHome /></ProtectedShopperRoute>} />
+          <Route path="/" element={<RootRedirect />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/shop" element={<ShopHome />} />
           <Route path="/sell" element={<SellLanding />} />
-          <Route path="/discover" element={<ProtectedShopperRoute><Discover /></ProtectedShopperRoute>} />
+          <Route path="/discover" element={<Discover />} />
           <Route path="/business/:id" element={<BusinessProfile />} />
           <Route path="/dashboard" element={
             <ProtectedShopperRoute>
-              {user?.role === 'seller' ? <Navigate to="/seller/dashboard" replace /> : <Dashboard />}
+              <Dashboard />
             </ProtectedShopperRoute>
           } />
           <Route path="/cart" element={<ProtectedShopperRoute><CartPage /></ProtectedShopperRoute>} />
@@ -122,7 +128,7 @@ function AppInner({ subdomainShopId }) {
           <Route path="/wardrobe" element={<ProtectedShopperRoute><TryOnGalleryPage /></ProtectedShopperRoute>} />
           <Route path="/product/:productId" element={<ProductDetails />} />
 
-          {/* Seller Portal Routes wrapped in Seller Protection */}
+          {/* Seller Portal Routes */}
           <Route path="/seller" element={<ProtectedSellerRoute><SellerDashboard /></ProtectedSellerRoute>} />
           <Route path="/seller/dashboard" element={<ProtectedSellerRoute><SellerDashboard /></ProtectedSellerRoute>} />
           <Route path="/seller/orders" element={<ProtectedSellerRoute><SellerOrders /></ProtectedSellerRoute>} />

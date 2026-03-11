@@ -16,14 +16,14 @@ export const ProtectedSellerRoute = ({ children }) => {
     }
 
     if (!user) {
-        return <Navigate to="/shop" state={{ from: location }} replace />;
+        return <Navigate to="/" state={{ from: location }} replace />;
     }
 
     if (user.role !== 'seller') {
         window.dispatchEvent(new CustomEvent('incognito-toast', {
             detail: { message: "Seller portal is for sellers only" }
         }));
-        return <Navigate to="/" replace />;
+        return <Navigate to="/shop" replace />;
     }
 
     return children;
@@ -36,13 +36,13 @@ export const ProtectedShopperRoute = ({ children }) => {
 
     if (isLoading) return null;
 
-    if (user?.role === 'seller' && !location.pathname.startsWith('/seller')) {
-        // Some routes like /logout or /profile might be shared, but generally shoppers pages are for shoppers
-        // We only redirect if it's a known shopper-only page area
-        const shopperOnlyPaths = ['/shop', '/discover', '/cart', '/checkout', '/wardrobe', '/dashboard'];
-        if (shopperOnlyPaths.some(path => location.pathname.startsWith(path))) {
-            return <Navigate to="/seller/dashboard" replace />;
-        }
+    if (user?.role === 'seller' && location.pathname === '/dashboard') {
+        // Sellers should go to seller portal when clicking "Dashboard"
+        return <Navigate to="/seller/dashboard" replace />;
+    }
+
+    if (!user) {
+        return <Navigate to="/" replace />;
     }
 
     return children;

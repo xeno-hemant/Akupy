@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { Search, Bell, Menu, ChevronDown } from 'lucide-react';
 import useAuthStore from '../../store/useAuthStore';
 
@@ -70,8 +70,19 @@ export default function SellerTopbar({ onMenuClick, sidebarWidth = 240 }) {
                 </div>
             </Link>
 
-            {/* Page Title */}
-            <h1 className="text-lg font-black flex-shrink-0 hidden md:block" style={{ color: '#0F172A' }}>{title}</h1>
+            {/* Page Title & Breadcrumb */}
+            <div className="flex items-center gap-3">
+                <Link 
+                    to="/seller/dashboard" 
+                    className="text-xs font-bold uppercase tracking-wider px-2 py-1 rounded bg-[#E2E8F0] text-[#64748B] hover:bg-[#22C55E]/10 hover:text-[#22C55E] transition-all hidden md:block"
+                >
+                    Dashboard
+                </Link>
+                <div className="w-1 h-1 rounded-full bg-gray-300 hidden md:block" />
+                <h1 className="text-lg md:text-xl font-bold text-[#1E293B] truncate max-w-[150px] md:max-w-none">
+                    {title}
+                </h1>
+            </div>
 
             {/* Search */}
             <div className="flex-1 max-w-md mx-auto hidden sm:block">

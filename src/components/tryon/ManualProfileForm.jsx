@@ -18,7 +18,7 @@ const BODY_SHAPES = [
 ];
 
 export default function ManualProfileForm() {
-    const { user } = useAuthStore();
+    const { user, token } = useAuthStore();
     const { saveManualProfile } = useTryOnStore();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -56,7 +56,7 @@ export default function ManualProfileForm() {
         setLoading(true);
         setError(null);
 
-        const res = await saveManualProfile(formData, user.token);
+        const res = await saveManualProfile(formData, token);
         if (!res.success) {
             setError(res.error || "Failed to save profile. Try again.");
         }

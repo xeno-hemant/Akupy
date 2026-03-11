@@ -5,8 +5,10 @@ import PhilosophyStack from '../components/PhilosophyStack';
 import Footer from '../components/Footer';
 import { Store, ArrowRight, TrendingUp, Users, Globe2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import useAuthStore from '../store/useAuthStore';
 
 export default function SellLanding() {
+  const { user } = useAuthStore();
   return (
     <div className="min-h-screen" style={{ background: '#2e2a25', color: '#F3F0E2' }}>
       <div className="" style={{ background: '#F3F0E2', color: '#3d3830' }}>
@@ -32,11 +34,11 @@ export default function SellLanding() {
 
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
             <Link
-              to="/seller/dashboard"
+              to={user?.role === 'seller' ? "/seller/dashboard" : "/dashboard"}
               className="px-6 md:px-8 py-3 md:py-4 rounded-full font-bold text-base md:text-lg transition-transform active:scale-95 flex items-center justify-center gap-2 w-full md:w-auto"
               style={{ background: '#8E867B', color: '#F3F0E2' }}
             >
-              Enter Dashboard <ArrowRight className="w-5 h-5" />
+              {user?.role === 'seller' ? 'Enter Dashboard' : 'View My Profile'} <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
 

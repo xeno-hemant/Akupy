@@ -12,7 +12,7 @@ export default function Gateway() {
   useEffect(() => {
     if (user) {
       if (user.role === 'seller') navigate('/seller/dashboard');
-      else navigate('/shop');
+      else navigate('/dashboard');
     }
   }, [user, navigate]);
 

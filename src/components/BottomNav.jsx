@@ -24,7 +24,7 @@ export default function BottomNav() {
     // Dynamically adjust profile path
     const items = NAV_ITEMS.map(item =>
         item.id === 'profile'
-            ? { ...item, path: (user?.role === 'seller' || location.pathname === '/sell') ? '/seller/dashboard' : '/dashboard' }
+            ? { ...item, path: (user?.role === 'seller') ? '/seller/dashboard' : '/dashboard' }
             : item
     );
 

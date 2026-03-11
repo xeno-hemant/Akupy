@@ -7,7 +7,7 @@ import useTryOnStore from '../store/useTryOnStore';
 
 export default function BusinessProfile() {
   const { id } = useParams();
-  const { user } = useAuthStore();
+  const { user, token } = useAuthStore();
   const { addToCart } = useCartStore();
   const { isIncognitoActive } = useFeatureStore();
   const { openTryOnForProduct } = useTryOnStore();
@@ -58,7 +58,7 @@ export default function BusinessProfile() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ rating, comment })
       });

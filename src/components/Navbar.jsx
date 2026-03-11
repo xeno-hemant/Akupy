@@ -62,6 +62,13 @@ export default function Navbar() {
     }));
   };
 
+  const isMinimal = location.pathname === '/login';
+  const getLogoLink = () => {
+    if (location.pathname === '/login') return '/login';
+    if (location.pathname.startsWith('/seller')) return '/seller/dashboard';
+    return '/shop';
+  };
+
   const navBg = isIncognitoActive ? '#2C2A27' : '#F5F0E8';
   const navBorder = isIncognitoActive ? 'rgba(255,255,255,0.06)' : '#E5E7EB';
   const textColor = isIncognitoActive ? '#F5F0E8' : '#1A1A1A';
@@ -81,39 +88,41 @@ export default function Navbar() {
         <div className="max-w-[1400px] mx-auto px-4 md:px-6 h-[60px] flex items-center justify-between gap-4">
 
           {/* Logo */}
-          <Link to="/shop" className="flex-shrink-0">
+          <Link to={getLogoLink()} className="flex-shrink-0">
             <AkupyLogo size="sm" dark={isIncognitoActive} />
           </Link>
 
           {/* Desktop Search Bar */}
-          <div className="hidden md:flex flex-grow max-w-2xl mx-8">
-            <form onSubmit={handleSearch} className="relative w-full">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#6B7280' }} />
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-11 pl-11 pr-12 rounded-full text-sm font-medium outline-none border-2 transition-all"
-                style={{
-                  background: isIncognitoActive ? 'rgba(255,255,255,0.06)' : '#FFFFFF',
-                  borderColor: isIncognitoActive ? 'rgba(255,255,255,0.12)' : '#E5E7EB',
-                  color: textColor,
-                }}
-                onFocus={(e) => e.target.style.borderColor = '#22C55E'}
-                onBlur={(e) => e.target.style.borderColor = isIncognitoActive ? 'rgba(255,255,255,0.12)' : '#E5E7EB'}
-              />
-              <button
-                type="button"
-                onClick={() => setIsGlobeMapOpen(true)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full transition-colors"
-                style={{ color: '#22C55E' }}
-                title="Globe Shop"
-              >
-                <Globe className="w-4 h-4" />
-              </button>
-            </form>
-          </div>
+          {!isMinimal && (
+            <div className="hidden md:flex flex-grow max-w-2xl mx-8">
+              <form onSubmit={handleSearch} className="relative w-full">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#6B7280' }} />
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full h-11 pl-11 pr-12 rounded-full text-sm font-medium outline-none border-2 transition-all"
+                  style={{
+                    background: isIncognitoActive ? 'rgba(255,255,255,0.06)' : '#FFFFFF',
+                    borderColor: isIncognitoActive ? 'rgba(255,255,255,0.12)' : '#E5E7EB',
+                    color: textColor,
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#22C55E'}
+                  onBlur={(e) => e.target.style.borderColor = isIncognitoActive ? 'rgba(255,255,255,0.12)' : '#E5E7EB'}
+                />
+                <button
+                  type="button"
+                  onClick={() => setIsGlobeMapOpen(true)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full transition-colors"
+                  style={{ color: '#22C55E' }}
+                  title="Globe Shop"
+                >
+                  <Globe className="w-4 h-4" />
+                </button>
+              </form>
+            </div>
+          )}
 
           {/* Desktop Right Icons */}
           <div className="hidden md:flex items-center gap-3 flex-shrink-0">
@@ -134,18 +143,19 @@ export default function Navbar() {
 
             {user ? (
               <Link
-                to={(user?.role === 'seller' || location.pathname === '/sell') ? '/seller/dashboard' : '/dashboard'}
-                className="p-2 rounded-full transition-colors"
+                to={user?.role === 'seller' ? '/seller/dashboard' : '/dashboard'}
+                className="flex items-center gap-2 p-2 rounded-full transition-colors group"
                 style={{ color: '#6B7280' }}
-                onMouseEnter={e => e.currentTarget.style.color = '#22C55E'}
-                onMouseLeave={e => e.currentTarget.style.color = '#6B7280'}
               >
-                <User className="w-5 h-5" />
+                <div className="p-1.5 rounded-full bg-gray-100 group-hover:bg-[#22C55E]/10 transition-colors">
+                  <User className="w-5 h-5 group-hover:text-[#22C55E]" />
+                </div>
+                <span className="hidden lg:inline text-sm font-bold group-hover:text-[#22C55E]">Dashboard</span>
               </Link>
             ) : (
               <Link
-                to="/shop"
-                className="text-sm font-bold px-4 py-2 rounded-full border-2 transition-all"
+                to="/login"
+                className="text-sm font-bold px-4 py-2 rounded-full border-2 transition-all flex items-center gap-2"
                 style={{ borderColor: '#22C55E', color: '#22C55E' }}
                 onMouseEnter={e => { e.currentTarget.style.background = '#22C55E'; e.currentTarget.style.color = '#fff'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#22C55E'; }}
@@ -178,75 +188,79 @@ export default function Navbar() {
         </div>
 
         {/* MOBILE SEARCH ROW */}
-        <div className="md:hidden px-4 pb-2">
-          <form onSubmit={handleSearch} className="relative w-full">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#6B7280' }} />
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-11 pl-11 pr-12 rounded-full text-sm font-medium outline-none border-2 transition-all shadow-sm"
-              style={{
-                background: isIncognitoActive ? 'rgba(255,255,255,0.06)' : '#FFFFFF',
-                borderColor: '#E5E7EB',
-                color: textColor,
-              }}
-              onFocus={(e) => e.target.style.borderColor = '#22C55E'}
-              onBlur={(e) => e.target.style.borderColor = '#E5E7EB'}
-            />
-            <button
-              type="button"
-              onClick={() => setIsGlobeMapOpen(true)}
-              className="absolute right-4 top-1/2 -translate-y-1/2"
-              style={{ color: '#22C55E' }}
-            >
-              <Globe className="w-4 h-4" />
-            </button>
-          </form>
-        </div>
+        {!isMinimal && (
+          <div className="md:hidden px-4 pb-2">
+            <form onSubmit={handleSearch} className="relative w-full">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#6B7280' }} />
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full h-11 pl-11 pr-12 rounded-full text-sm font-medium outline-none border-2 transition-all shadow-sm"
+                style={{
+                  background: isIncognitoActive ? 'rgba(255,255,255,0.06)' : '#FFFFFF',
+                  borderColor: '#E5E7EB',
+                  color: textColor,
+                }}
+                onFocus={(e) => e.target.style.borderColor = '#22C55E'}
+                onBlur={(e) => e.target.style.borderColor = '#E5E7EB'}
+              />
+              <button
+                type="button"
+                onClick={() => setIsGlobeMapOpen(true)}
+                className="absolute right-4 top-1/2 -translate-y-1/2"
+                style={{ color: '#22C55E' }}
+              >
+                <Globe className="w-4 h-4" />
+              </button>
+            </form>
+          </div>
+        )}
 
         {/* CATEGORY CHIPS */}
-        <div
-          className="px-4 pb-2.5 overflow-x-auto hide-scrollbar"
-          style={{ borderTop: `1px solid ${navBorder}` }}
-        >
-          <div className="flex items-center gap-2 pt-2 max-w-[1400px] mx-auto">
-            {CATEGORIES.map(cat => (
-              <button
-                key={cat}
-                onClick={() => handleCategoryClick(cat)}
-                className="flex-shrink-0 chip-pill transition-all"
-                style={
-                  activeCategory === cat
-                    ? { background: '#22C55E', color: '#fff' }
-                    : {
-                      background: isIncognitoActive ? 'rgba(255,255,255,0.08)' : '#EDE6D8',
-                      color: isIncognitoActive ? '#D1D5DB' : '#6B7280'
+        {!isMinimal && (
+          <div
+            className="px-4 pb-2.5 overflow-x-auto hide-scrollbar"
+            style={{ borderTop: `1px solid ${navBorder}` }}
+          >
+            <div className="flex items-center gap-2 pt-2 max-w-[1400px] mx-auto">
+              {CATEGORIES.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => handleCategoryClick(cat)}
+                  className="flex-shrink-0 chip-pill transition-all"
+                  style={
+                    activeCategory === cat
+                      ? { background: '#22C55E', color: '#fff' }
+                      : {
+                        background: isIncognitoActive ? 'rgba(255,255,255,0.08)' : '#EDE6D8',
+                        color: isIncognitoActive ? '#D1D5DB' : '#6B7280'
+                      }
+                  }
+                  onMouseEnter={e => {
+                    if (activeCategory !== cat) {
+                      e.currentTarget.style.background = '#DCFCE7';
+                      e.currentTarget.style.color = '#22C55E';
                     }
-                }
-                onMouseEnter={e => {
-                  if (activeCategory !== cat) {
-                    e.currentTarget.style.background = '#DCFCE7';
-                    e.currentTarget.style.color = '#22C55E';
-                  }
-                }}
-                onMouseLeave={e => {
-                  if (activeCategory !== cat) {
-                    e.currentTarget.style.background = isIncognitoActive ? 'rgba(255,255,255,0.08)' : '#EDE6D8';
-                    e.currentTarget.style.color = isIncognitoActive ? '#D1D5DB' : '#6B7280';
-                  }
-                }}
-              >
-                {cat}
-              </button>
-            ))}
+                  }}
+                  onMouseLeave={e => {
+                    if (activeCategory !== cat) {
+                      e.currentTarget.style.background = isIncognitoActive ? 'rgba(255,255,255,0.08)' : '#EDE6D8';
+                      e.currentTarget.style.color = isIncognitoActive ? '#D1D5DB' : '#6B7280';
+                    }
+                  }}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </nav>
 
-      {/* Spacer: Mobile ~160px (60px top + 44px search + 42px chips), Desktop ~110px */}
-      <div className="h-[160px] md:h-[112px]"></div>
+      {/* Spacer: Mobile ~160px (60px top + 44px search + 42px chips), Desktop ~112px */}
+      <div className={isMinimal ? 'h-[60px]' : 'h-[160px] md:h-[112px]'}></div>
 
       {isGlobeMapOpen && <GlobeShopOverlay onClose={() => setIsGlobeMapOpen(false)} />}
     </>
