@@ -28,12 +28,25 @@ export default function SellerProducts() {
     const [sortBy, setSortBy] = useState('newest');
     const [confirmDelete, setConfirmDelete] = useState(null);
 
+    const [pagination, setPagination] = useState({ totalPages: 1, currentPage: 1 });
+
     useEffect(() => {
         const load = async () => {
             setLoading(true);
             try {
                 const res = await api.get(API.SELLER_PRODUCTS);
-                setProducts(res.data);
+                // Handle different response formats
+                if (Array.isArray(res.data)) {
+                    setProducts(res.data);
+                } else if (res.data && res.data.products) {
+                    setProducts(res.data.products);
+                    setPagination({
+                        totalPages: res.data.totalPages || 1,
+                        currentPage: res.data.currentPage || 1
+                    });
+                } else {
+                    setProducts([]);
+                }
             } catch (err) {
                 console.error("Load products failed:", err);
                 setProducts([]);
