@@ -1,6 +1,9 @@
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { SlidersHorizontal, ChevronDown, X, Star, Search } from 'lucide-react';
 import API from '../config/apiRoutes';
 import api from '../utils/apiHelper';
+import ProductCard from '../components/ProductCard';
 
 const SORT_OPTIONS = [
   { label: 'Relevance', value: '' },
