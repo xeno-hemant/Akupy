@@ -71,15 +71,17 @@ export default function SellerTopbar({ onMenuClick, sidebarWidth = 240 }) {
             </Link>
 
             {/* Page Title & Breadcrumb */}
-            <div className="flex items-center gap-3">
-                <Link 
-                    to="/seller/dashboard" 
-                    className="text-xs font-bold uppercase tracking-wider px-2 py-1 rounded bg-[#E2E8F0] text-[#64748B] hover:bg-[#22C55E]/10 hover:text-[#22C55E] transition-all hidden md:block"
-                >
-                    Dashboard
-                </Link>
-                <div className="w-1 h-1 rounded-full bg-gray-300 hidden md:block" />
-                <h1 className="text-lg md:text-xl font-bold text-[#1E293B] truncate max-w-[150px] md:max-w-none">
+            <div className="flex-1 flex flex-col md:flex-row items-center justify-center md:gap-3">
+                <div className="flex items-center gap-2">
+                    <Link 
+                        to="/seller/dashboard" 
+                        className="text-[10px] md:text-xs font-bold uppercase tracking-wider px-2 py-0.5 md:py-1 rounded bg-[#E2E8F0] text-[#64748B] hover:bg-[#22C55E]/10 hover:text-[#22C55E] transition-all"
+                    >
+                        Dashboard
+                    </Link>
+                    <div className="w-1 h-1 rounded-full bg-gray-300 hidden md:block" />
+                </div>
+                <h1 className="text-sm md:text-xl font-bold text-[#1E293B] truncate max-w-[200px] md:max-w-none">
                     {title}
                 </h1>
             </div>

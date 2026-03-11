@@ -15,6 +15,7 @@ import Navbar from './components/Navbar';
 import BottomNav from './components/BottomNav';
 import TryOnModal from './components/TryOnModal';
 import AiAssistantDrawer from './components/AiAssistantDrawer';
+import AiHelpAgent from './components/AiHelpAgent';
 import { ProtectedSellerRoute, ProtectedShopperRoute } from './components/ProtectedRoute';
 import CustomCursor from './components/CustomCursor';
 import TryOnOnboardingModal from './components/tryon/TryOnOnboardingModal';
@@ -59,6 +60,7 @@ function AppInner({ subdomainShopId }) {
   const [toastMessage, setToastMessage] = useState('');
   const isSeller = useIsSeller();
   const location = useLocation();
+  const [isAiHelpOpen, setIsAiHelpOpen] = useState(false);
 
   const isSellerRoute = location.pathname.startsWith('/seller');
   const isAuthRoute = location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register';
@@ -78,11 +80,17 @@ function AppInner({ subdomainShopId }) {
       }));
     };
 
+    const handleOpenAiHelp = () => {
+      setIsAiHelpOpen(true);
+    };
+
     window.addEventListener('incognito-toast', handleToast);
     window.addEventListener('toggle-incognito', handleToggleIncognito);
+    window.addEventListener('open-ai-chat', handleOpenAiHelp);
     return () => {
       window.removeEventListener('incognito-toast', handleToast);
       window.removeEventListener('toggle-incognito', handleToggleIncognito);
+      window.removeEventListener('open-ai-chat', handleOpenAiHelp);
     };
   }, [isIncognitoActive, setIncognito]);
 
@@ -107,6 +115,7 @@ function AppInner({ subdomainShopId }) {
       {!isSellerRoute && !isAuthRoute && <BottomNav />}
       <TryOnModal />
       <AiAssistantDrawer />
+      {isAiHelpOpen && <AiHelpAgent onClose={() => setIsAiHelpOpen(false)} />}
 
       {subdomainShopId ? (
         <ShopSubdomain shopId={subdomainShopId} />

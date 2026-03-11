@@ -57,44 +57,21 @@ function StatusBadge({ status }) {
     );
 }
 
-// ── Demo data ─────────────────────────────────────────────────────────
-const DEMO_ORDERS = [
-    { id: '#AK-00341', customer: 'Priya Sharma', product: 'Acid Wash Tee', amount: '₹1,299', status: 'pending', date: 'Mar 11' },
-    { id: '#AK-00340', customer: 'Rahul Mehta', product: 'Sony Headphones', amount: '₹29,990', status: 'shipped', date: 'Mar 10' },
-    { id: '#AK-00339', customer: 'Ayesha Khan', product: 'Monstera Plant', amount: '₹349', status: 'delivered', date: 'Mar 10' },
-    { id: '#AK-00338', customer: 'Vikram Singh', product: 'Leather Wallet', amount: '₹1,499', status: 'processing', date: 'Mar 09' },
-    { id: '#AK-00337', customer: 'Sneha Patel', product: 'Soy Wax Candles', amount: '₹699', status: 'cancelled', date: 'Mar 09' },
-];
+// ── Initial Empty Data ─────────────────────────────────────────
+const DEMO_ORDERS = [];
+const DEMO_PRODUCTS = [];
+const DEMO_LOW_STOCK = [];
+const DEMO_REVIEWS = [];
 
-const DEMO_PRODUCTS = [
-    { rank: 1, name: 'Sony WH-1000XM5', category: 'Electronics', units: 84, revenue: '₹25.1L', pct: 90 },
-    { rank: 2, name: 'Acid Wash Oversized Tee', category: 'Fashion', units: 61, revenue: '₹7.9K', pct: 65 },
-    { rank: 3, name: 'LED Minimalist Lamp', category: 'Home', units: 43, revenue: '₹3.9K', pct: 46 },
-    { rank: 4, name: 'Leather Bifold Wallet', category: 'Accessories', units: 37, revenue: '₹5.5K', pct: 40 },
-    { rank: 5, name: 'Soy Wax Candle Set', category: 'Lifestyle', units: 28, revenue: '₹1.9K', pct: 30 },
-];
-
-const DEMO_LOW_STOCK = [
-    { name: 'Acid Wash Tee (XL)', qty: 2 },
-    { name: 'LED Desk Lamp (Black)', qty: 3 },
-    { name: 'Monstera Deliciosa', qty: 4 },
-];
-
-const DEMO_REVIEWS = [
-    { customer: 'Priya S.', rating: 5, text: 'Absolutely love the quality! Will definitely buy again. Fast shipping!', product: 'Acid Wash Tee' },
-    { customer: 'Rahul M.', rating: 4, text: 'Great product, packaging could have been better but overall satisfied.', product: 'Sony Headphones' },
-    { customer: 'Ayesha K.', rating: 5, text: 'Beautiful plant, arrived in perfect condition. Highly recommend!', product: 'Monstera Plant' },
-];
-
-const REVENUE_DATA = [12000, 18000, 14000, 22000, 19000, 28000, 24000, 31000, 27000, 35000, 29000, 41000];
+const REVENUE_DATA = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 const REVENUE_MONTHS = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
 
 const ORDER_DONUT_DATA = [
-    { label: 'Delivered', value: 110, color: '#22C55E' },
-    { label: 'Shipped', value: 80, color: '#8B5CF6' },
-    { label: 'Processing', value: 28, color: '#3B82F6' },
-    { label: 'Pending', value: 12, color: '#F59E0B' },
-    { label: 'Cancelled', value: 10, color: '#EF4444' },
+    { label: 'Delivered', value: 0, color: '#22C55E' },
+    { label: 'Shipped', value: 0, color: '#8B5CF6' },
+    { label: 'Processing', value: 0, color: '#3B82F6' },
+    { label: 'Pending', value: 0, color: '#F59E0B' },
+    { label: 'Cancelled', value: 0, color: '#EF4444' },
 ];
 
 // ── Donut Chart (pure SVG) ────────────────────────────────────────────
@@ -257,10 +234,10 @@ export default function SellerDashboard() {
 
                 {/* ── Stat Cards ── */}
                 <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-                    <StatCard loading={loading} title="Total Revenue" value="₹1,24,500" subtext="from last month" trendValue="+12.5%" trend="up" icon={DollarSign} accentColor="#F59E0B" />
-                    <StatCard loading={loading} title="Total Orders" value="340" subtext="+8 new today" trendValue="+8" trend="up" icon={ShoppingCart} accentColor="#3B82F6" />
-                    <StatCard loading={loading} title="Products Listed" value="87" subtext="4 out of stock" icon={Package} accentColor="#8B5CF6" />
-                    <StatCard loading={loading} title="Avg. Rating" value="4.6 ★" subtext="from 240 reviews" icon={Star} accentColor="#22C55E" />
+                    <StatCard loading={loading} title="Total Revenue" value="₹0" subtext="No sales yet" icon={DollarSign} accentColor="#F59E0B" />
+                    <StatCard loading={loading} title="Total Orders" value="0" subtext="No orders yet" icon={ShoppingCart} accentColor="#3B82F6" />
+                    <StatCard loading={loading} title="Products Listed" value="0" subtext="Add your first product" icon={Package} accentColor="#8B5CF6" />
+                    <StatCard loading={loading} title="Avg. Rating" value="0 ★" subtext="No reviews yet" icon={Star} accentColor="#22C55E" />
                 </div>
 
                 {/* ── Charts Row ── */}
@@ -287,7 +264,7 @@ export default function SellerDashboard() {
                                 View All <ArrowRight className="w-3 h-3" />
                             </Link>
                         </div>
-                        <div className="overflow-x-auto">
+                        <div className="overflow-x-auto min-h-[200px] flex flex-col">
                             <table className="w-full min-w-[500px]">
                                 <thead>
                                     <tr style={{ borderBottom: '1px solid #F8F9FA' }}>
@@ -297,7 +274,7 @@ export default function SellerDashboard() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {DEMO_ORDERS.map((o, i) => (
+                                    {DEMO_ORDERS.length > 0 ? DEMO_ORDERS.map((o, i) => (
                                         <tr key={i} className="transition-colors cursor-pointer"
                                             style={{ borderBottom: '1px solid #F8F9FA' }}
                                             onMouseEnter={e => e.currentTarget.style.background = '#F8FAFC'}
@@ -309,7 +286,16 @@ export default function SellerDashboard() {
                                             <td className="px-4 py-3"><StatusBadge status={o.status} /></td>
                                             <td className="px-4 py-3 text-xs font-medium" style={{ color: '#94A3B8' }}>{o.date}</td>
                                         </tr>
-                                    ))}
+                                    )) : (
+                                        <tr>
+                                            <td colSpan="6" className="px-4 py-12 text-center text-sm font-medium" style={{ color: '#94A3B8' }}>
+                                                <div className="flex flex-col items-center gap-2">
+                                                    <ShoppingCart className="w-8 h-8 opacity-20" />
+                                                    No orders received yet
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>
@@ -323,8 +309,8 @@ export default function SellerDashboard() {
                                 View All <ArrowRight className="w-3 h-3" />
                             </Link>
                         </div>
-                        <div className="p-4 space-y-3">
-                            {DEMO_PRODUCTS.map((p, i) => (
+                        <div className="p-4 space-y-3 min-h-[200px] flex flex-col">
+                            {DEMO_PRODUCTS.length > 0 ? DEMO_PRODUCTS.map((p, i) => (
                                 <div key={i} className="flex items-center gap-3">
                                     <span className="w-6 text-sm font-black text-center flex-shrink-0" style={{ color: '#CBD5E1' }}>
                                         {p.rank}
@@ -344,7 +330,12 @@ export default function SellerDashboard() {
                                         <div className="text-[10px] font-medium" style={{ color: '#94A3B8' }}>{p.revenue}</div>
                                     </div>
                                 </div>
-                            ))}
+                            )) : (
+                                <div className="flex-1 flex flex-col items-center justify-center gap-2 text-[94A3B8] text-sm py-8">
+                                    <Package className="w-8 h-8 opacity-20" />
+                                    No products listed yet
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -417,8 +408,8 @@ export default function SellerDashboard() {
                             <h3 className="text-sm font-black" style={{ color: '#0F172A' }}>Latest Reviews</h3>
                             <Link to="/seller/reviews" className="text-xs font-bold" style={{ color: '#22C55E' }}>View All</Link>
                         </div>
-                        <div className="divide-y" style={{ borderColor: '#F8F9FA' }}>
-                            {DEMO_REVIEWS.map((r, i) => (
+                        <div className="divide-y min-h-[140px] flex flex-col" style={{ borderColor: '#F8F9FA' }}>
+                            {DEMO_REVIEWS.length > 0 ? DEMO_REVIEWS.map((r, i) => (
                                 <div key={i} className="px-5 py-3">
                                     <div className="flex items-center justify-between mb-1">
                                         <span className="text-sm font-bold" style={{ color: '#0F172A' }}>{r.customer}</span>
@@ -434,7 +425,12 @@ export default function SellerDashboard() {
                                         <Link to="/seller/reviews" className="text-[10px] font-bold" style={{ color: '#22C55E' }}>Reply →</Link>
                                     </div>
                                 </div>
-                            ))}
+                            )) : (
+                                <div className="flex-1 flex flex-col items-center justify-center gap-2 py-6 text-sm" style={{ color: '#94A3B8' }}>
+                                    <Star className="w-6 h-6 opacity-20" />
+                                    No reviews yet
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

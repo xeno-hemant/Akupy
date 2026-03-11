@@ -543,7 +543,7 @@ export default function Dashboard() {
                   <QuickAction
                     icon={<Headphones className="w-6 h-6" />}
                     label="Help Center"
-                    onClick={() => navigate('/help')}
+                    onClick={() => window.dispatchEvent(new CustomEvent('open-ai-chat'))}
                     color="#EC4899"
                   />
                 </div>

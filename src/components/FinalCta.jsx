@@ -14,10 +14,11 @@ export default function FinalCta() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   // Default to business if on the sell page, otherwise user
   const [role, setRole] = useState(location.pathname === '/sell' ? 'seller' : 'user');
-  const [authMode, setAuthMode] = useState('register'); // 'login' or 'register'
+  const [authMode, setAuthMode] = useState('register'); // 'login', 'register', or 'forgot'
   const [status, setStatus] = useState('idle'); // idle, loading, error
 
   const [monetizationPlan, setMonetizationPlan] = useState(''); // 'commission' or 'subscription'
@@ -58,7 +59,13 @@ export default function FinalCta() {
       return;
     }
 
-    if (authMode === 'login') {
+    if (authMode === 'forgot') {
+      if (!showOtpField) {
+        requestResetOtp();
+      } else {
+        executeResetPassword();
+      }
+    } else if (authMode === 'login') {
       executeLogin();
     } else if (!showOtpField) {
       requestOtp();
@@ -112,6 +119,52 @@ export default function FinalCta() {
       setStatus('error');
       setIsWakingUp(false);
       setShowPricingModal(false);
+    }
+  };
+
+  const executeResetPassword = async () => {
+    setStatus('loading');
+    try {
+      const response = await fetchWithTimeout(`${apiUrl}/api/auth/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp, password })
+      });
+      if (response.ok) {
+        alert('Password reset successful! You can now log in.');
+        setAuthMode('login');
+        setShowOtpField(false);
+        setOtp('');
+        setPassword('');
+        setStatus('idle');
+      } else {
+        setStatus('error');
+      }
+    } catch (err) {
+      setStatus('error');
+    }
+  };
+
+  const requestResetOtp = async () => {
+    setStatus('loading');
+    try {
+      const response = await fetchWithTimeout(`${apiUrl}/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setShowOtpField(true);
+        setStatus('idle');
+        if (data.devOtp) {
+          alert(`Dev Mode: Reset code is ${data.devOtp}`);
+        }
+      } else {
+        setStatus('error');
+      }
+    } catch (err) {
+      setStatus('error');
     }
   };
 
@@ -264,11 +317,11 @@ export default function FinalCta() {
 
             {/* Role Toggle (Only show if registering) */}
             {authMode === 'register' && (
-              <div className="flex justify-center mb-6 p-1 rounded-full w-max mx-auto" style={{ background: 'rgba(142,134,123,0.12)', border: '1px solid rgba(142,134,123,0.2)' }}>
+              <div className="flex justify-center mb-6 p-1 rounded-full w-[90%] max-w-max mx-auto overflow-hidden" style={{ background: 'rgba(142,134,123,0.12)', border: '1px solid rgba(142,134,123,0.2)' }}>
                 <button
                   type="button"
                   onClick={() => setRole('user')}
-                  className={`px-6 py-2 rounded-full text-sm font-semibold transition-colors`}
+                  className={`flex-1 px-4 md:px-6 py-2 rounded-full text-[11px] xs:text-xs md:text-sm font-semibold transition-colors truncate`}
                   style={role === 'user' ? { background: '#3d3830', color: '#F3F0E2' } : { color: '#aba49c' }}
                 >
                   I'm a Shopper
@@ -276,7 +329,7 @@ export default function FinalCta() {
                 <button
                   type="button"
                   onClick={() => setRole('seller')}
-                  className={`px-6 py-2 rounded-full text-sm font-semibold transition-colors ${role === 'seller' ? 'text-[#08080e]' : 'text-[#8b8ba0] hover:text-white'}`}
+                  className={`flex-1 px-4 md:px-6 py-2 rounded-full text-[11px] xs:text-xs md:text-sm font-semibold transition-colors truncate ${role === 'seller' ? 'text-[#08080e]' : 'text-[#8b8ba0] hover:text-white'}`}
                   style={role === 'seller' ? { background: '#8E867B', color: '#F3F0E2' } : {}}
                 >
                   I'm a Business
@@ -306,15 +359,28 @@ export default function FinalCta() {
                     style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'white' }}
                     required
                   />
-                  <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="px-5 py-3.5 rounded-xl md:rounded-full outline-none font-body w-full md:w-auto flex-grow text-sm md:text-base transition-all placeholder-[#8b8ba0]"
-                    style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'white' }}
-                    required
-                  />
+                  <div className="relative flex-grow w-full md:w-auto">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="px-5 py-3.5 pr-12 rounded-xl md:rounded-full outline-none font-body w-full text-sm md:text-base transition-all placeholder-[#8b8ba0]"
+                      style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'white' }}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8b8ba0] hover:text-white transition-colors"
+                    >
+                      {showPassword ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                      )}
+                    </button>
+                  </div>
                 </>
               )}
 
@@ -327,12 +393,41 @@ export default function FinalCta() {
                 {status === 'loading'
                   ? (isWakingUp ? '🌐 Connecting...' : 'Processing...')
                   : showOtpField
-                    ? 'Verify & Register'
+                    ? 'Verify & Proceed'
                     : status === 'error'
                       ? 'Retry'
-                      : 'Continue'}
+                      : authMode === 'forgot'
+                        ? 'Send Reset OTP'
+                        : (authMode === 'login' ? 'Log In' : 'Continue')}
               </button>
             </form>
+
+            {authMode === 'login' && !showOtpField && (
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode('forgot');
+                  setErrorMessage('');
+                }}
+                className="mt-4 text-xs font-semibold text-[#8E867B] hover:text-[#aba49c] transition-colors underline underline-offset-4"
+              >
+                Forgot Password?
+              </button>
+            )}
+
+            {authMode === 'forgot' && (
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode('login');
+                  setShowOtpField(false);
+                  setErrorMessage('');
+                }}
+                className="mt-4 text-xs font-semibold text-[#8E867B] hover:text-[#aba49c] transition-colors"
+              >
+                Back to Login
+              </button>
+            )}
 
             {isWakingUp && (
               <div className="mt-4 p-3 rounded-lg text-sm font-medium animate-fade-in flex items-center gap-2" style={{ background: 'rgba(196,168,130,0.12)', border: '1px solid rgba(196,168,130,0.28)', color: '#c4a882' }}>

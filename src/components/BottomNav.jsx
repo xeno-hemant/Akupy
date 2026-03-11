@@ -106,18 +106,18 @@ export default function BottomNav() {
                     boxShadow: '0 -2px 16px rgba(0,0,0,0.08)',
                 }}
             >
-                <div className="flex items-center justify-around px-2 py-2 max-w-lg mx-auto h-[75px] relative">
+                <div className="grid grid-cols-5 items-center px-2 py-2 max-w-lg mx-auto h-[75px] relative">
                     {items.map((item) => {
                         const Icon = item.icon;
                         const active = isActive(item.path);
 
                         if (item.isFab) {
                             return (
-                                <div key={item.id} className="w-16 h-16 flex-shrink-0 relative">
+                                <div key={item.id} className="flex justify-center relative h-full">
                                     <button
                                         onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                        className="absolute left-1/2 -translate-x-1/2 -translate-y-8 flex items-center justify-center w-16 h-16 rounded-full bg-[#22C55E] text-white shadow-[0_8px_25px_rgba(34,197,94,0.4)] border-4 border-white transition-all duration-500 hover:scale-110 active:scale-95 z-[1001]"
-                                        style={{ transform: `translate(-50%, -12px) rotate(${isMenuOpen ? '135deg' : '0deg'})` }}
+                                        className="absolute left-1/2 -translate-x-1/2 top-0 -translate-y-[45%] flex items-center justify-center w-16 h-16 rounded-full bg-[#22C55E] text-white shadow-[0_8px_25px_rgba(34,197,94,0.4)] border-4 border-white transition-all duration-500 hover:scale-110 active:scale-95 z-[1001]"
+                                        style={{ transformOrigin: 'center', transform: `translateX(-50%) rotate(${isMenuOpen ? '135deg' : '0deg'}) scale(${active ? 1.05 : 1})` }}
                                     >
                                         <Plus className="w-8 h-8" />
                                     </button>
@@ -129,18 +129,18 @@ export default function BottomNav() {
                             <button
                                 key={item.id}
                                 onClick={() => item.path && navigate(item.path)}
-                                className="flex flex-col items-center gap-0.5 px-3 py-1 transition-all relative"
+                                className="flex flex-col items-center justify-center gap-0.5 transition-all relative"
                                 style={{ color: active ? '#22C55E' : '#6B7280', minWidth: 44, minHeight: 44 }}
                             >
                                 <div className="relative">
-                                    <Icon className="w-5 h-5" />
+                                    <Icon className="w-5 h-5 md:w-6 md:h-6" />
                                     {item.id === 'cart' && getTotalItems() > 0 && (
                                         <span className="absolute -top-1.5 -right-1.5 w-4 h-4 flex items-center justify-center text-[9px] font-bold rounded-full bg-[#22C55E] text-white">
                                             {getTotalItems()}
                                         </span>
                                     )}
                                 </div>
-                                <span className="text-[10px] font-semibold">{item.label}</span>
+                                <span className="text-[10px] md:text-xs font-semibold">{item.label}</span>
                                 {active && (
                                     <span
                                         className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"

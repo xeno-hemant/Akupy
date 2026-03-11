@@ -128,7 +128,13 @@ export default function SellerSidebar({ isOpen, onClose, collapsed }) {
                                 <NavLink
                                     key={item.path}
                                     to={item.path}
-                                    onClick={onClose}
+                                    onClick={(e) => {
+                                        if (item.path === '/seller/help') {
+                                            e.preventDefault();
+                                            window.dispatchEvent(new CustomEvent('open-ai-chat'));
+                                        }
+                                        onClose?.();
+                                    }}
                                     title={collapsed ? item.label : undefined}
                                     className="flex items-center gap-3 px-3 py-2.5 rounded-lg mb-0.5 transition-all relative group"
                                     style={{
