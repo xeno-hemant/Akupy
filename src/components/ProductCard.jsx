@@ -82,8 +82,8 @@ export default function ProductCard({ product }) {
                     </div>
                 )}
 
-                {/* Desktop hover: Add to Cart overlay */}
-                <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 pointer-events-none group-hover:pointer-events-auto p-2 hidden md:block">
+                {/* Desktop/Tablet hover: Add to Cart overlay */}
+                <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 md:group-hover:translate-y-0 transition-transform duration-300 pointer-events-none group-hover:pointer-events-auto p-2 hidden md:block">
                     <div style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.5), transparent)' }} className="absolute inset-0 rounded-b-2xl" />
                     <div className="relative flex gap-1">
                         {hasTryOn && (
@@ -152,7 +152,7 @@ export default function ProductCard({ product }) {
                 {/* Price Row */}
                 <div className="flex items-center justify-between gap-2">
                     <div>
-                        {hasDiscount && (
+                        {Boolean(hasDiscount) && (
                             <span className="text-[11px] line-through mr-1" style={{ color: '#9CA3AF' }}>
                                 ₹{product.originalPrice}
                             </span>

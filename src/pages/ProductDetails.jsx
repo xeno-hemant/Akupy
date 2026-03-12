@@ -289,20 +289,26 @@ export default function ProductDetails() {
                             </div>
                         )}
 
-                        {/* Qty */}
-                        <div className="flex items-center gap-4 mb-8">
-                            <span className="text-sm font-bold" style={{ color: textMain }}>Quantity:</span>
-                            <div className="flex items-center rounded-xl overflow-hidden" style={{ background: HH.linen, border: `1px solid ${HH.silver}` }}>
-                                <button onClick={() => setQty(Math.max(1, qty - 1))} className="w-10 h-10 flex items-center justify-center font-bold text-lg transition-colors" style={{ color: HH.taupe }}
+                        <div className="flex flex-col sm:flex-row items-center gap-3 mb-8">
+                            <div className="flex items-center rounded-xl overflow-hidden h-12" style={{ background: HH.linen, border: `1px solid ${HH.silver}` }}>
+                                <button onClick={() => setQty(Math.max(1, qty - 1))} className="w-12 h-12 flex items-center justify-center font-bold text-lg transition-colors" style={{ color: HH.taupe }}
                                     onMouseEnter={e => e.currentTarget.style.background = HH.silver}
                                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                                 >-</button>
-                                <input type="number" readOnly value={qty} className="w-12 h-10 text-center font-bold outline-none text-sm" style={{ borderLeft: `1px solid ${HH.silver}`, borderRight: `1px solid ${HH.silver}`, color: HH.dark, background: 'transparent' }} />
-                                <button onClick={() => setQty(qty + 1)} className="w-10 h-10 flex items-center justify-center font-bold text-lg transition-colors" style={{ color: HH.taupe }}
+                                <input type="number" readOnly value={qty} className="w-12 h-12 text-center font-bold outline-none text-sm" style={{ borderLeft: `1px solid ${HH.silver}`, borderRight: `1px solid ${HH.silver}`, color: HH.dark, background: 'transparent' }} />
+                                <button onClick={() => setQty(qty + 1)} className="w-12 h-12 flex items-center justify-center font-bold text-lg transition-colors" style={{ color: HH.taupe }}
                                     onMouseEnter={e => e.currentTarget.style.background = HH.silver}
                                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                                 >+</button>
                             </div>
+                            
+                            <button
+                                onClick={handleAddToCart}
+                                className="w-full sm:flex-1 h-12 flex items-center justify-center gap-2 rounded-xl font-bold transition-all shadow-sm"
+                                style={{ background: '#81c784', color: '#fff' }}
+                            >
+                                <ShoppingCart className="w-5 h-5" /> Add to Cart
+                            </button>
                         </div>
 
                         {/* Offers Box */}

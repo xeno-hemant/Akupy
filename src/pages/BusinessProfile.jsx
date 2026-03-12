@@ -100,11 +100,11 @@ export default function BusinessProfile() {
             <div className="flex flex-col md:flex-row gap-8 py-8 border-t border-b border-gray-100 mb-8">
               <div>
                 <span className="block text-sm text-gray-400 font-medium mb-1">Address</span>
-                <span className="text-[#080808] font-medium">{business.address || 'Address pending'}</span>
+                <span className="text-[#080808] font-medium leading-relaxed">{business.address || 'Location information not available'}</span>
               </div>
-              <div>
+              <div className="md:ml-auto">
                 <span className="block text-sm text-gray-400 font-medium mb-1">Contact</span>
-                <span className="text-[#080808] font-medium">{business.phone || business.email || 'Contact hidden'}</span>
+                <span className="text-[#080808] font-medium">{business.phone || business.email || 'No contact info provided'}</span>
               </div>
             </div>
           )}
