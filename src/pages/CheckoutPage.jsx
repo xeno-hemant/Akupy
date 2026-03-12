@@ -47,8 +47,13 @@ export default function CheckoutPage() {
       try {
         setIsProcessing(true);
         const res = await api.post(API.ADDRESSES, {
-          ...address,
-          address: `${address.street}, ${address.city}, ${address.state} - ${address.pincode}`
+          fullName: address.name,
+          phone: address.phone,
+          line1: address.street,
+          city: address.city,
+          state: address.state,
+          pincode: address.pincode,
+          label: 'Home'
         });
         if (res.data?.success) {
           setAddressId(res.data.address._id);
