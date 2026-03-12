@@ -114,7 +114,7 @@ export default function BusinessProfile() {
                 </div>
                 <div>
                   <span className="block text-sm text-gray-400 font-medium mb-1">Contact</span>
-                  <span className="text-[#080808] font-medium">{business.ownerPhone || business.ownerEmail || 'Contact hidden'}</span>
+                  <span className="text-[#080808] font-medium">{business.phone || business.email || 'Contact hidden'}</span>
                 </div>
               </>
             )}

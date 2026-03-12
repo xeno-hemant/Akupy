@@ -234,70 +234,45 @@ export default function CheckoutPage() {
               </div>
               {activeStep === 4 && (
                 <div className="px-5 pb-5">
-                  {upiStep ? (
-                    <div className="flex flex-col items-center pt-6 pb-4 text-center max-w-sm mx-auto animate-fade-in-up">
-                      <h3 className="text-2xl font-black mb-2" style={{ color: '#1A1A1A' }}>Scan to Pay</h3>
-                      <p className="text-sm font-medium mb-8" style={{ color: '#6B7280' }}>Use Google Pay, PhonePe, or Paytm.</p>
-                      <div className="p-4 rounded-3xl mb-8 hover:scale-105 transition-transform duration-500" style={{ background: 'white', border: '2px solid #E5E7EB' }}>
-                        <QRCodeSVG value={getUpiUrl()} size={200} bgColor="#ffffff" fgColor="#1A1A1A" level="H" />
-                      </div>
-                      <div className="w-full p-5 rounded-2xl" style={{ background: '#F5F0E8', border: '1px solid #E5E7EB' }}>
-                        <label className="block text-xs font-bold uppercase tracking-wider mb-3" style={{ color: '#6B7280' }}>Upload Payment Proof</label>
-                        <label className="flex flex-col items-center justify-center w-full p-5 border-2 border-dashed rounded-xl cursor-pointer transition-colors"
-                          style={{ borderColor: upiScreenshot ? G : '#D1D5DB', background: upiScreenshot ? '#F0FDF4' : '#FFFFFF', color: upiScreenshot ? G : '#9CA3AF' }}>
-                          <input type="file" accept="image/*" className="hidden" onChange={(e) => setUpiScreenshot(e.target.files[0])} />
-                          <Upload className="w-6 h-6 mb-2" />
-                          <span className="text-sm font-bold">{upiScreenshot ? `✓ ${upiScreenshot.name}` : 'Attach Screenshot'}</span>
-                        </label>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-3 pt-4">
-                      {[
-                        { value: 'upi', Icon: Landmark, label: 'UPI Transfer', sub: 'GPay, PhonePe, Paytm' },
-                        { value: 'card', Icon: CreditCard, label: 'Credit / Debit Card', sub: 'Visa, Mastercard (Razorpay)' },
-                        { value: 'cod', Icon: Banknote, label: 'Cash on Delivery', sub: 'Pay when you receive (+₹50)' },
-                      ].map(({ value, Icon, label, sub }) => (
-                        <label
-                          key={value}
-                          className="flex items-center gap-4 p-5 rounded-2xl cursor-pointer transition-all"
-                          style={{
-                            background: paymentMethod === value ? '#F0FDF4' : 'transparent',
-                            border: `1.5px solid ${paymentMethod === value ? G : '#E5E7EB'}`,
-                            borderLeft: paymentMethod === value ? `4px solid ${G}` : '1.5px solid #E5E7EB',
-                          }}
-                        >
-                          <input type="radio" name="payment" value={value} checked={paymentMethod === value} onChange={() => setPaymentMethod(value)} className="w-5 h-5" style={{ accentColor: G }} />
-                          <div className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: paymentMethod === value ? '#DCFCE7' : '#F5F0E8', color: paymentMethod === value ? G : '#6B7280' }}>
-                            <Icon className="w-5 h-5" />
-                          </div>
-                          <div>
-                            <h4 className="font-bold text-base" style={{ color: '#1A1A1A' }}>{label}</h4>
-                            <p className="text-sm font-medium" style={{ color: '#6B7280' }}>{sub}</p>
-                          </div>
-                        </label>
-                      ))}
-                    </div>
-                  )}
+                  <div className="space-y-3 pt-4">
+                    {[
+                      { value: 'card', Icon: CreditCard, label: 'Standard Online Payment', sub: 'Visa, Mastercard, UPI, Netbanking (Razorpay)' },
+                      { value: 'cod', Icon: Banknote, label: 'Cash on Delivery', sub: 'Pay when you receive (+₹50)' },
+                    ].map(({ value, Icon, label, sub }) => (
+                      <label
+                        key={value}
+                        className="flex items-center gap-4 p-5 rounded-2xl cursor-pointer transition-all"
+                        style={{
+                          background: paymentMethod === value ? '#F0FDF4' : 'transparent',
+                          border: `1.5px solid ${paymentMethod === value ? G : '#E5E7EB'}`,
+                          borderLeft: paymentMethod === value ? `4px solid ${G}` : '1.5px solid #E5E7EB',
+                        }}
+                      >
+                        <input type="radio" name="payment" value={value} checked={paymentMethod === value} onChange={() => setPaymentMethod(value)} className="w-5 h-5" style={{ accentColor: G }} />
+                        <div className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: paymentMethod === value ? '#DCFCE7' : '#F5F0E8', color: paymentMethod === value ? G : '#6B7280' }}>
+                          <Icon className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-base" style={{ color: '#1A1A1A' }}>{label}</h4>
+                          <p className="text-sm font-medium" style={{ color: '#6B7280' }}>{sub}</p>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
                   <div className="mt-5 pt-5 flex flex-col sm:flex-row gap-3" style={{ borderTop: '1px solid #F3F4F6' }}>
-                    {upiStep && (
-                      <button onClick={() => setUpiStep(false)} className="py-4 px-6 rounded-xl font-bold border flex-1 transition-colors" style={{ background: 'transparent', borderColor: '#E5E7EB', color: '#6B7280' }}>
-                        Back
-                      </button>
-                    )}
                     <button
                       onClick={submitOrder}
-                      disabled={isProcessing || (paymentMethod === 'upi' && upiStep && !upiScreenshot)}
+                      disabled={isProcessing}
                       className="py-4 px-8 rounded-xl font-black text-lg flex items-center justify-center gap-2 flex-[2] transition-all active:scale-[0.98] text-white"
                       style={{
-                        background: (isProcessing || (paymentMethod === 'upi' && upiStep && !upiScreenshot)) ? '#E5E7EB' : G,
+                        background: isProcessing ? '#E5E7EB' : G,
                         cursor: isProcessing ? 'not-allowed' : 'pointer',
                         minHeight: '56px',
                       }}
                       onMouseEnter={e => { if (!isProcessing) e.currentTarget.style.background = GD; }}
                       onMouseLeave={e => { if (!isProcessing) e.currentTarget.style.background = G; }}
                     >
-                      {isProcessing ? 'Processing...' : paymentMethod === 'upi' && !upiStep ? 'Generate UPI QR' : `Pay ₹${finalTotal} Securely`}
+                      {isProcessing ? 'Processing...' : `Pay ₹${finalTotal} Securely`}
                     </button>
                   </div>
                 </div>

@@ -48,7 +48,8 @@ export default function SellerOrders() {
             setLoading(true);
             try {
                 const res = await api.get(API.SELLER_ORDERS);
-                if (res.data) setOrders(res.data);
+                if (res.data?.orders) setOrders(res.data.orders);
+                else if (Array.isArray(res.data)) setOrders(res.data);
             } catch (err) {
                 console.error("Fetch orders failed", err);
             } finally {
@@ -60,7 +61,9 @@ export default function SellerOrders() {
 
     const filtered = orders.filter(o => {
         const matchTab = activeTab === 'all' || o.status === activeTab;
-        const matchSearch = !search || o._id.toLowerCase().includes(search.toLowerCase()) || o.customer.toLowerCase().includes(search.toLowerCase());
+        const matchSearch = !search || 
+            o.orderNumber?.toLowerCase().includes(search.toLowerCase()) || 
+            o.userId?.fullName?.toLowerCase().includes(search.toLowerCase());
         return matchTab && matchSearch;
     });
 
