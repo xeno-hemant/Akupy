@@ -113,10 +113,29 @@ export default function CheckoutPage() {
     rzp.open();
   };
 
+  const syncCartWithBackend = async () => {
+    if (!user || cart.length === 0) return;
+    try {
+      // Clear backend cart first or just add all? 
+      // The backend addToCart adds to existing. Better to clear and then add all for exact match.
+      await api.delete(`${API.CART}/clear`);
+      for (const item of cart) {
+        await api.post(`${API.CART}/add`, {
+          productId: item._id || item.id,
+          variantId: item.variantId && item.variantId.includes('-') ? null : item.variantId, // Filter out our compound IDs if needed
+          quantity: item.quantity
+        });
+      }
+    } catch (err) {
+      console.error("Cart sync failed:", err);
+    }
+  };
+
   const submitOrder = async () => {
     if (paymentMethod === 'cod') {
       setIsProcessing(true);
       try {
+        await syncCartWithBackend();
         const res = await api.post(`${API.ORDERS}/cod`, { addressId });
         if (res.data?.success) {
           setIsSuccess(true);
@@ -134,6 +153,7 @@ export default function CheckoutPage() {
 
     setIsProcessing(true);
     try {
+      await syncCartWithBackend();
       const res = await api.post(`${API.ORDERS}/create-razorpay-order`, { addressId });
       if (res.data?.success) {
         handleRazorpay(res.data);
