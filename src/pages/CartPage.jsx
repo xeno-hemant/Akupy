@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, ShoppingBag, ArrowRight, ShieldCheck, Tag, Plus, Minus } from 'lucide-react';
 import useCartStore from '../store/useCartStore';
 import useFeatureStore from '../store/useFeatureStore';
+import api from '../utils/apiHelper';
+import API from '../config/apiRoutes';
 
 // Akupy tokens
 const HH = {
