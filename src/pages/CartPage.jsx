@@ -64,7 +64,7 @@ export default function CartPage() {
         // 2. Filter cart items for this shop
         const shopItems = cart.filter(item => {
           const sid = item.shopId?._id || item.shopId?.id || item.shopId;
-          return sid === couponShopId;
+          return String(sid) === String(couponShopId);
         });
 
         if (shopItems.length === 0) {
