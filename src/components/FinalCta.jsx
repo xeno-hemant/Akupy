@@ -91,7 +91,7 @@ export default function FinalCta() {
       } else {
         // Fallback for direct login if backend allows it
         const roleToUse = result.user?.role || role; 
-        navigate(roleToUse === 'seller' ? '/seller/dashboard' : '/dashboard');
+        navigate(['seller', 'business'].includes(roleToUse) ? '/seller/dashboard' : '/dashboard');
       }
     } else {
       setStatus('error');
@@ -103,7 +103,7 @@ export default function FinalCta() {
     const result = await verifyLogin(email, otp);
     if (result.success) {
       const roleToUse = result.user.role;
-      navigate(roleToUse === 'seller' ? '/seller/dashboard' : '/dashboard');
+      navigate(['seller', 'business'].includes(roleToUse) ? '/seller/dashboard' : '/dashboard');
     } else {
       setStatus('error');
     }
