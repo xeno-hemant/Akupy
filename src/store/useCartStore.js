@@ -17,17 +17,23 @@ const useCartStore = create(
             return { cart: newCart };
           }
 
-          return {
-            cart: [...state.cart, {
-              ...product,
-              variantId,
-              shopName: (typeof product.shopId === 'object' && (product.shopId?.name || product.shopId?.shopName))
+            const rawShopName = (typeof product.shopId === 'object' && (product.shopId?.name || product.shopId?.shopName))
                 || product.businessName
                 || product.shopName
-                || 'Akupy Store',
-              quantity: product.quantity || 1
-            }]
-          };
+                || 'Akupy Store';
+            
+            const shopName = (rawShopName && !rawShopName.toLowerCase().includes('unknown')) 
+                ? rawShopName 
+                : 'Akupy Store';
+
+            return {
+              cart: [...state.cart, {
+                ...product,
+                variantId,
+                shopName,
+                quantity: product.quantity || 1
+              }]
+            };
         });
       },
       removeFromCart: (variantId) => {

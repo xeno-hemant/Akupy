@@ -25,7 +25,8 @@ export default function ProductCard({ product }) {
 
     const hasDiscount = product.discountPercent && product.discountPercent > 0;
     const hasTryOn = product.garmentType && product.garmentType !== 'none';
-    const shopName = product.shopId?.name || product.shopName || product.businessName || product.brand || '';
+    const rawShopName = product.shopId?.name || product.shopName || product.businessName || product.brand || 'Akupy Store';
+    const shopName = (rawShopName && !rawShopName.toLowerCase().includes('unknown')) ? rawShopName : 'Akupy Store';
 
     return (
         <Link

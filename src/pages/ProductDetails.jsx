@@ -84,13 +84,15 @@ export default function ProductDetails() {
 
     const handleAddToCart = () => {
         if (!product) return;
+        const rawShopName = product.shopId?.name || product.shopId?.shopName || 'Akupy Store';
+        const shopName = (rawShopName && !rawShopName.toLowerCase().includes('unknown')) ? rawShopName : 'Akupy Store';
         const cartItem = { 
             ...product, 
             id: product._id,
             selectedColor: product.colorVariants?.[selectedColor]?.name, 
             selectedSize, 
             quantity: qty,
-            shopName: product.shopId?.name || product.shopId?.shopName || 'Akupy Store'
+            shopName
         };
         addToCart(cartItem);
     };

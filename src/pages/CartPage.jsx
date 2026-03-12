@@ -157,7 +157,10 @@ export default function CartPage() {
                         to={`/business/${item.shopId?._id || item.shopId?.id || item.shopId}`}
                         className="text-xs font-bold block mb-0.5 truncate hover:underline" style={{ color: textSub }}
                       >
-                        {String(item.shopName?.name || item.shopName || 'Akupy Store')}
+                        {(() => {
+                          const name = String(item.shopName?.name || item.shopName || 'Akupy Store');
+                          return (name.toLowerCase().includes('unknown')) ? 'Akupy Store' : name;
+                        })()}
                       </Link>
                       <Link
                         to={`/product/${item._id || item.id}`}
