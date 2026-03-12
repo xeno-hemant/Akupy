@@ -48,7 +48,7 @@ export default function ProductCard({ product }) {
             {/* Image Container */}
             <div className="relative w-full aspect-square overflow-hidden" style={{ background: '#F5F0E8' }}>
                 <img
-                    src={product.images?.[0] || product.imageUrl || 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=500&q=80'}
+                    src={(product.images?.[0]?.url || product.images?.[0]) || product.imageUrl || 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=500&q=80'}
                     alt={product.name}
                     className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
                 />

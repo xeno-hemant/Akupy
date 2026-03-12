@@ -68,10 +68,10 @@ export default function Discover() {
       if (rating) url += `&rating=${rating}`;
       if (discount) url += `&discount=${discount}`;
 
-      const data = await api.get(url);
-      if (data) {
-        setProducts(data.products || []);
-        setTotal(data.total || 0);
+      const res = await api.get(url);
+      if (res && res.data) {
+        setProducts(res.data.products || []);
+        setTotal(res.data.total || 0);
       } else throw new Error('API error');
     } catch {
       // Demo data

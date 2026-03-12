@@ -45,10 +45,13 @@ export default function ProductDetails() {
             setLoading(true);
             try {
                 const res = await api.get(`${API.PRODUCTS}/${productId}`);
-                const data = res.product || res.data || res;
+                const data = res.data?.product || res.data;
                 if (data) {
                     setProduct(data);
-                    if (data.images?.length > 0) setActiveImage(data.images[0]);
+                    if (data.images?.length > 0) {
+                        const firstImg = typeof data.images[0] === 'string' ? data.images[0] : data.images[0].url;
+                        setActiveImage(firstImg);
+                    }
                 } else {
                     throw new Error('Product not found in database');
                 }
@@ -87,7 +90,7 @@ export default function ProductDetails() {
             selectedColor: product.colorVariants?.[selectedColor]?.name, 
             selectedSize, 
             quantity: qty,
-            shopName: product.shopId?.shopName || product.shopId?.name || 'Akupy Store'
+            shopName: product.shopId?.name || product.shopId?.shopName || 'Akupy Store'
         };
         addToCart(cartItem);
     };
