@@ -35,7 +35,7 @@ export default function FinalCta() {
   // Helper with wakeup logic for Render
   const requestWithWakeup = async (apiCallFn) => {
     let wakeupTimer = null;
-    if (isProdHost) wakeupTimer = setTimeout(() => setIsWakingUp(true), 4000);
+    if (isProdHost) wakeupTimer = setTimeout(() => setIsWakingUp(true), 11000);
     try {
       const response = await apiCallFn();
       return response;
