@@ -48,7 +48,15 @@ const useCartStore = create(
           ),
         }));
       },
-      clearCart: () => set({ cart: [] }),
+      appliedCoupon: null,
+      discountAmount: 0,
+      applyCoupon: (coupon, discount) => {
+        set({ appliedCoupon: coupon, discountAmount: discount });
+      },
+      removeCoupon: () => {
+        set({ appliedCoupon: null, discountAmount: 0 });
+      },
+      clearCart: () => set({ cart: [], appliedCoupon: null, discountAmount: 0 }),
       getTotalPrice: () => {
         const { cart } = get();
         return cart.reduce((total, item) => total + item.price * item.quantity, 0);

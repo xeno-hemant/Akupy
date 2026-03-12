@@ -16,7 +16,7 @@ const GD = '#16A34A';
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
-  const { cart, getTotalPrice, clearCart } = useCartStore();
+  const { cart, getTotalPrice, clearCart, discountAmount, appliedCoupon } = useCartStore();
   const { user } = useAuthStore();
   const { isIncognitoActive, anonId } = useFeatureStore();
 
@@ -39,7 +39,7 @@ export default function CheckoutPage() {
   }, [cart, user, isIncognitoActive, navigate]);
 
   const cartTotal = getTotalPrice();
-  const finalTotal = cartTotal + 5;
+  const finalTotal = (cartTotal - discountAmount) + 5;
 
   const handleNextStep = async (step) => {
     if (step === 2) {
@@ -88,7 +88,8 @@ export default function CheckoutPage() {
             razorpayOrderId: response.razorpay_order_id,
             razorpayPaymentId: response.razorpay_payment_id,
             razorpaySignature: response.razorpay_signature,
-            addressId: addressId
+            addressId: addressId,
+            couponCode: appliedCoupon?.code
           });
           if (verifyRes.data?.success) {
             setIsSuccess(true);
@@ -136,7 +137,10 @@ export default function CheckoutPage() {
       setIsProcessing(true);
       try {
         await syncCartWithBackend();
-        const res = await api.post(`${API.ORDERS}/cod`, { addressId });
+        const res = await api.post(`${API.ORDERS}/cod`, { 
+          addressId, 
+          couponCode: appliedCoupon?.code 
+        });
         if (res.data?.success) {
           setIsSuccess(true);
           clearCart();
@@ -154,7 +158,10 @@ export default function CheckoutPage() {
     setIsProcessing(true);
     try {
       await syncCartWithBackend();
-      const res = await api.post(`${API.ORDERS}/create-razorpay-order`, { addressId });
+      const res = await api.post(`${API.ORDERS}/create-razorpay-order`, { 
+        addressId,
+        couponCode: appliedCoupon?.code
+      });
       if (res.data?.success) {
         handleRazorpay(res.data);
       }
@@ -386,8 +393,14 @@ export default function CheckoutPage() {
               <div className="space-y-3 text-sm font-semibold mb-5">
                 <div className="flex justify-between">
                   <span style={{ color: '#6B7280' }}>Items Total ({cart.length})</span>
-                  <span style={{ color: '#1A1A1A' }}>₹{cartTotal}</span>
+                  <span style={{ color: '#1A1A1A' }}>₹{cartTotal.toLocaleString()}</span>
                 </div>
+                {discountAmount > 0 && (
+                  <div className="flex justify-between">
+                    <span style={{ color: '#6B7280' }}>Coupon Discount</span>
+                    <span style={{ color: G }}>-₹{discountAmount.toLocaleString()}</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span style={{ color: '#6B7280' }}>Platform Fee</span>
                   <span style={{ color: '#1A1A1A' }}>₹5</span>
@@ -400,7 +413,7 @@ export default function CheckoutPage() {
               <div className="my-4 h-px" style={{ background: '#F3F4F6' }}></div>
               <div className="flex justify-between items-center">
                 <span className="text-base font-black" style={{ color: '#1A1A1A' }}>Total Pay</span>
-                <span className="text-2xl font-heading font-black" style={{ color: '#1A1A1A' }}>₹{finalTotal}</span>
+                <span className="text-2xl font-heading font-black" style={{ color: '#1A1A1A' }}>₹{finalTotal.toLocaleString()}</span>
               </div>
               <div className="mt-5 flex items-center justify-center gap-2 text-xs font-bold p-3 rounded-xl" style={{ background: '#F0FDF4', color: G }}>
                 <ShieldCheck className="w-4 h-4" /> Secure 256-bit Encryption

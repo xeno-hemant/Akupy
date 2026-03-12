@@ -18,18 +18,19 @@ const HH = {
 };
 
 export default function CartPage() {
-  const { cart, removeFromCart, updateQuantity, getTotalPrice, getTotalItems } = useCartStore();
+  const { 
+    cart, removeFromCart, updateQuantity, getTotalPrice, getTotalItems,
+    appliedCoupon, discountAmount, applyCoupon, removeCoupon 
+  } = useCartStore();
   const { isIncognitoActive } = useFeatureStore();
   const navigate = useNavigate();
 
-  const [couponCode, setCouponCode] = useState('');
-  const [couponApplied, setCouponApplied] = useState(false);
-  const [discountAmount, setDiscountAmount] = useState(0);
+  const [couponCode, setCouponCode] = useState(appliedCoupon?.code || '');
   const [errorMessage, setErrorMessage] = useState('');
   const [validating, setValidating] = useState(false);
 
   const subtotal = getTotalPrice();
-  const discount = couponApplied ? discountAmount : 0;
+  const discount = discountAmount;
   const platformFee = 5;
   const delivery = subtotal > 499 ? 0 : 49;
   const cartTotal = subtotal - discount + platformFee + delivery;
@@ -84,8 +85,7 @@ export default function CartPage() {
         });
 
         if (finalCheck.data?.success) {
-          setCouponApplied(true);
-          setDiscountAmount(finalCheck.data.discount || 0);
+          applyCoupon(finalCheck.data.coupon || { code: couponCode, shopId: couponShopId }, finalCheck.data.discount || 0);
         } else {
           setErrorMessage(finalCheck.data?.message || 'Invalid coupon for these items');
         }
@@ -241,13 +241,13 @@ export default function CartPage() {
               <p className="text-xs font-bold uppercase tracking-[0.1em] mb-3 flex items-center gap-1.5" style={{ color: HH.taupe }}>
                 <Tag className="w-3.5 h-3.5" /> Apply Coupon
               </p>
-              {couponApplied ? (
+              {appliedCoupon ? (
                 <div
                   className="flex items-center justify-between px-4 py-3 rounded-xl"
                   style={{ background: '#eef2ee', border: '1px solid #7a9e7e' }}
                 >
-                  <span className="font-bold text-sm" style={{ color: '#7a9e7e' }}>✓ {couponCode.toUpperCase()} Applied — ₹{discountAmount} Off</span>
-                  <button className="text-xs font-bold" style={{ color: '#b5776e' }} onClick={() => { setCouponApplied(false); setDiscountAmount(0); }}>Remove</button>
+                  <span className="font-bold text-sm" style={{ color: '#7a9e7e' }}>✓ {appliedCoupon.code.toUpperCase()} Applied — ₹{discountAmount} Off</span>
+                  <button className="text-xs font-bold" style={{ color: '#b5776e' }} onClick={() => { removeCoupon(); setCouponCode(''); }}>Remove</button>
                 </div>
               ) : (
                 <div className="space-y-3">
