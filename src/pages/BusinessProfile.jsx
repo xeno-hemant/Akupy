@@ -27,13 +27,13 @@ export default function BusinessProfile() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [bizData, revData] = await Promise.all([
+        const [bizRes, revRes] = await Promise.all([
           api.get(API.BUSINESS_BY_ID(id)),
           api.get(API.BUSINESS_REVIEWS(id))
         ]);
 
-        if (bizData) setBusiness(bizData);
-        if (revData) setReviews(revData);
+        if (bizRes?.data) setBusiness(bizRes.data);
+        if (revRes?.data) setReviews(revRes.data);
       } catch (err) {
         console.error("Failed to load profile details", err);
       } finally {
@@ -49,7 +49,8 @@ export default function BusinessProfile() {
     setReviewStatus('submitting');
 
     try {
-      const data = await api.post(API.BUSINESS_REVIEWS(id), { rating, comment });
+      const res = await api.post(API.BUSINESS_REVIEWS(id), { rating, comment });
+      const data = res.data;
 
       if (data) {
         setReviewStatus('success');
