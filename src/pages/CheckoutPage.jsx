@@ -24,10 +24,11 @@ export default function CheckoutPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [address, setAddress] = useState({ name: user?.name || '', phone: '', street: '', city: '', state: '', pincode: '' });
-  const [paymentMethod, setPaymentMethod] = useState('upi');
-  const [upiStep, setUpiStep] = useState(false);
-  const [upiScreenshot, setUpiScreenshot] = useState(null);
+  const [addressId, setAddressId] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState('card');
   const [incognitoOrderId, setIncognitoOrderId] = useState(null);
+
+  const RAZORPAY_KEY_ID = "rzp_live_SQ0bRvAfaxIB12"; // Found in .env
 
   const incog = isIncognitoActive;
 
@@ -40,31 +41,104 @@ export default function CheckoutPage() {
   const cartTotal = getTotalPrice();
   const finalTotal = cartTotal + 5;
 
-  const handleNextStep = (step) => {
-    if (step === 2 && !address.street) return;
+  const handleNextStep = async (step) => {
+    if (step === 2) {
+      if (!address.street) return;
+      try {
+        setIsProcessing(true);
+        const res = await api.post(API.ADDRESSES, {
+          ...address,
+          address: `${address.street}, ${address.city}, ${address.state} - ${address.pincode}`
+        });
+        if (res.data?.success) {
+          setAddressId(res.data.address._id);
+          setActiveStep(3);
+        } else if (res.data?._id) {
+          setAddressId(res.data._id);
+          setActiveStep(3);
+        }
+      } catch (err) {
+        console.error("Address save failed:", err);
+        alert("Failed to save address. Please try again.");
+      } finally {
+        setIsProcessing(false);
+      }
+      return;
+    }
     setActiveStep(step + 1);
   };
 
+  const handleRazorpay = async (orderData) => {
+    const options = {
+      key: RAZORPAY_KEY_ID,
+      amount: orderData.razorpayOrder.amount,
+      currency: orderData.razorpayOrder.currency,
+      name: "Akupy",
+      description: "Order Payment",
+      order_id: orderData.razorpayOrder.id,
+      handler: async (response) => {
+        try {
+          setIsProcessing(true);
+          const verifyRes = await api.post(`${API.ORDERS}/verify-payment`, {
+            razorpayOrderId: response.razorpay_order_id,
+            razorpayPaymentId: response.razorpay_payment_id,
+            razorpaySignature: response.razorpay_signature,
+            addressId: addressId
+          });
+          if (verifyRes.data?.success) {
+            setIsSuccess(true);
+            clearCart();
+            setTimeout(() => navigate('/dashboard'), 5000);
+          }
+        } catch (err) {
+          console.error("Payment verification failed:", err);
+          alert("Payment verification failed. Please contact support.");
+        } finally {
+          setIsProcessing(false);
+        }
+      },
+      prefill: {
+        name: user?.name,
+        email: user?.email,
+        contact: address.phone
+      },
+      theme: { color: G }
+    };
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  };
+
   const submitOrder = async () => {
-    if (paymentMethod === 'upi' && !upiStep) { setUpiStep(true); return; }
-    if (paymentMethod === 'upi' && upiStep && !upiScreenshot) return;
+    if (paymentMethod === 'cod') {
+      setIsProcessing(true);
+      try {
+        const res = await api.post(`${API.ORDERS}/cod`, { addressId });
+        if (res.data?.success) {
+          setIsSuccess(true);
+          clearCart();
+          setTimeout(() => navigate('/dashboard'), 5000);
+        }
+      } catch (err) {
+        console.error("COD Order failed:", err);
+        alert(err.response?.data?.message || "Order failed");
+      } finally {
+        setIsProcessing(false);
+      }
+      return;
+    }
+
     setIsProcessing(true);
     try {
-      if (isIncognitoActive && anonId) {
-        const data = await api.post(API.ORDERS_INCOGNITO, { 
-          anonId, 
-          shopId: cart[0]?.businessId || '000000000000000000000000', 
-          products: cart.map(i => ({ productId: i._id, name: i.name, price: i.price, quantity: i.quantity })), 
-          totalAmount: finalTotal, 
-          deliveryAddress: 'Address Only — No personal details' 
-        });
-        if (data) { setIncognitoOrderId(data.order?.incognitoOrderId); }
+      const res = await api.post(`${API.ORDERS}/create-razorpay-order`, { addressId });
+      if (res.data?.success) {
+        handleRazorpay(res.data);
       }
-      setTimeout(() => {
-        setIsProcessing(false); setIsSuccess(true);
-        setTimeout(() => { clearCart(); navigate(isIncognitoActive ? '/' : '/dashboard'); }, 5000);
-      }, 2000);
-    } catch (err) { console.error(err); setIsProcessing(false); }
+    } catch (err) {
+      console.error("Payment init failed:", err);
+      alert(err.response?.data?.message || "Payment initiation failed");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const getUpiUrl = () => `upi://pay?pa=merchant@upi&pn=Akupy&am=${finalTotal.toFixed(2)}&cu=INR`;

@@ -31,7 +31,7 @@ const TABS = [
     { label: 'Cancelled', value: 'cancelled', count: 0 },
 ];
 
-const PAYMENT_ICONS = { upi: '📱', card: '💳', cod: '💵' };
+const PAYMENT_ICONS = { upi: '📱', card: '💳', cod: '💵', razorpay: '💳' };
 
 export default function SellerOrders() {
     const { user } = useAuthStore();
@@ -42,14 +42,27 @@ export default function SellerOrders() {
     const [page, setPage] = useState(1);
     const [perPage] = useState(10);
     const [loading, setLoading] = useState(true);
+    const location = useLocation();
+    const isCustomersView = location.pathname.includes('/customers');
 
     useEffect(() => {
         const fetchOrders = async () => {
             setLoading(true);
             try {
                 const res = await api.get(API.SELLER_ORDERS);
-                if (res.data?.orders) setOrders(res.data.orders);
-                else if (Array.isArray(res.data)) setOrders(res.data);
+                if (res.data?.orders) {
+                    setOrders(res.data.orders);
+                    if (res.data.statusCounts) {
+                        TABS.forEach(t => {
+                            if (res.data.statusCounts[t.value] !== undefined) {
+                                t.count = res.data.statusCounts[t.value];
+                            }
+                            if (t.value === 'all') t.count = res.data.total || res.data.orders.length;
+                        });
+                    }
+                } else if (Array.isArray(res.data)) {
+                    setOrders(res.data);
+                }
             } catch (err) {
                 console.error("Fetch orders failed", err);
             } finally {
@@ -62,10 +75,24 @@ export default function SellerOrders() {
     const filtered = orders.filter(o => {
         const matchTab = activeTab === 'all' || o.status === activeTab;
         const matchSearch = !search || 
-            o.orderNumber?.toLowerCase().includes(search.toLowerCase()) || 
+            (o.orderNumber || o._id)?.toLowerCase().includes(search.toLowerCase()) || 
             o.userId?.fullName?.toLowerCase().includes(search.toLowerCase());
         return matchTab && matchSearch;
     });
+
+    const customers = React.useMemo(() => {
+        if (!isCustomersView) return [];
+        const map = {};
+        orders.forEach(o => {
+            if (!o.userId) return;
+            const uid = o.userId._id;
+            if (!map[uid]) map[uid] = { ...o.userId, totalOrders: 0, totalValue: 0, lastOrder: o.createdAt };
+            map[uid].totalOrders++;
+            map[uid].totalValue += o.total || 0;
+            if (new Date(o.createdAt) > new Date(map[uid].lastOrder)) map[uid].lastOrder = o.createdAt;
+        });
+        return Object.values(map).filter(c => !search || c.fullName?.toLowerCase().includes(search.toLowerCase()));
+    }, [orders, isCustomersView, search]);
 
     const totalPages = Math.ceil(filtered.length / perPage);
     const paginated = filtered.slice((page - 1) * perPage, page * perPage);
@@ -88,26 +115,27 @@ export default function SellerOrders() {
         <SellerLayout>
             <div className="space-y-5">
 
-                {/* Tab Filters */}
-                <div className="flex gap-1 flex-wrap">
-                    {TABS.map(tab => (
-                        <button
-                            key={tab.value}
-                            onClick={() => { setActiveTab(tab.value); setPage(1); }}
-                            className="px-4 py-2 rounded-lg text-sm font-bold transition-all"
-                            style={activeTab === tab.value
-                                ? { background: '#22C55E', color: '#fff' }
-                                : { background: '#fff', color: '#64748B', border: '1px solid #E2E8F0' }
-                            }
-                        >
-                            {tab.label}
-                            <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] font-black"
-                                style={{ background: activeTab === tab.value ? 'rgba(255,255,255,0.25)' : '#F1F5F9' }}>
-                                {tab.count}
-                            </span>
-                        </button>
-                    ))}
-                </div>
+                {!isCustomersView && (
+                    <div className="flex gap-1 flex-wrap">
+                        {TABS.map(tab => (
+                            <button
+                                key={tab.value}
+                                onClick={() => { setActiveTab(tab.value); setPage(1); }}
+                                className="px-4 py-2 rounded-lg text-sm font-bold transition-all"
+                                style={activeTab === tab.value
+                                    ? { background: '#22C55E', color: '#fff' }
+                                    : { background: '#fff', color: '#64748B', border: '1px solid #E2E8F0' }
+                                }
+                            >
+                                {tab.label}
+                                <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] font-black"
+                                    style={{ background: activeTab === tab.value ? 'rgba(255,255,255,0.25)' : '#F1F5F9' }}>
+                                    {tab.count}
+                                </span>
+                            </button>
+                        ))}
+                    </div>
+                )}
 
                 {/* Filters Row */}
                 <div className="flex flex-col sm:flex-row gap-3">
@@ -164,44 +192,65 @@ export default function SellerOrders() {
                             </thead>
                             <tbody>
                                 {loading ? Array.from({ length: 6 }).map((_, i) => <SkRow key={i} />) :
-                                    paginated.map((o) => (
-                                        <tr key={o._id} className="transition-colors cursor-pointer"
-                                            style={{ borderBottom: '1px solid #F8F9FA' }}
-                                            onMouseEnter={e => e.currentTarget.style.background = '#F8FAFC'}
-                                            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                                        >
-                                            <td className="px-4 py-3">
-                                                <input type="checkbox" checked={selected.includes(o._id)} onChange={() => toggleSelect(o._id)}
-                                                    className="w-4 h-4 rounded" style={{ accentColor: '#22C55E' }} />
-                                            </td>
-                                            <td className="px-4 py-3 text-xs font-black" style={{ color: '#22C55E' }}>#{o._id}</td>
-                                            <td className="px-4 py-3 text-sm font-semibold" style={{ color: '#0F172A' }}>{o.customer}</td>
-                                            <td className="px-4 py-3 text-sm" style={{ color: '#64748B' }}>{o.product}</td>
-                                            <td className="px-4 py-3 text-sm font-bold" style={{ color: '#0F172A' }}>₹{o.amount.toLocaleString()}</td>
-                                            <td className="px-4 py-3 text-sm">{PAYMENT_ICONS[o.payment]} {o.payment.toUpperCase()}</td>
-                                            <td className="px-4 py-3 text-xs" style={{ color: '#94A3B8' }}>{o.date}</td>
-                                            <td className="px-4 py-3"><StatusBadge status={o.status} /></td>
-                                            <td className="px-4 py-3">
-                                                <div className="flex items-center gap-1">
-                                                    <button className="p-1.5 rounded-lg transition-colors" title="View" style={{ color: '#64748B' }}
-                                                        onMouseEnter={e => { e.currentTarget.style.background = '#F1F5F9'; e.currentTarget.style.color = '#22C55E'; }}
-                                                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748B'; }}>
-                                                        <Eye className="w-4 h-4" />
-                                                    </button>
-                                                    <button className="p-1.5 rounded-lg transition-colors" title="Accept" style={{ color: '#64748B' }}
-                                                        onMouseEnter={e => { e.currentTarget.style.background = '#F0FDF4'; e.currentTarget.style.color = '#22C55E'; }}
-                                                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748B'; }}>
-                                                        <Check className="w-4 h-4" />
-                                                    </button>
-                                                    <button className="p-1.5 rounded-lg transition-colors" title="Cancel" style={{ color: '#64748B' }}
-                                                        onMouseEnter={e => { e.currentTarget.style.background = '#FEF2F2'; e.currentTarget.style.color = '#EF4444'; }}
-                                                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748B'; }}>
-                                                        <XIcon className="w-4 h-4" />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
+                                    isCustomersView ? 
+                                        customers.slice((page - 1) * perPage, page * perPage).map((c) => (
+                                            <tr key={c._id} className="transition-colors" style={{ borderBottom: '1px solid #F8F9FA' }}>
+                                                <td className="px-4 py-3"></td>
+                                                <td className="px-4 py-3 flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold text-xs">
+                                                        {c.fullName?.charAt(0)}
+                                                    </div>
+                                                    <span className="text-sm font-semibold">{c.fullName}</span>
+                                                </td>
+                                                <td className="px-4 py-3 text-sm text-gray-500">{c.email || 'N/A'}</td>
+                                                <td className="px-4 py-3 text-sm font-bold text-gray-700">{c.totalOrders} Orders</td>
+                                                <td className="px-4 py-3 text-sm font-black text-green-600">₹{c.totalValue.toLocaleString()}</td>
+                                                <td className="px-4 py-3 text-xs text-gray-400">{new Date(c.lastOrder).toLocaleDateString()}</td>
+                                                <td className="px-4 py-3"><span className="px-2 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold">Active</span></td>
+                                                <td className="px-4 py-3 text-right">
+                                                    <button className="text-green-600 font-bold text-xs">View History</button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    :
+                                        paginated.map((o) => (
+                                            <tr key={o._id} className="transition-colors cursor-pointer"
+                                                style={{ borderBottom: '1px solid #F8F9FA' }}
+                                                onMouseEnter={e => e.currentTarget.style.background = '#F8FAFC'}
+                                                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                            >
+                                                <td className="px-4 py-3">
+                                                    <input type="checkbox" checked={selected.includes(o._id)} onChange={() => toggleSelect(o._id)}
+                                                        className="w-4 h-4 rounded" style={{ accentColor: '#22C55E' }} />
+                                                </td>
+                                                <td className="px-4 py-3 text-xs font-black" style={{ color: '#22C55E' }}>#{o.orderNumber || o._id.slice(-6)}</td>
+                                                <td className="px-4 py-3 text-sm font-semibold" style={{ color: '#0F172A' }}>{o.userId?.fullName || 'Guest Customer'}</td>
+                                                <td className="px-4 py-3 text-sm truncate max-w-[150px]" style={{ color: '#64748B' }}>{o.items?.[0]?.productTitle || 'Product'}</td>
+                                                <td className="px-4 py-3 text-sm font-bold" style={{ color: '#0F172A' }}>₹{o.total?.toLocaleString() || '0'}</td>
+                                                <td className="px-4 py-3 text-sm">{PAYMENT_ICONS[o.paymentMethod] || '💰'} {(o.paymentMethod || 'COD').toUpperCase()}</td>
+                                                <td className="px-4 py-3 text-xs" style={{ color: '#94A3B8' }}>{new Date(o.createdAt).toLocaleDateString()}</td>
+                                                <td className="px-4 py-3"><StatusBadge status={o.status} /></td>
+                                                <td className="px-4 py-3">
+                                                    <div className="flex items-center gap-1">
+                                                        <button className="p-1.5 rounded-lg transition-colors" title="View" style={{ color: '#64748B' }}
+                                                            onMouseEnter={e => { e.currentTarget.style.background = '#F1F5F9'; e.currentTarget.style.color = '#22C55E'; }}
+                                                            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748B'; }}>
+                                                            <Eye className="w-4 h-4" />
+                                                        </button>
+                                                        <button className="p-1.5 rounded-lg transition-colors" title="Accept" style={{ color: '#64748B' }}
+                                                            onMouseEnter={e => { e.currentTarget.style.background = '#F0FDF4'; e.currentTarget.style.color = '#22C55E'; }}
+                                                            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748B'; }}>
+                                                            <Check className="w-4 h-4" />
+                                                        </button>
+                                                        <button className="p-1.5 rounded-lg transition-colors" title="Cancel" style={{ color: '#64748B' }}
+                                                            onMouseEnter={e => { e.currentTarget.style.background = '#FEF2F2'; e.currentTarget.style.color = '#EF4444'; }}
+                                                            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748B'; }}>
+                                                            <XIcon className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
                                 }
                             </tbody>
                         </table>

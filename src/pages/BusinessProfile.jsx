@@ -80,7 +80,7 @@ export default function BusinessProfile() {
 
           {business.logo && (
             <div className="w-20 h-20 rounded-3xl overflow-hidden mb-6 border border-black/5 p-1 bg-white shadow-sm relative z-10">
-              <img src={business.logo?.url || business.logo || business.logoUrl} alt={business.name} className="w-full h-full object-cover" />
+              <img src={typeof business.logo === 'object' ? business.logo.url : (business.logoUrl || business.logo)} alt={business.name} className="w-full h-full object-cover" />
             </div>
           )}
 
@@ -90,35 +90,24 @@ export default function BusinessProfile() {
 
           <h1 className="text-4xl md:text-6xl font-heading font-medium text-[#080808] tracking-tight mb-4 flex items-center gap-4">
             {business.name}
-            {isIncognitoActive && (
-              <span className="text-sm tracking-wider font-bold px-4 py-1.5 border rounded-full shadow-sm flex items-center gap-2" style={{ background: 'rgba(171,164,156,0.15)', color: '#aba49c', borderColor: 'rgba(171,164,156,0.3)' }}>
-                🔒 Seller details hidden — Incognito Mode
-              </span>
-            )}
           </h1>
 
           <p className="text-gray-500 text-lg mb-8 max-w-2xl text-balance">
             {business.description || 'This business has not provided a detailed description yet.'}
           </p>
 
-          <div className="flex flex-col md:flex-row gap-8 py-8 border-t border-b border-gray-100 mb-8">
-            <div>
-              <span className="block text-sm text-gray-400 font-medium mb-1">Operating Hours</span>
-              <span className="text-[#080808] font-medium">{business.operatingHours || 'Not specified'}</span>
+          {!isIncognitoActive && (
+            <div className="flex flex-col md:flex-row gap-8 py-8 border-t border-b border-gray-100 mb-8">
+              <div>
+                <span className="block text-sm text-gray-400 font-medium mb-1">Address</span>
+                <span className="text-[#080808] font-medium">{business.address || 'Address pending'}</span>
+              </div>
+              <div>
+                <span className="block text-sm text-gray-400 font-medium mb-1">Contact</span>
+                <span className="text-[#080808] font-medium">{business.phone || business.email || 'Contact hidden'}</span>
+              </div>
             </div>
-            {!isIncognitoActive && (
-              <>
-                <div>
-                  <span className="block text-sm text-gray-400 font-medium mb-1">Address</span>
-                  <span className="text-[#080808] font-medium">{business.address || 'Address pending'}</span>
-                </div>
-                <div>
-                  <span className="block text-sm text-gray-400 font-medium mb-1">Contact</span>
-                  <span className="text-[#080808] font-medium">{business.phone || business.email || 'Contact hidden'}</span>
-                </div>
-              </>
-            )}
-          </div>
+          )}
         </div>
 
         {/* Products Section */}
