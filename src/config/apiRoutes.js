@@ -12,6 +12,7 @@ export const API = {
   SEND_OTP: `${BASE}/api/v1/auth/send-otp`,
   VERIFY_OTP: `${BASE}/api/v1/auth/verify-otp`,
   FORGOT_PASSWORD: `${BASE}/api/v1/auth/forgot-password`,
+  VERIFY_RESET_OTP: `${BASE}/api/v1/auth/verify-reset-otp`,
   RESET_PASSWORD: `${BASE}/api/v1/auth/reset-password`,
   
   // Profile / Measurements

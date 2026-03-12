@@ -27,6 +27,7 @@ export default function FinalCta() {
   const [showPricingModal, setShowPricingModal] = useState(false);
   const [showOtpField, setShowOtpField] = useState(false);
   const [otp, setOtp] = useState('');
+  const [resetToken, setResetToken] = useState('');
   const [isWakingUp, setIsWakingUp] = useState(false);
 
   const isProdHost = !import.meta.env.DEV && window.location.hostname.includes('akupy.in');
@@ -47,7 +48,14 @@ export default function FinalCta() {
   const handleAuth = async (e) => {
     e.preventDefault();
     clearError();
-    if (!email || !password) return;
+    
+    // Validate fields based on mode
+    if (!email) return;
+    if (authMode !== 'forgot' && !password) return;
+    if (authMode === 'forgot' && showOtpField && !password) {
+      useAuthStore.setState({ error: 'Please enter a new password' });
+      return;
+    }
 
     if (authMode === 'register' && role === 'seller' && !monetizationPlan) {
       setShowPricingModal(true);
@@ -56,20 +64,20 @@ export default function FinalCta() {
 
     if (authMode === 'forgot') {
       if (!showOtpField) {
-        requestResetOtp();
+        await requestResetOtp();
       } else {
-        executeResetPassword();
+        await executeResetPassword();
       }
     } else if (authMode === 'login') {
       if (!showOtpField) {
-        executeLogin();
+        await executeLogin();
       } else {
-        executeVerifyLogin();
+        await executeVerifyLogin();
       }
     } else if (!showOtpField) {
-      requestOtp();
+      await requestOtp();
     } else {
-      verifyOtpAndRegister();
+      await verifyOtpAndRegister();
     }
   };
 
@@ -135,19 +143,39 @@ export default function FinalCta() {
   const executeResetPassword = async () => {
     setStatus('loading');
     try {
-      const res = await requestWithWakeup(() => api.post(API.RESET_PASSWORD, { email, otp, password }));
-      if (res.data) {
-        alert('Password reset successful! You can now log in.');
-        setAuthMode('login');
-        setShowOtpField(false);
-        setOtp('');
-        setPassword('');
-        setStatus('idle');
+      if (!resetToken) {
+        // Step 2: Verify OTP and get Refresh Token
+        const res = await requestWithWakeup(() => api.post(API.VERIFY_RESET_OTP, { email, otp }));
+        if (res.data?.success) {
+          setResetToken(res.data.resetToken);
+          setStatus('idle');
+          // Now the user can enter the password and click again to reset
+        } else {
+          useAuthStore.setState({ error: res.data?.message || 'Invalid OTP' });
+          setStatus('error');
+        }
       } else {
-        setStatus('error');
+        // Step 3: Final Reset with Token
+        const res = await requestWithWakeup(() => api.post(API.RESET_PASSWORD, { 
+          resetToken, 
+          newPassword: password 
+        }));
+        if (res.data?.success) {
+          alert('Password reset successful! You can now log in.');
+          setAuthMode('login');
+          setShowOtpField(false);
+          setOtp('');
+          setPassword('');
+          setResetToken('');
+          setStatus('idle');
+        } else {
+          useAuthStore.setState({ error: res.data?.message || 'Reset failed' });
+          setStatus('error');
+        }
       }
     } catch (err) {
       setStatus('error');
+      useAuthStore.setState({ error: err.response?.data?.message || 'An error occurred during reset' });
       console.error(err);
     }
   };
@@ -156,18 +184,19 @@ export default function FinalCta() {
     setStatus('loading');
     try {
       const res = await requestWithWakeup(() => api.post(API.FORGOT_PASSWORD, { email }));
-      if (res.data) {
-        const data = res.data;
+      if (res.data?.success) {
         setShowOtpField(true);
         setStatus('idle');
-        if (data.devOtp) {
-          alert(`Dev Mode: Reset code is ${data.devOtp}`);
+        if (res.data.devOtp) {
+          alert(`Dev Mode: Reset code is ${res.data.devOtp}`);
         }
       } else {
+        useAuthStore.setState({ error: res.data?.message || 'Failed to send OTP' });
         setStatus('error');
       }
     } catch (err) {
       setStatus('error');
+      useAuthStore.setState({ error: err.response?.data?.message || 'An error occurred while sending OTP' });
       console.error(err);
     }
   };
@@ -330,15 +359,41 @@ export default function FinalCta() {
 
             <form onSubmit={handleAuth} className="flex flex-col md:flex-row gap-3 w-full justify-center">
               {showOtpField ? (
-                <input
-                  type="text"
-                  placeholder="Enter 6-digit OTP"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  className="px-5 py-3.5 rounded-xl md:rounded-full outline-none font-mono w-full md:w-auto flex-grow text-center tracking-[0.5em] text-lg transition-all"
-                  style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.15)', color: 'white' }}
-                  required
-                />
+                <div className="flex flex-col gap-3 w-full">
+                  <input
+                    type="text"
+                    placeholder="Enter 6-digit OTP"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    className="px-5 py-3.5 rounded-xl md:rounded-full outline-none font-mono w-full flex-grow text-center tracking-[0.5em] text-lg transition-all"
+                    style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.15)', color: 'white' }}
+                    required
+                  />
+                  {(authMode === 'forgot' && showOtpField) && (
+                    <div className="relative w-full">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter New Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="px-5 py-3.5 pr-12 rounded-xl md:rounded-full outline-none font-body w-full text-sm md:text-base transition-all placeholder-[#8b8ba0]"
+                        style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'white' }}
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8b8ba0] hover:text-white transition-colors"
+                      >
+                        {showPassword ? (
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                        ) : (
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        )}
+                      </button>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <>
                   <input
@@ -350,28 +405,30 @@ export default function FinalCta() {
                     style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'white' }}
                     required
                   />
-                  <div className="relative flex-grow w-full md:w-auto">
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="px-5 py-3.5 pr-12 rounded-xl md:rounded-full outline-none font-body w-full text-sm md:text-base transition-all placeholder-[#8b8ba0]"
-                      style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'white' }}
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8b8ba0] hover:text-white transition-colors"
-                    >
-                      {showPassword ? (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
-                      ) : (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                      )}
-                    </button>
-                  </div>
+                  {authMode !== 'forgot' && (
+                    <div className="relative flex-grow w-full md:w-auto">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="px-5 py-3.5 pr-12 rounded-xl md:rounded-full outline-none font-body w-full text-sm md:text-base transition-all placeholder-[#8b8ba0]"
+                        style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'white' }}
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8b8ba0] hover:text-white transition-colors"
+                      >
+                        {showPassword ? (
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                        ) : (
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        )}
+                      </button>
+                    </div>
+                  )}
                 </>
               )}
 
@@ -387,9 +444,9 @@ export default function FinalCta() {
                     ? 'Verify & Proceed'
                     : status === 'error'
                       ? 'Retry'
-                      : authMode === 'forgot'
-                        ? 'Send Reset OTP'
-                        : (authMode === 'login' ? 'Log In' : 'Continue')}
+                        : authMode === 'forgot'
+                          ? (showOtpField ? (resetToken ? 'Reset Password' : 'Verify OTP') : 'Send Reset OTP')
+                          : (authMode === 'login' ? 'Log In' : 'Continue')}
               </button>
             </form>
 
@@ -398,7 +455,8 @@ export default function FinalCta() {
                 type="button"
                 onClick={() => {
                   setAuthMode('forgot');
-                  setErrorMessage('');
+                  clearError();
+                  setStatus('idle');
                 }}
                 className="mt-4 text-xs font-semibold text-[#8E867B] hover:text-[#aba49c] transition-colors underline underline-offset-4"
               >
@@ -412,7 +470,9 @@ export default function FinalCta() {
                 onClick={() => {
                   setAuthMode('login');
                   setShowOtpField(false);
-                  setErrorMessage('');
+                  setResetToken('');
+                  clearError();
+                  setStatus('idle');
                 }}
                 className="mt-4 text-xs font-semibold text-[#8E867B] hover:text-[#aba49c] transition-colors"
               >

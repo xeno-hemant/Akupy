@@ -39,7 +39,8 @@ export default function CheckoutPage() {
   }, [cart, user, isIncognitoActive, navigate]);
 
   const cartTotal = getTotalPrice();
-  const finalTotal = (cartTotal - discountAmount) + 5;
+  const delivery = cartTotal > 499 ? 0 : 49;
+  const finalTotal = (cartTotal - discountAmount) + 5 + delivery;
 
   const handleNextStep = async (step) => {
     if (step === 2) {
@@ -407,7 +408,9 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between">
                   <span style={{ color: '#6B7280' }}>Delivery</span>
-                  <span style={{ color: G }}>Free</span>
+                  <span style={{ color: delivery === 0 ? G : '#1A1A1A' }}>
+                    {delivery === 0 ? 'Free' : `₹${delivery}`}
+                  </span>
                 </div>
               </div>
               <div className="my-4 h-px" style={{ background: '#F3F4F6' }}></div>
