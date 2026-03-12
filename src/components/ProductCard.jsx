@@ -116,9 +116,9 @@ export default function ProductCard({ product }) {
             <div className="p-3">
                 {/* Shop Name */}
                 {shopName && (
-                    <p className="text-[11px] font-semibold truncate mb-0.5" style={{ color: '#6B7280' }}>
+                    <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/business/${product.shopId?._id || product.shopId?.id || product.shopId}`); }} className="text-[11px] font-semibold truncate mb-0.5 hover:underline cursor-pointer" style={{ color: '#6B7280' }}>
                         by {shopName}
-                    </p>
+                    </div>
                 )}
 
                 {/* Product Name */}

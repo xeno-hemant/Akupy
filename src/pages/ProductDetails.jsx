@@ -193,7 +193,7 @@ export default function ProductDetails() {
 
                         {/* Shop Link (Hidden in Incognito) */}
                         {!incog && (
-                            <Link to={`/${product.shopId?.id || ''}`} className="inline-flex items-center gap-2 mb-2 w-max group">
+                            <Link to={`/business/${product.shopId?._id || product.shopId?.id || product.shopId}`} className="inline-flex items-center gap-2 mb-2 w-max group">
                                 <div className="w-6 h-6 rounded-full overflow-hidden" style={{ background: HH.linen }}>
                                     <img src={`https://api.dicebear.com/7.x/initials/svg?seed=${product.shopId?.name}&backgroundColor=8E867B`} className="w-full h-full" alt="" />
                                 </div>
@@ -352,6 +352,7 @@ export default function ProductDetails() {
                                     </div>
                                 </div>
                                 <button
+                                    onClick={() => navigate(`/business/${product.shopId?._id || product.shopId?.id || product.shopId}`)}
                                     className="px-4 py-2 rounded-full text-xs font-bold transition-colors hidden sm:block"
                                     style={{ background: HH.linen, color: HH.taupe, border: `1px solid ${HH.silver}` }}
                                     onMouseEnter={e => e.currentTarget.style.background = HH.silver}

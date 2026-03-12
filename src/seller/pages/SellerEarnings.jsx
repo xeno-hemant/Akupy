@@ -1,16 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DollarSign, ArrowUpRight, Calendar, Download, Landmark } from 'lucide-react';
 import SellerLayout from '../layout/SellerLayout';
 import StatCard from '../components/StatCard';
-
-const MONTHLY = Array(12).fill(0);
-const MONTHS = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
-
-const PAYOUTS = [];
-const TRANSACTIONS = [];
+import api from '../../utils/apiHelper';
+import API from '../../config/apiRoutes';
 
 function BarChart({ data, labels }) {
-    const max = Math.max(...data);
+    if (!data || data.length === 0) return <div className="h-40 flex items-center justify-center text-xs font-bold" style={{ color: '#94A3B8' }}>No data available</div>;
+    const max = Math.max(...data, 1);
     return (
         <div>
             <div className="flex items-end gap-2 h-40 mb-2">
@@ -40,11 +37,60 @@ const payoutStatus = { paid: { bg: '#DCFCE7', color: '#16A34A', label: 'Paid' },
 export default function SellerEarnings() {
     const [withdrawing, setWithdrawing] = useState(false);
     const [withdrew, setWithdrew] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [earnings, setEarnings] = useState({
+        summary: { totalEarned: 0, thisMonth: 0, pendingPayout: 0, nextPayoutDate: null },
+        chart: []
+    });
+    const [payouts, setPayouts] = useState([]);
+    const [transactions, setTransactions] = useState([]);
 
-    const handleWithdraw = () => {
+    useEffect(() => {
+        const fetchAll = async () => {
+            setLoading(true);
+            try {
+                const [eRes, pRes, tRes] = await Promise.all([
+                    api.get(API.SELLER_EARNINGS),
+                    api.get(`${API.SELLER_EARNINGS}/payouts`),
+                    api.get(`${API.SELLER_EARNINGS}/transactions`)
+                ]);
+                if (eRes.data.success) setEarnings(eRes.data);
+                if (pRes.data.success) setPayouts(pRes.data.payouts);
+                if (tRes.data.success) setTransactions(tRes.data.transactions);
+            } catch (err) {
+                console.error("Earnings fetch failed:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchAll();
+    }, []);
+
+    const handleWithdraw = async () => {
+        if (earnings.summary.pendingPayout < 500) {
+            alert("Minimum payout is ₹500");
+            return;
+        }
         setWithdrawing(true);
-        setTimeout(() => { setWithdrawing(false); setWithdrew(true); }, 2000);
+        try {
+            await api.post(`${API.SELLER_EARNINGS}/payouts/request`, { amount: earnings.summary.pendingPayout });
+            setWithdrew(true);
+            setEarnings(prev => ({
+                ...prev,
+                summary: { ...prev.summary, pendingPayout: 0 }
+            }));
+        } catch (err) {
+            console.error("Withdraw failed:", err);
+            alert(err.response?.data?.message || "Failed to request payout");
+        } finally {
+            setWithdrawing(false);
+        }
     };
+
+    const monthlyData = earnings.chart.map(c => c.netRevenue);
+    const monthlyLabels = earnings.chart.map(c => c.month.split(' ')[0]);
+
+    const payoutStatus = { paid: { bg: '#DCFCE7', color: '#16A34A', label: 'Paid' }, processing: { bg: '#FEF9C3', color: '#CA8A04', label: 'Processing' }, pending: { bg: '#FEF9C3', color: '#CA8A04', label: 'Pending' }, failed: { bg: '#FEE2E2', color: '#DC2626', label: 'Failed' } };
 
     return (
         <SellerLayout>
@@ -52,10 +98,10 @@ export default function SellerEarnings() {
 
                 {/* Top Stats */}
                 <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-                    <StatCard title="Total Earned (Lifetime)" value="₹0" icon={DollarSign} accentColor="#F59E0B" />
-                    <StatCard title="This Month" value="₹0" trendValue="0%" trend="up" subtext="vs last month" icon={ArrowUpRight} accentColor="#22C55E" />
-                    <StatCard title="Pending Payout" value="₹0" icon={Calendar} accentColor="#8B5CF6" />
-                    <StatCard title="Next Payout Date" value="--" icon={Landmark} accentColor="#3B82F6" subtext="No pending payout" />
+                    <StatCard title="Total Earned (Lifetime)" value={`₹${earnings.summary.totalEarned.toLocaleString()}`} icon={DollarSign} accentColor="#F59E0B" />
+                    <StatCard title="This Month" value={`₹${earnings.summary.thisMonth.toLocaleString()}`} trendValue="--" trend="up" subtext="vs last month" icon={ArrowUpRight} accentColor="#22C55E" />
+                    <StatCard title="Pending Payout" value={`₹${earnings.summary.pendingPayout.toLocaleString()}`} icon={Calendar} accentColor="#8B5CF6" />
+                    <StatCard title="Next Payout Date" value={earnings.summary.nextPayoutDate ? new Date(earnings.summary.nextPayoutDate).toLocaleDateString() : '--'} icon={Landmark} accentColor="#3B82F6" subtext={earnings.summary.pendingPayout > 0 ? "Upcoming payout" : "No pending payout"} />
                 </div>
 
                 {/* Earnings Chart */}
@@ -69,7 +115,7 @@ export default function SellerEarnings() {
                             <Download className="w-3 h-3" /> Export
                         </button>
                     </div>
-                    <BarChart data={MONTHLY} labels={MONTHS} />
+                    <BarChart data={monthlyData} labels={monthlyLabels} />
                 </div>
 
                 {/* Withdraw */}
@@ -77,7 +123,7 @@ export default function SellerEarnings() {
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div>
                             <h3 className="text-xl font-black" style={{ color: '#78350F' }}>Pending Balance</h3>
-                            <p className="text-3xl font-black mt-1" style={{ color: '#92400E' }}>₹0</p>
+                            <p className="text-3xl font-black mt-1" style={{ color: '#92400E' }}>₹{earnings.summary.pendingPayout.toLocaleString()}</p>
                             <p className="text-sm mt-1" style={{ color: '#B45309' }}>Available for withdrawal. Minimum payout: ₹500</p>
                             <div className="flex items-center gap-2 mt-2 text-sm font-semibold" style={{ color: '#B45309' }}>
                                 <Landmark className="w-4 h-4" />
@@ -92,7 +138,7 @@ export default function SellerEarnings() {
                                 style={{ background: '#F59E0B', color: '#fff' }}
                                 onMouseEnter={e => { if (!withdrawing) e.currentTarget.style.background = '#D97706'; }}
                                 onMouseLeave={e => { if (!withdrawing) e.currentTarget.style.background = '#F59E0B'; }}>
-                                {withdrawing ? 'Processing...' : 'Withdraw ₹12,300'}
+                                {withdrawing ? 'Processing...' : `Withdraw ₹${earnings.summary.pendingPayout.toLocaleString()}`}
                             </button>
                         )}
                     </div>
@@ -113,20 +159,25 @@ export default function SellerEarnings() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {PAYOUTS.map((p, i) => {
-                                    const s = payoutStatus[p.status];
+                                {payouts.map((p, i) => {
+                                    const s = payoutStatus[p.status] || { bg: '#F1F5F9', color: '#64748B', label: p.status };
                                     return (
-                                        <tr key={i} style={{ borderBottom: '1px solid #F8F9FA' }}
+                                        <tr key={p._id || i} style={{ borderBottom: '1px solid #F8F9FA' }}
                                             onMouseEnter={e => e.currentTarget.style.background = '#F8FAFC'}
                                             onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                                            <td className="px-4 py-3 text-sm font-bold" style={{ color: '#22C55E' }}>{p.id}</td>
-                                            <td className="px-4 py-3 text-sm" style={{ color: '#0F172A' }}>{p.date}</td>
-                                            <td className="px-4 py-3 text-sm font-black" style={{ color: '#0F172A' }}>{p.amount}</td>
-                                            <td className="px-4 py-3 text-sm font-mono" style={{ color: '#64748B' }}>{p.bank}</td>
+                                            <td className="px-4 py-3 text-sm font-bold" style={{ color: '#22C55E' }}>{p._id?.slice(-8).toUpperCase()}</td>
+                                            <td className="px-4 py-3 text-sm" style={{ color: '#0F172A' }}>{new Date(p.createdAt).toLocaleDateString()}</td>
+                                            <td className="px-4 py-3 text-sm font-black" style={{ color: '#0F172A' }}>₹{p.amount.toLocaleString()}</td>
+                                            <td className="px-4 py-3 text-sm font-mono" style={{ color: '#64748B' }}>****{p.bankAccountLast4}</td>
                                             <td className="px-4 py-3"><span className="px-2.5 py-1 rounded-full text-xs font-bold" style={{ background: s.bg, color: s.color }}>{s.label}</span></td>
                                         </tr>
                                     );
                                 })}
+                                {payouts.length === 0 && (
+                                    <tr>
+                                        <td colSpan="5" className="px-4 py-10 text-center text-sm font-medium" style={{ color: '#94A3B8' }}>No payout history found</td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -150,19 +201,24 @@ export default function SellerEarnings() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {TRANSACTIONS.map((t, i) => (
-                                    <tr key={i} style={{ borderBottom: '1px solid #F8F9FA' }}
+                                {transactions.map((t, i) => (
+                                    <tr key={t.orderId || i} style={{ borderBottom: '1px solid #F8F9FA' }}
                                         onMouseEnter={e => e.currentTarget.style.background = '#F8FAFC'}
                                         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                                        <td className="px-4 py-3 text-xs font-black" style={{ color: '#22C55E' }}>{t.orderId}</td>
-                                        <td className="px-4 py-3 text-sm" style={{ color: '#0F172A' }}>{t.product}</td>
-                                        <td className="px-4 py-3 text-sm" style={{ color: '#64748B' }}>{t.buyer}</td>
-                                        <td className="px-4 py-3 text-sm font-semibold" style={{ color: '#0F172A' }}>{t.amount}</td>
-                                        <td className="px-4 py-3 text-sm" style={{ color: '#EF4444' }}>-{t.fee}</td>
-                                        <td className="px-4 py-3 text-sm font-black" style={{ color: '#22C55E' }}>{t.net}</td>
-                                        <td className="px-4 py-3 text-xs" style={{ color: '#94A3B8' }}>{t.date}</td>
+                                        <td className="px-4 py-3 text-xs font-black" style={{ color: '#22C55E' }}>{t.orderNumber || t.orderId?.slice(-8).toUpperCase()}</td>
+                                        <td className="px-4 py-3 text-sm truncate max-w-[150px]" style={{ color: '#0F172A' }}>{t.productTitles?.join(', ')}</td>
+                                        <td className="px-4 py-3 text-sm" style={{ color: '#64748B' }}>{t.buyerName}</td>
+                                        <td className="px-4 py-3 text-sm font-semibold" style={{ color: '#0F172A' }}>₹{t.grossAmount.toLocaleString()}</td>
+                                        <td className="px-4 py-3 text-sm" style={{ color: '#EF4444' }}>-₹{t.platformFee.toLocaleString()}</td>
+                                        <td className="px-4 py-3 text-sm font-black" style={{ color: '#22C55E' }}>₹{t.netAmount.toLocaleString()}</td>
+                                        <td className="px-4 py-3 text-xs" style={{ color: '#94A3B8' }}>{new Date(t.date).toLocaleDateString()}</td>
                                     </tr>
                                 ))}
+                                {transactions.length === 0 && (
+                                    <tr>
+                                        <td colSpan="7" className="px-4 py-10 text-center text-sm font-medium" style={{ color: '#94A3B8' }}>No transactions found</td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>

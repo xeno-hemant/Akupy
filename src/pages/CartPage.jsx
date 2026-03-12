@@ -84,7 +84,7 @@ export default function CartPage() {
                 {/* Image */}
                 <div className="w-24 h-24 md:w-28 md:h-28 rounded-xl overflow-hidden flex-shrink-0" style={{ background: HH.linen }}>
                   <img
-                    src={item.images?.[0] || item.imageUrl || 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=400&q=80'}
+                    src={typeof item.images?.[0] === 'object' ? item.images[0].url : (item.images?.[0] || item.imageUrl || 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=400&q=80')}
                     className="w-full h-full object-cover"
                     alt={item.name}
                   />
@@ -94,9 +94,12 @@ export default function CartPage() {
                 <div className="flex flex-col flex-grow min-w-0">
                   <div className="flex justify-between items-start gap-4">
                     <div className="min-w-0">
-                      <span className="text-xs font-bold block mb-0.5 truncate" style={{ color: textSub }}>
-                        {String(item.shopName || 'Akupy Store')}
-                      </span>
+                      <Link
+                        to={`/business/${item.shopId?._id || item.shopId?.id || item.shopId}`}
+                        className="text-xs font-bold block mb-0.5 truncate hover:underline" style={{ color: textSub }}
+                      >
+                        {String(item.shopName?.name || item.shopName || 'Akupy Store')}
+                      </Link>
                       <Link
                         to={`/product/${item._id || item.id}`}
                         className="text-sm md:text-base font-bold leading-tight line-clamp-2 transition-colors"

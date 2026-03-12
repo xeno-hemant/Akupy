@@ -1,3 +1,12 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { 
+  CheckCircle2, ArrowLeft, ShieldCheck, Upload, 
+  Landmark, CreditCard, Banknote 
+} from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
+import useCartStore from '../store/useCartStore';
+import useAuthStore from '../store/useAuthStore';
 import useFeatureStore from '../store/useFeatureStore';
 import API from '../config/apiRoutes';
 import api from '../utils/apiHelper';

@@ -155,7 +155,7 @@ export default function SellerProducts() {
                                                         <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0"
                                                             style={{ background: '#F8F9FA', border: '1px solid #F1F5F9' }}>
                                                             {p.images && p.images.length > 0 ? (
-                                                                <img src={p.images[0]} alt="" className="w-full h-full object-cover" />
+                                                                <img src={typeof p.images[0] === 'object' ? p.images[0].url : p.images[0]} alt="" className="w-full h-full object-cover" />
                                                             ) : (
                                                                 <span className="text-xl">{p.emoji || '📦'}</span>
                                                             )}
@@ -219,7 +219,7 @@ export default function SellerProducts() {
                                 onMouseLeave={e => e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.06)'}>
                                 <div className="relative w-full h-36 flex items-center justify-center overflow-hidden" style={{ background: '#F8F9FA' }}>
                                     {p.images && p.images.length > 0 ? (
-                                        <img src={p.images[0]} alt="" className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                                        <img src={typeof p.images[0] === 'object' ? p.images[0].url : p.images[0]} alt="" className="w-full h-full object-cover transition-transform group-hover:scale-110" />
                                     ) : (
                                         <span className="text-5xl">{p.emoji || '📦'}</span>
                                     )}
