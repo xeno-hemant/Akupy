@@ -61,7 +61,9 @@ export default function BusinessProfile() {
       }
     } catch (err) {
       setReviewStatus('error');
-      alert(err.message || 'Error submitting review');
+      // Extract the most specific error message from the backend
+      const errMsg = err.response?.data?.message || err.message || 'Error submitting review';
+      alert(errMsg);
     }
   };
 
