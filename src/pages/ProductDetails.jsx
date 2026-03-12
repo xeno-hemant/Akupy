@@ -168,23 +168,24 @@ export default function ProductDetails() {
                             )}
                         </div>
 
-                        {/* Thumbnail Strip */}
                         <div className="flex gap-3 overflow-x-auto hide-scrollbar">
-                            {product.images?.map((img, i) => (
-                                <button
-                                    key={i}
-                                    onClick={() => setActiveImage(img)}
-                                    className="flex-shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden border-2 transition-all"
-                                    style={{
-                                        borderColor: activeImage === img ? HH.taupe : 'transparent',
-                                        opacity: activeImage === img ? 1 : 0.55,
-                                    }}
-                                    onMouseEnter={e => e.currentTarget.style.opacity = 1}
-                                    onMouseLeave={e => { if (activeImage !== img) e.currentTarget.style.opacity = 0.55; }}
-                                >
-                                    <img src={img} alt="" className="w-full h-full object-cover" />
-                                </button>
-                            ))}
+                            {product.images?.map((img, i) => {
+                                const url = typeof img === 'object' ? img.url : img;
+                                return (
+                                    <button
+                                        key={i}
+                                        onClick={() => setActiveImage(url)}
+                                        className="flex-shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden border-2 transition-all relative flex items-center justify-center p-1"
+                                        style={{
+                                            borderColor: activeImage === url ? HH.taupe : 'transparent',
+                                            opacity: activeImage === url ? 1 : 0.55,
+                                            background: HH.cream
+                                        }}
+                                    >
+                                        <img src={url} alt="" className="w-full h-full object-cover rounded-xl" />
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
 

@@ -1,6 +1,12 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import useAuthStore from '../store/useAuthStore';
+import useCartStore from '../store/useCartStore';
+import useFeatureStore from '../store/useFeatureStore';
 import useTryOnStore from '../store/useTryOnStore';
 import API from '../config/apiRoutes';
 import api from '../utils/apiHelper';
+import { Star } from 'lucide-react';
 
 export default function BusinessProfile() {
   const { id } = useParams();
@@ -71,6 +77,12 @@ export default function BusinessProfile() {
           <div className="absolute top-0 right-0 w-64 h-64 rounded-full blur-3xl -mr-20 -mt-20" style={{ background: 'rgba(142,134,123,0.1)' }}></div>
 
           <Link to="/discover" className="text-sm font-semibold text-gray-400 hover:text-[#080808] transition-colors mb-8 inline-block relative z-10">← Back to Discover</Link>
+
+          {business.logo && (
+            <div className="w-20 h-20 rounded-3xl overflow-hidden mb-6 border border-black/5 p-1 bg-white shadow-sm relative z-10">
+              <img src={business.logo?.url || business.logo || business.logoUrl} alt={business.name} className="w-full h-full object-cover" />
+            </div>
+          )}
 
           <div className="inline-block px-4 py-2 rounded-full text-sm font-semibold mb-6" style={{ background: 'rgba(142,134,123,0.1)', color: '#8E867B' }}>
             {business.category || 'Local Service'}
@@ -180,7 +192,7 @@ export default function BusinessProfile() {
                       className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg transition-transform ${rating >= num ? '' : 'bg-white text-gray-300 border border-gray-200'} hover:scale-105`}
                       style={rating >= num ? { background: '#8E867B', color: '#F3F0E2' } : {}}
                     >
-                      ★
+                      <Star className="w-5 h-5 fill-current" />
                     </button>
                   ))}
                 </div>

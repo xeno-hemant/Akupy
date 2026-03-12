@@ -203,11 +203,11 @@ export default function CheckoutPage() {
                     {cart.map((item) => (
                       <div key={item.variantId} className="flex gap-4 p-4 rounded-2xl" style={{ background: '#F5F0E8', border: '1px solid #E5E7EB' }}>
                         <div className="w-16 h-16 rounded-xl overflow-hidden" style={{ background: '#EDE6D8' }}>
-                          <img src={item.images?.[0] || item.imageUrl} alt="" className="w-full h-full object-cover" />
+                          <img src={typeof item.images?.[0] === 'object' ? item.images[0].url : (item.images?.[0] || item.imageUrl)} alt="" className="w-full h-full object-cover" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="font-bold text-sm line-clamp-1" style={{ color: '#1A1A1A' }}>{item.name}</h4>
-                          <p className="text-xs font-semibold mt-0.5" style={{ color: '#6B7280' }}>{item.shopName}</p>
+                          <p className="text-xs font-semibold mt-0.5" style={{ color: '#6B7280' }}>{typeof item.shopName === 'object' ? (item.shopName?.name || item.shopName?.shopName) : String(item.shopName || 'Akupy Store')}</p>
                           <div className="flex items-center justify-between mt-2">
                             <span className="text-xs font-bold" style={{ color: '#9CA3AF' }}>Qty: {item.quantity}</span>
                             <span className="font-black" style={{ color: '#1A1A1A' }}>₹{item.price * item.quantity}</span>

@@ -127,7 +127,7 @@ export default function SellerEarnings() {
                             <p className="text-sm mt-1" style={{ color: '#B45309' }}>Available for withdrawal. Minimum payout: ₹500</p>
                             <div className="flex items-center gap-2 mt-2 text-sm font-semibold" style={{ color: '#B45309' }}>
                                 <Landmark className="w-4 h-4" />
-                                Linked: HDFC Bank ****4521
+                                <span>Linked: Standard Disbursement Account</span>
                             </div>
                         </div>
                         {withdrew ? (
