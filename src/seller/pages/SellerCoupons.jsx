@@ -1,26 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Copy, Edit2, Trash2, X, RefreshCw } from 'lucide-react';
 import SellerLayout from '../layout/SellerLayout';
+import API from '../../config/apiRoutes';
+import api from '../../utils/apiHelper';
 
 const GREEN = '#22C55E';
-
-const COUPONS_DEMO = [
-    { id: 1, code: 'SAVE20', type: 'percent', value: 20, minOrder: 500, used: 45, limit: 100, expiry: 'Mar 31, 2026', active: true },
-    { id: 2, code: 'FLAT100', type: 'fixed', value: 100, minOrder: 300, used: 12, limit: 50, expiry: 'Apr 15, 2026', active: true },
-    { id: 3, code: 'WELCOME15', type: 'percent', value: 15, minOrder: 0, used: 88, limit: 100, expiry: 'Feb 28, 2026', active: false },
-    { id: 4, code: 'SUMMER25', type: 'percent', value: 25, minOrder: 1000, used: 30, limit: 200, expiry: 'Jun 30, 2026', active: true },
-];
 
 function genCode() {
     return 'AK' + Math.random().toString(36).toUpperCase().substring(2, 8);
 }
 
 export default function SellerCoupons() {
-    const [coupons, setCoupons] = useState(COUPONS_DEMO);
+    const [coupons, setCoupons] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [copied, setCopied] = useState(null);
     const [form, setForm] = useState({ code: '', type: 'percent', value: '', minOrder: '', limit: '', expiry: '' });
     const [saving, setSaving] = useState(false);
+
+    useEffect(() => {
+        fetchCoupons();
+    }, []);
+
+    const fetchCoupons = async () => {
+        setLoading(true);
+        try {
+            const res = await api.get(API.SELLER_COUPONS);
+            setCoupons(res.data.coupons || []);
+        } catch (err) {
+            console.error("Failed to fetch coupons", err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const F = k => e => setForm(p => ({ ...p, [k]: e.target.value }));
 
@@ -30,22 +42,46 @@ export default function SellerCoupons() {
         setTimeout(() => setCopied(null), 1500);
     };
 
-    const toggleActive = (id) => setCoupons(prev => prev.map(c => c.id === id ? { ...c, active: !c.active } : c));
-    const deleteCoupon = (id) => setCoupons(prev => prev.filter(c => c.id !== id));
+    const toggleActive = async (id) => {
+        try {
+            const res = await api.put(`${API.SELLER_COUPONS}/${id}/toggle`);
+            setCoupons(prev => prev.map(c => c._id === id ? { ...c, isActive: res.data.isActive } : c));
+        } catch (err) {
+            alert("Failed to toggle coupon");
+        }
+    };
 
-    const handleCreate = (e) => {
+    const deleteCoupon = async (id) => {
+        if (!window.confirm("Delete this coupon?")) return;
+        try {
+            await api.delete(`${API.SELLER_COUPONS}/${id}`);
+            setCoupons(prev => prev.filter(c => c._id !== id));
+        } catch (err) {
+            alert("Failed to delete coupon");
+        }
+    };
+
+    const handleCreate = async (e) => {
         e.preventDefault();
         setSaving(true);
-        setTimeout(() => {
-            setCoupons(prev => [...prev, {
-                id: Date.now(), code: form.code || genCode(), type: form.type,
-                value: Number(form.value), minOrder: Number(form.minOrder || 0),
-                used: 0, limit: Number(form.limit || 999), expiry: form.expiry || '—', active: true,
-            }]);
-            setSaving(false);
+        try {
+            const payload = {
+                code: form.code || genCode(),
+                discountType: form.type === 'percent' ? 'percentage' : 'fixed',
+                discountValue: Number(form.value),
+                minOrderValue: Number(form.minOrder || 0),
+                maxUsage: form.limit ? Number(form.limit) : null,
+                expiryDate: form.expiry
+            };
+            const res = await api.post(API.SELLER_COUPONS, payload);
+            setCoupons(prev => [...prev, res.data.coupon]);
             setShowModal(false);
             setForm({ code: '', type: 'percent', value: '', minOrder: '', limit: '', expiry: '' });
-        }, 800);
+        } catch (err) {
+            alert(err.response?.data?.message || "Failed to create coupon");
+        } finally {
+            setSaving(false);
+        }
     };
 
     return (
@@ -66,11 +102,17 @@ export default function SellerCoupons() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {coupons.map(c => {
-                        const pct = Math.min(100, Math.round((c.used / c.limit) * 100));
-                        const isExpired = !c.active || c.used >= c.limit;
+                    {loading ? (
+                        <div className="col-span-full py-20 text-center text-gray-400 font-bold">Loading your coupons...</div>
+                    ) : coupons.length === 0 ? (
+                        <div className="col-span-full py-20 text-center bg-white rounded-2xl border-2 border-dashed border-gray-100">
+                             <p className="text-gray-400 font-bold">No coupons found. Create your first one!</p>
+                        </div>
+                    ) : coupons.map(c => {
+                        const pct = c.maxUsage ? Math.min(100, Math.round((c.usedCount / c.maxUsage) * 100)) : 0;
+                        const isExpired = !c.isActive || (c.maxUsage && c.usedCount >= c.maxUsage) || (new Date(c.expiryDate) < new Date());
                         return (
-                            <div key={c.id} className="rounded-xl p-5 transition-all"
+                            <div key={c._id} className="rounded-xl p-5 transition-all"
                                 style={{
                                     background: '#fff', border: `1px solid ${isExpired ? '#F1F5F9' : '#E9FDF0'}`,
                                     boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
@@ -87,13 +129,13 @@ export default function SellerCoupons() {
                                             {copied === c.code && <span className="text-[10px] font-bold" style={{ color: GREEN }}>Copied!</span>}
                                         </div>
                                         <div className="text-xl font-black" style={{ color: GREEN }}>
-                                            {c.type === 'percent' ? `${c.value}% OFF` : `₹${c.value} OFF`}
+                                            {c.discountType === 'percentage' ? `${c.discountValue}% OFF` : `₹${c.discountValue} OFF`}
                                         </div>
-                                        {c.minOrder > 0 && <p className="text-xs mt-0.5" style={{ color: '#94A3B8' }}>Min. order ₹{c.minOrder}</p>}
+                                        {c.minOrderValue > 0 && <p className="text-xs mt-0.5" style={{ color: '#94A3B8' }}>Min. order ₹{c.minOrderValue}</p>}
                                     </div>
                                     <div className="flex items-center gap-1">
-                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-black" style={{ background: c.active ? '#DCFCE7' : '#F1F5F9', color: c.active ? '#16A34A' : '#94A3B8' }}>
-                                            {c.active ? 'Active' : 'Inactive'}
+                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-black" style={{ background: c.isActive ? '#DCFCE7' : '#F1F5F9', color: c.isActive ? '#16A34A' : '#94A3B8' }}>
+                                            {c.isActive ? 'Active' : 'Inactive'}
                                         </span>
                                     </div>
                                 </div>
@@ -101,7 +143,7 @@ export default function SellerCoupons() {
                                 {/* Usage bar */}
                                 <div className="mb-3">
                                     <div className="flex justify-between mb-1">
-                                        <span className="text-xs font-medium" style={{ color: '#64748B' }}>Usage: {c.used}/{c.limit}</span>
+                                        <span className="text-xs font-medium" style={{ color: '#64748B' }}>Usage: {c.usedCount}/{c.maxUsage || '∞'}</span>
                                         <span className="text-xs font-bold" style={{ color: pct >= 80 ? '#EF4444' : '#94A3B8' }}>{pct}%</span>
                                     </div>
                                     <div className="h-1.5 rounded-full" style={{ background: '#F1F5F9' }}>
@@ -110,15 +152,15 @@ export default function SellerCoupons() {
                                 </div>
 
                                 <div className="flex items-center justify-between">
-                                    <span className="text-xs" style={{ color: '#94A3B8' }}>Expires {c.expiry}</span>
+                                    <span className="text-xs" style={{ color: '#94A3B8' }}>Expires {new Date(c.expiryDate).toLocaleDateString()}</span>
                                     <div className="flex items-center gap-1">
-                                        <button onClick={() => toggleActive(c.id)} className="px-2.5 py-1 rounded-lg text-xs font-bold border transition-colors"
-                                            style={{ borderColor: c.active ? '#EF4444' : GREEN, color: c.active ? '#EF4444' : GREEN }}
-                                            onMouseEnter={e => { e.currentTarget.style.background = c.active ? '#FEF2F2' : '#F0FDF4'; }}
+                                        <button onClick={() => toggleActive(c._id)} className="px-2.5 py-1 rounded-lg text-xs font-bold border transition-colors"
+                                            style={{ borderColor: c.isActive ? '#EF4444' : GREEN, color: c.isActive ? '#EF4444' : GREEN }}
+                                            onMouseEnter={e => { e.currentTarget.style.background = c.isActive ? '#FEF2F2' : '#F0FDF4'; }}
                                             onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}>
-                                            {c.active ? 'Deactivate' : 'Activate'}
+                                            {c.isActive ? 'Deactivate' : 'Activate'}
                                         </button>
-                                        <button onClick={() => deleteCoupon(c.id)} className="p-1.5 rounded-lg transition-colors" style={{ color: '#94A3B8' }}
+                                        <button onClick={() => deleteCoupon(c._id)} className="p-1.5 rounded-lg transition-colors" style={{ color: '#94A3B8' }}
                                             onMouseEnter={e => { e.currentTarget.style.color = '#EF4444'; e.currentTarget.style.background = '#FEF2F2'; }}
                                             onMouseLeave={e => { e.currentTarget.style.color = '#94A3B8'; e.currentTarget.style.background = 'transparent'; }}>
                                             <Trash2 className="w-4 h-4" />
