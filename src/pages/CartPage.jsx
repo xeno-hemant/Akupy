@@ -22,9 +22,12 @@ export default function CartPage() {
 
   const [couponCode, setCouponCode] = useState('');
   const [couponApplied, setCouponApplied] = useState(false);
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [validating, setValidating] = useState(false);
 
   const subtotal = getTotalPrice();
-  const discount = couponApplied ? Math.floor(subtotal * 0.1) : 0;
+  const discount = couponApplied ? discountAmount : 0;
   const platformFee = 5;
   const delivery = subtotal > 499 ? 0 : 49;
   const cartTotal = subtotal - discount + platformFee + delivery;
@@ -36,9 +39,63 @@ export default function CartPage() {
   const textMain = incog ? HH.ivory : HH.dark;
   const textSub = incog ? HH.silver : HH.taupe;
 
-  const handleApplyCoupon = (e) => {
+  const handleApplyCoupon = async (e) => {
     e.preventDefault();
-    if (couponCode.trim().toUpperCase() === 'AKUPY10') setCouponApplied(true);
+    if (!couponCode.trim()) return;
+
+    setValidating(true);
+    setErrorMessage('');
+    
+    try {
+      // 1. Get coupon details from server without shop binding first
+      // Or just try to validate against items in cart one by one?
+      // Better: ask backend for coupon info/validation
+      
+      const response = await api.post(API.VALIDATE_COUPON, {
+        code: couponCode,
+        cartTotal: subtotal // Temporary, we will re-validate if shop found
+      });
+
+      if (response.data?.success) {
+        const couponShopId = response.data.shopId;
+        
+        // 2. Filter cart items for this shop
+        const shopItems = cart.filter(item => {
+          const sid = item.shopId?._id || item.shopId?.id || item.shopId;
+          return sid === couponShopId;
+        });
+
+        if (shopItems.length === 0) {
+          setErrorMessage(`This coupon is only valid for items from its specific shop.`);
+          return;
+        }
+
+        // 3. Calculate this shop's subtotal
+        const shopSubtotal = shopItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+
+        // 4. Re-validate with the correct shop-specific subtotal if needed
+        // (The backend already checked 'subtotal' which was total cart, but we need it checked against shop subtotal)
+        const finalCheck = await api.post(API.VALIDATE_COUPON, {
+          code: couponCode,
+          cartTotal: shopSubtotal,
+          shopId: couponShopId
+        });
+
+        if (finalCheck.data?.success) {
+          setCouponApplied(true);
+          setDiscountAmount(finalCheck.data.discount || 0);
+        } else {
+          setErrorMessage(finalCheck.data?.message || 'Invalid coupon for these items');
+        }
+      } else {
+        setErrorMessage(response.data?.message || 'Invalid coupon');
+      }
+    } catch (err) {
+      setErrorMessage(err.response?.data?.message || 'Failed to validate coupon');
+      console.error(err);
+    } finally {
+      setValidating(false);
+    }
   };
 
   if (cart.length === 0) {
@@ -184,31 +241,36 @@ export default function CartPage() {
                   className="flex items-center justify-between px-4 py-3 rounded-xl"
                   style={{ background: '#eef2ee', border: '1px solid #7a9e7e' }}
                 >
-                  <span className="font-bold text-sm" style={{ color: '#7a9e7e' }}>✓ AKUPY10 Applied — 10% Off</span>
-                  <button className="text-xs font-bold" style={{ color: '#b5776e' }} onClick={() => setCouponApplied(false)}>Remove</button>
+                  <span className="font-bold text-sm" style={{ color: '#7a9e7e' }}>✓ {couponCode.toUpperCase()} Applied — ₹{discountAmount} Off</span>
+                  <button className="text-xs font-bold" style={{ color: '#b5776e' }} onClick={() => { setCouponApplied(false); setDiscountAmount(0); }}>Remove</button>
                 </div>
               ) : (
-                <form onSubmit={handleApplyCoupon} className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Enter coupon code"
-                    value={couponCode}
-                    onChange={e => setCouponCode(e.target.value)}
-                    className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium outline-none border"
-                    style={{ background: '#FFFFFF', borderColor: '#E5E7EB', color: '#1A1A1A' }}
-                    onFocus={e => e.target.style.borderColor = '#22C55E'}
-                    onBlur={e => e.target.style.borderColor = '#E5E7EB'}
-                  />
-                  <button
-                    type="submit"
-                    className="px-4 py-2.5 rounded-xl font-bold text-sm transition-colors text-white"
-                    style={{ background: '#22C55E' }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#16A34A'}
-                    onMouseLeave={e => e.currentTarget.style.background = '#22C55E'}
-                  >
-                    Apply
-                  </button>
-                </form>
+                <div className="space-y-3">
+                  <form onSubmit={handleApplyCoupon} className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Enter coupon code"
+                      value={couponCode}
+                      onChange={e => setCouponCode(e.target.value)}
+                      className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium outline-none border"
+                      style={{ background: '#FFFFFF', borderColor: '#E5E7EB', color: '#1A1A1A' }}
+                      onFocus={e => e.target.style.borderColor = '#22C55E'}
+                      onBlur={e => e.target.style.borderColor = '#E5E7EB'}
+                      disabled={validating}
+                    />
+                    <button
+                      type="submit"
+                      disabled={validating}
+                      className="px-4 py-2.5 rounded-xl font-bold text-sm transition-colors text-white disabled:opacity-50"
+                      style={{ background: '#22C55E' }}
+                    >
+                      {validating ? '...' : 'Apply'}
+                    </button>
+                  </form>
+                  {errorMessage && (
+                    <p className="text-xs font-bold px-2" style={{ color: '#EF4444' }}>{errorMessage}</p>
+                  )}
+                </div>
               )}
             </div>
 
