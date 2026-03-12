@@ -152,11 +152,17 @@ export default function SellerProducts() {
                                                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                                                 <td className="px-4 py-3">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-xl"
-                                                            style={{ background: '#F8F9FA' }}>{p.emoji}</div>
+                                                        <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0"
+                                                            style={{ background: '#F8F9FA', border: '1px solid #F1F5F9' }}>
+                                                            {p.images && p.images.length > 0 ? (
+                                                                <img src={p.images[0]} alt="" className="w-full h-full object-cover" />
+                                                            ) : (
+                                                                <span className="text-xl">{p.emoji || '📦'}</span>
+                                                            )}
+                                                        </div>
                                                         <div>
                                                             <div className="text-sm font-bold line-clamp-1" style={{ color: '#0F172A' }}>{p.name}</div>
-                                                            <div className="text-xs" style={{ color: '#94A3B8' }}>{p.sku}</div>
+                                                            <div className="text-xs font-medium" style={{ color: '#94A3B8' }}>{p.sku || p._id.slice(-6).toUpperCase()}</div>
                                                         </div>
                                                     </div>
                                                 </td>
@@ -211,8 +217,12 @@ export default function SellerProducts() {
                                 style={{ background: '#fff', border: '1px solid #F1F5F9', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}
                                 onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.1)'}
                                 onMouseLeave={e => e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.06)'}>
-                                <div className="relative w-full h-36 flex items-center justify-center text-5xl" style={{ background: '#F8F9FA' }}>
-                                    {p.emoji}
+                                <div className="relative w-full h-36 flex items-center justify-center overflow-hidden" style={{ background: '#F8F9FA' }}>
+                                    {p.images && p.images.length > 0 ? (
+                                        <img src={p.images[0]} alt="" className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                                    ) : (
+                                        <span className="text-5xl">{p.emoji || '📦'}</span>
+                                    )}
                                     {/* Hover overlay */}
                                     <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: 'rgba(0,0,0,0.4)' }}>
                                         <Link to={`/seller/products/${p._id}/edit`} className="p-2 rounded-lg text-white" style={{ background: '#22C55E' }}>

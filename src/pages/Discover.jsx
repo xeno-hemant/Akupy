@@ -41,7 +41,7 @@ function SkeletonCard() {
 
 export default function Discover() {
   const [searchParams] = useSearchParams();
-  const query = searchParams.get('q') || '';
+  const query = searchParams.get('q') || searchParams.get('search') || '';
   const initialCat = searchParams.get('category') || searchParams.get('cat') || '';
 
   const [products, setProducts] = useState([]);

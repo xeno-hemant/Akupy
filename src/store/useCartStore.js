@@ -21,7 +21,7 @@ const useCartStore = create(
             cart: [...state.cart, {
               ...product,
               variantId,
-              shopName: product.shopId?.name || product.businessName || 'Unknown Shop',
+              shopName: product.shopId?.name || product.shopId || product.businessName || 'Akupy Store',
               quantity: product.quantity || 1
             }]
           };

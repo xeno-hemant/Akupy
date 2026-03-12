@@ -1,3 +1,11 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { 
+    ChevronRight, ChevronDown, Star, Heart, Share2, 
+    MapPin, Truck, ShieldCheck, ShoppingCart 
+} from 'lucide-react';
+import useCartStore from '../store/useCartStore';
+import useTryOnStore from '../store/useTryOnStore';
 import useFeatureStore from '../store/useFeatureStore';
 import API from '../config/apiRoutes';
 import api from '../utils/apiHelper';
@@ -36,7 +44,8 @@ export default function ProductDetails() {
         const fetchProd = async () => {
             setLoading(true);
             try {
-                const data = await api.get(`${API.PRODUCTS}/${productId}`);
+                const res = await api.get(`${API.PRODUCTS}/${productId}`);
+                const data = res.product || res.data || res;
                 if (data) {
                     setProduct(data);
                     if (data.images?.length > 0) setActiveImage(data.images[0]);
@@ -72,7 +81,15 @@ export default function ProductDetails() {
 
     const handleAddToCart = () => {
         if (!product) return;
-        addToCart({ ...product, selectedColor: product.colorVariants?.[selectedColor]?.name, selectedSize, quantity: qty });
+        const cartItem = { 
+            ...product, 
+            id: product._id,
+            selectedColor: product.colorVariants?.[selectedColor]?.name, 
+            selectedSize, 
+            quantity: qty,
+            shopName: product.shopId?.shopName || product.shopId?.name || 'Akupy Store'
+        };
+        addToCart(cartItem);
     };
     const handleBuyNow = () => { handleAddToCart(); navigate('/cart'); };
 
