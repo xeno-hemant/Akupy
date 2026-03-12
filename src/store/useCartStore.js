@@ -21,7 +21,9 @@ const useCartStore = create(
             cart: [...state.cart, {
               ...product,
               variantId,
-              shopName: product.shopId?.name || product.shopId || product.businessName || 'Akupy Store',
+              shopName: typeof product.shopId === 'object' 
+                ? (product.shopId?.name || product.shopId?.shopName) 
+                : (product.shopId || product.businessName || 'Akupy Store'),
               quantity: product.quantity || 1
             }]
           };

@@ -95,7 +95,7 @@ export default function CartPage() {
                   <div className="flex justify-between items-start gap-4">
                     <div className="min-w-0">
                       <span className="text-xs font-bold block mb-0.5 truncate" style={{ color: textSub }}>
-                        {item.shopName || 'Akupy Store'}
+                        {String(item.shopName || 'Akupy Store')}
                       </span>
                       <Link
                         to={`/product/${item._id || item.id}`}
