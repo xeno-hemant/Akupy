@@ -1,5 +1,7 @@
-const BASE = import.meta.env.VITE_API_URL 
-  || (import.meta.env.DEV ? 'http://localhost:5000' : 'https://akupybackend-1.onrender.com');
+const isProdHost = typeof window !== 'undefined' && window.location.hostname.includes('akupy.in');
+const BASE = isProdHost 
+  ? 'https://akupybackend-1.onrender.com' 
+  : (import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5000' : 'https://akupybackend-1.onrender.com'));
 
 export const API = {
   // Auth
