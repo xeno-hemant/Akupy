@@ -112,7 +112,12 @@ export default function FinalCta() {
   const requestOtp = async () => {
     setStatus('loading');
     try {
-      const res = await requestWithWakeup(() => api.post(API.SEND_OTP, { email }));
+      const payload = { email };
+      if (authMode === 'register') {
+        payload.password = password;
+        payload.role = role;
+      }
+      const res = await requestWithWakeup(() => api.post(authMode === 'register' ? API.REGISTER : API.SEND_OTP, payload));
       if (res.data) {
         setShowOtpField(true);
         setStatus('idle');
