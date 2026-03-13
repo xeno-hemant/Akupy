@@ -132,7 +132,7 @@ export default function FinalCta() {
       if (err.name === 'AbortError' || err.message?.includes('timeout')) {
         useAuthStore.setState({ error: 'Request timed out. Server may be waking up. Please try again.' });
       } else {
-        useAuthStore.setState({ error: 'Server error. Please check your connection.' });
+        useAuthStore.setState({ error: err.response?.data?.message || 'Server error. Please check your connection.' });
       }
       setStatus('error');
       setIsWakingUp(false);
@@ -254,7 +254,7 @@ export default function FinalCta() {
       if (err.name === 'AbortError' || err.message?.includes('timeout')) {
         useAuthStore.setState({ error: 'Server took too long. Please wait a moment and try again.' });
       } else {
-        useAuthStore.setState({ error: 'Server error. Please check your connection.' });
+        useAuthStore.setState({ error: err.response?.data?.message || 'Server error. Please check your connection.' });
       }
       setStatus('error');
       setIsWakingUp(false);
