@@ -56,6 +56,10 @@ export const API = {
   BUSINESS_BY_ID: (id) => `${BASE}/api/businesses/${id}`,
   BUSINESS_REVIEWS: (id) => `${BASE}/api/businesses/${id}/reviews`,
   VALIDATE_COUPON: `${BASE}/api/v1/coupons/validate`,
+
+  // Support
+  SUPPORT_CONTACT: `${BASE}/api/v1/support/contact`,
+  SUPPORT_BUG: `${BASE}/api/v1/support/bug-report`,
 };
 
 export default API;

@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+
+# Disallow private/auth areas
+Disallow: /dashboard
+Disallow: /cart
+Disallow: /checkout
+Disallow: /orders
+Disallow: /addresses
+Disallow: /edit-profile
+Disallow: /devices
+Disallow: /wardrobe
+Disallow: /seller/
+
+# Sitemap
+Sitemap: https://akupy.in/sitemap.xml

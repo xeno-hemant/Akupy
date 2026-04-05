@@ -27,6 +27,15 @@ import TryOnGalleryPage from './pages/TryOnGalleryPage';
 import ProductDetails from './pages/ProductDetails';
 import LoginPage from './pages/LoginPage';
 
+// Legal & Support Pages
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsPage from './pages/TermsPage';
+import SupportPage from './pages/SupportPage';
+
+// Global UI Overlays
+import CookieConsent from './components/CookieConsent';
+import BugReportButton from './components/BugReportButton';
+
 // Seller Portal Pages
 import SellerDashboard from './seller/pages/SellerDashboard';
 import SellerOrders from './seller/pages/SellerOrders';
@@ -42,6 +51,7 @@ import SellerNotifications from './seller/pages/SellerNotifications';
 gsap.registerPlugin(ScrollTrigger);
 
 import useAuthStore from './store/useAuthStore';
+import { trackPageView } from './utils/analytics';
 
 function useIsSeller() {
   const location = useLocation();
@@ -67,6 +77,11 @@ function AppInner({ subdomainShopId }) {
   const isAuthRoute = location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register';
 
   const { setIncognito } = useFeatureStore();
+
+  // Track page views on every route change
+  useEffect(() => {
+    trackPageView(location.pathname, document.title);
+  }, [location.pathname]);
 
   useEffect(() => {
     const handleToast = (e) => {
@@ -123,6 +138,8 @@ function AppInner({ subdomainShopId }) {
       <TryOnModal />
       <AiAssistantDrawer />
       {isAiHelpOpen && <AiHelpAgent onClose={() => setIsAiHelpOpen(false)} />}
+      <CookieConsent />
+      <BugReportButton />
 
       {subdomainShopId ? (
         <ShopSubdomain shopId={subdomainShopId} />
@@ -171,6 +188,11 @@ function AppInner({ subdomainShopId }) {
           <Route path="/seller/customers" element={<ProtectedSellerRoute><SellerOrders /></ProtectedSellerRoute>} />
           <Route path="/seller/settings" element={<ProtectedSellerRoute><SellerShopProfile /></ProtectedSellerRoute>} />
           <Route path="/seller/help" element={<ProtectedSellerRoute><SellerNotifications /></ProtectedSellerRoute>} />
+
+          {/* Legal & Support Pages */}
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/support" element={<SupportPage />} />
 
           {/* Wildcard shop subdomain — must be last */}
           <Route path="/:shopId" element={<ShopSubdomain />} />

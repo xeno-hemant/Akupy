@@ -9,6 +9,8 @@ import useTryOnStore from '../store/useTryOnStore';
 import useFeatureStore from '../store/useFeatureStore';
 import API from '../config/apiRoutes';
 import api from '../utils/apiHelper';
+import useSEO from '../hooks/useSEO';
+import { trackProductView, trackAddToCart } from '../utils/analytics';
 
 // Hidden Hues tokens
 const HH = {
@@ -95,8 +97,52 @@ export default function ProductDetails() {
             shopName
         };
         addToCart(cartItem);
+        trackAddToCart(product._id, product.name, product.price, qty);
     };
     const handleBuyNow = () => { handleAddToCart(); navigate('/cart'); };
+
+    // SEO: dynamic meta tags for this product
+    useSEO({
+        title: product ? `${product.name} — Buy Online` : 'Product',
+        description: product ? `${product.description?.slice(0, 150) || product.name} — ₹${product.price}. Shop on Akupy.` : '',
+        ogImage: product?.images?.[0] && (typeof product.images[0] === 'string' ? product.images[0] : product.images[0].url),
+        ogUrl: `https://akupy.in/product/${productId}`,
+        ogType: 'product',
+    });
+
+    // SEO: track product view + inject JSON-LD
+    useEffect(() => {
+        if (!product) return;
+        trackProductView(product._id, product.name, product.category, product.price);
+        // JSON-LD Product schema
+        const script = document.getElementById('product-jsonld');
+        if (script) script.remove();
+        const ld = document.createElement('script');
+        ld.id = 'product-jsonld';
+        ld.type = 'application/ld+json';
+        ld.textContent = JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: product.name,
+            description: product.description,
+            image: product.images?.map(i => typeof i === 'string' ? i : i.url),
+            offers: {
+                '@type': 'Offer',
+                price: product.price,
+                priceCurrency: 'INR',
+                availability: 'https://schema.org/InStock',
+                url: `https://akupy.in/product/${productId}`,
+                seller: { '@type': 'Organization', name: product.shopId?.name || 'Akupy Seller' },
+            },
+            aggregateRating: product.rating ? {
+                '@type': 'AggregateRating',
+                ratingValue: product.rating,
+                reviewCount: product.reviewCount || 1,
+            } : undefined,
+        });
+        document.head.appendChild(ld);
+        return () => { const s = document.getElementById('product-jsonld'); if (s) s.remove(); };
+    }, [product, productId]);
 
     const incog = isIncognitoActive;
     const pageBg = incog ? HH.dark : HH.ivory;

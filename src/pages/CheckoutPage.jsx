@@ -23,6 +23,7 @@ export default function CheckoutPage() {
   const [activeStep, setActiveStep] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [paymentError, setPaymentError] = useState(null);
   const [address, setAddress] = useState({ name: user?.name || '', phone: '', street: '', city: '', state: '', pincode: '' });
   const [addressId, setAddressId] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('card');
@@ -85,6 +86,7 @@ export default function CheckoutPage() {
       handler: async (response) => {
         try {
           setIsProcessing(true);
+          setPaymentError(null);
           const verifyRes = await api.post(`${API.ORDERS}/verify-payment`, {
             razorpayOrderId: response.razorpay_order_id,
             razorpayPaymentId: response.razorpay_payment_id,
@@ -99,7 +101,7 @@ export default function CheckoutPage() {
           }
         } catch (err) {
           console.error("Payment verification failed:", err);
-          alert("Payment verification failed. Please contact support.");
+          setPaymentError('Payment verification failed. Your money is safe — contact support@akupy.in if you were charged.');
         } finally {
           setIsProcessing(false);
         }
@@ -112,6 +114,20 @@ export default function CheckoutPage() {
       theme: { color: G }
     };
     const rzp = new window.Razorpay(options);
+    rzp.on('payment.failed', async (response) => {
+      console.error('[Razorpay] Payment failed:', response.error);
+      setPaymentError(
+        response.error?.description ||
+        'Payment was not completed. Please try again with a different method.'
+      );
+      // Record failure on backend (best effort, don’t await)
+      try {
+        await api.post(`${API.ORDERS}/payment-failure`, {
+          razorpayOrderId: orderData.razorpayOrder.id,
+          error: response.error
+        });
+      } catch (_) {}
+    });
     rzp.open();
   };
 
@@ -382,6 +398,34 @@ export default function CheckoutPage() {
                       {isProcessing ? 'Processing...' : `Pay ₹${finalTotal} Securely`}
                     </button>
                   </div>
+                  {/* Payment Error UI */}
+                  {paymentError && (
+                    <div className="mt-4 p-4 rounded-2xl flex items-start gap-3" style={{ background: '#FEF2F2', border: '1px solid #FCA5A5' }}>
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: '#FCA5A5' }}>
+                        <span className="text-sm font-black text-white">!</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-bold text-sm mb-1" style={{ color: '#991B1B' }}>Payment Failed</p>
+                        <p className="text-xs leading-relaxed mb-3" style={{ color: '#7F1D1D' }}>{paymentError}</p>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => { setPaymentError(null); submitOrder(); }}
+                            className="px-4 py-2 rounded-xl text-xs font-bold text-white"
+                            style={{ background: '#DC2626' }}
+                          >
+                            Try Again
+                          </button>
+                          <button
+                            onClick={() => setPaymentMethod('cod')}
+                            className="px-4 py-2 rounded-xl text-xs font-bold border"
+                            style={{ color: '#7F1D1D', borderColor: '#FCA5A5', background: 'transparent' }}
+                          >
+                            Pay on Delivery
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

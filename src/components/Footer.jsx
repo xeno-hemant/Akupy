@@ -64,6 +64,14 @@ export default function Footer() {
             <Mail className="w-4 h-4" /> Email
           </a>
         </div>
+
+        {/* Legal & Support */}
+        <div className="md:col-span-2 flex flex-col gap-3">
+          <span className="font-mono text-xs text-[#aba49c] uppercase tracking-[0.1em] mb-1">Legal</span>
+          <Link to="/privacy-policy" className="text-[#8E867B] hover:text-[#3d3830] transition-colors text-sm font-body font-medium">Privacy Policy</Link>
+          <Link to="/terms" className="text-[#8E867B] hover:text-[#3d3830] transition-colors text-sm font-body font-medium">Terms & Conditions</Link>
+          <Link to="/support" className="text-[#8E867B] hover:text-[#3d3830] transition-colors text-sm font-body font-medium">Support</Link>
+        </div>
       </div>
 
       <div className="max-w-7xl mx-auto pt-7 flex flex-col md:flex-row justify-between items-center text-sm text-[#aba49c] font-mono gap-3 text-center md:text-left">

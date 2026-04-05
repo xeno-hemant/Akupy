@@ -4,11 +4,47 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>akupy-landing</title>
+
+    <!-- Primary Meta Tags -->
+    <title>Akupy — Discover Local Shops & Buy Locally</title>
+    <meta name="title" content="Akupy — Discover Local Shops & Buy Locally" />
+    <meta name="description" content="Akupy is a smart local marketplace. Discover shops near you, shop with AI try-on, and support local businesses on akupy.in." />
+    <meta name="author" content="Akupy" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://akupy.in" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://akupy.in" />
+    <meta property="og:title" content="Akupy — Discover Local Shops & Buy Locally" />
+    <meta property="og:description" content="A smart discovery platform bridging the physical and digital marketplace. Find local shops, try on products with AI, and shop securely." />
+    <meta property="og:image" content="https://akupy.in/og-image.png" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://akupy.in" />
+    <meta name="twitter:title" content="Akupy — Discover Local Shops & Buy Locally" />
+    <meta name="twitter:description" content="A smart discovery platform bridging the physical and digital marketplace." />
+    <meta name="twitter:image" content="https://akupy.in/og-image.png" />
+
+    <!-- Razorpay -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <!-- Google Analytics 4 (GA4) — Measurement ID: G-GZB1YL4EB2 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GZB1YL4EB2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', 'G-GZB1YL4EB2', {
+        page_path: window.location.pathname,
+        send_page_view: false
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
+
