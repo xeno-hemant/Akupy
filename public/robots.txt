@@ -1,7 +1,14 @@
 User-agent: *
 Allow: /
 
-# Disallow private/auth areas
+# Allow Google to crawl product and shop pages (most important for SEO)
+Allow: /product/
+Allow: /business/
+Allow: /shop/
+Allow: /discover
+Allow: /sell
+
+# Disallow private/auth areas (users only)
 Disallow: /dashboard
 Disallow: /cart
 Disallow: /checkout
@@ -12,5 +19,6 @@ Disallow: /devices
 Disallow: /wardrobe
 Disallow: /seller/
 
-# Sitemap
+# Sitemap: Use the dynamic backend sitemap for full product/shop coverage
+Sitemap: https://akupybackend-1.onrender.com/sitemap.xml
 Sitemap: https://akupy.in/sitemap.xml

@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  NOTE: The full dynamic sitemap (including all products and shops) is served
+  by the backend at: https://akupybackend-1.onrender.com/sitemap.xml
+  
+  This static sitemap is a fallback for the frontend-only static pages.
+  Google Search Console should be pointed to the dynamic backend sitemap.
+-->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://akupy.in/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://akupy.in/shop</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://akupy.in/discover</loc>
@@ -21,8 +23,8 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://akupy.in/login</loc>
-    <changefreq>yearly</changefreq>
+    <loc>https://akupy.in/support</loc>
+    <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
@@ -34,10 +36,5 @@
     <loc>https://akupy.in/terms</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>https://akupy.in/support</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
   </url>
 </urlset>

@@ -7,6 +7,7 @@ import useTryOnStore from '../store/useTryOnStore';
 import API from '../config/apiRoutes';
 import api from '../utils/apiHelper';
 import { Star } from 'lucide-react';
+import useSEO from '../hooks/useSEO';
 
 export default function BusinessProfile() {
   const { id } = useParams();
@@ -67,6 +68,16 @@ export default function BusinessProfile() {
       alert(errMsg);
     }
   };
+
+  // BUG 5 FIX: Dynamic SEO meta tags for shop/seller pages
+  useSEO({
+    title: business ? `${business.name} - Local Shop on Akupy` : 'Shop | Akupy',
+    description: business
+      ? `${business.description?.slice(0, 150) || business.name} | ${business.category || 'Local Shop'} on Akupy. Shop locally at akupy.in.`
+      : 'Discover local shops on Akupy.',
+    ogUrl: `https://akupy.in/business/${id}`,
+    ogImage: business?.logo || business?.logoUrl || undefined,
+  });
 
   if (loading) return <div className="min-h-screen bg-background pt-32 text-center text-gray-500">Loading Profile...</div>;
   if (!business) return <div className="min-h-screen bg-background pt-32 text-center text-[#080808] text-2xl font-semibold">Business not found.</div>;

@@ -330,7 +330,8 @@ export default function CheckoutPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="font-bold text-sm line-clamp-1" style={{ color: '#1A1A1A' }}>{item.name}</h4>
-                          <p className="text-xs font-semibold mt-0.5" style={{ color: '#6B7280' }}>{typeof item.shopName === 'object' ? (item.shopName?.name || item.shopName?.shopName) : String(item.shopName || 'Akupy Store')}</p>
+                          <p className="text-xs font-semibold mt-0.5" style={{ color: '#6B7280' }}>
+                            {incog ? 'Private Seller' : (typeof item.shopName === 'object' ? (item.shopName?.name || item.shopName?.shopName) : String(item.shopName || 'Akupy Store'))}</p>
                           <div className="flex items-center justify-between mt-2">
                             <span className="text-xs font-bold" style={{ color: '#9CA3AF' }}>Qty: {item.quantity}</span>
                             <span className="font-black" style={{ color: '#1A1A1A' }}>₹{item.price * item.quantity}</span>

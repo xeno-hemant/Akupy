@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Heart, ShoppingCart, Star } from 'lucide-react';
 import useCartStore from '../store/useCartStore';
+import useFeatureStore from '../store/useFeatureStore';
 
 export default function ProductCard({ product }) {
     const navigate = useNavigate();
     const addToCart = useCartStore((state) => state.addToCart);
+    const { isIncognitoActive } = useFeatureStore();
     const [added, setAdded] = useState(false);
     const [wishlisted, setWishlisted] = useState(false);
 
@@ -26,7 +28,10 @@ export default function ProductCard({ product }) {
     const hasDiscount = product.discountPercent && product.discountPercent > 0;
     const hasTryOn = product.garmentType && product.garmentType !== 'none';
     const rawShopName = product.shopId?.name || product.shopName || product.businessName || product.brand || 'Akupy Store';
-    const shopName = (rawShopName && !rawShopName.toLowerCase().includes('unknown')) ? rawShopName : 'Akupy Store';
+    // BUG 3 FIX: Replace seller name with "Private Seller" in incognito mode
+    const shopName = isIncognitoActive
+        ? 'Private Seller'
+        : ((rawShopName && !rawShopName.toLowerCase().includes('unknown')) ? rawShopName : 'Akupy Store');
 
     return (
         <Link

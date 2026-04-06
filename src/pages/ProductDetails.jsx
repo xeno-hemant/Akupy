@@ -103,8 +103,10 @@ export default function ProductDetails() {
 
     // SEO: dynamic meta tags for this product
     useSEO({
-        title: product ? `${product.name} — Buy Online` : 'Product',
-        description: product ? `${product.description?.slice(0, 150) || product.name} — ₹${product.price}. Shop on Akupy.` : '',
+        title: product ? `${product.name} - Buy on Akupy` : 'Product | Akupy',
+        description: product
+            ? `${product.description?.slice(0, 150) || product.name} | Shop locally on akupy.in. Buy ${product.name} at ₹${product.price}.`
+            : 'Shop locally on akupy.in.',
         ogImage: product?.images?.[0] && (typeof product.images[0] === 'string' ? product.images[0] : product.images[0].url),
         ogUrl: `https://akupy.in/product/${productId}`,
         ogType: 'product',

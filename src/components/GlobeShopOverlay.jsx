@@ -72,7 +72,8 @@ export default function GlobeShopOverlay({ onClose }) {
   useEffect(() => {
     let result = shops;
     if (activeCategory !== 'All') {
-      result = result.filter(s => s.category === activeCategory);
+      // BUG 4 FIX: case-insensitive category comparison
+      result = result.filter(s => s.category?.toLowerCase() === activeCategory.toLowerCase());
     }
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
