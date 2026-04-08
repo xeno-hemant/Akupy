@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, MapPin, Clock, Tag, IndianRupee, Loader, AlertCircle, CheckCircle, Upload, X, Wrench, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../utils/apiHelper';
 import API from '../../config/apiRoutes';
 
@@ -19,6 +20,7 @@ function Toast({ toast }) {
 const EMPTY_FORM = { serviceName: '', description: '', category: 'Other', priceType: 'Fixed', price: '', city: '', state: '', availability: '', contactPhone: '', contactWhatsApp: '' };
 
 export default function SellerServices() {
+    const navigate = useNavigate();
     const [services, setServices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
@@ -144,9 +146,17 @@ export default function SellerServices() {
 
             {/* Header */}
             <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-black text-gray-900">My Services</h1>
-                    <p className="text-sm text-gray-500 mt-0.5">List services you offer to customers</p>
+                <div className="flex items-center gap-3">
+                    <button 
+                        onClick={() => navigate('/seller/dashboard')}
+                        className="p-2 rounded-lg hover:bg-gray-200 transition-colors text-gray-500"
+                    >
+                        <ArrowLeft className="w-5 h-5" />
+                    </button>
+                    <div>
+                        <h1 className="text-2xl font-black text-gray-900">My Services</h1>
+                        <p className="text-sm text-gray-500 mt-0.5">List services you offer to customers</p>
+                    </div>
                 </div>
                 <button
                     onClick={openAdd}

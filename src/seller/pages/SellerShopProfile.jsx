@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Upload, Save, Instagram, Globe, Facebook } from 'lucide-react';
+import { Upload, Save, Instagram, Globe, Facebook, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import SellerLayout from '../layout/SellerLayout';
 import useAuthStore from '../../store/useAuthStore';
 import API from '../../config/apiRoutes';
@@ -42,6 +42,7 @@ function Textarea({ rows = 4, ...props }) {
 }
 
 export default function SellerShopProfile() {
+    const navigate = useNavigate();
     const { user, token } = useAuthStore();
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
@@ -145,6 +146,23 @@ export default function SellerShopProfile() {
 
     return (
         <SellerLayout>
+            <div className="mb-6 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <button 
+                        onClick={() => navigate('/seller/dashboard')}
+                        className="p-2 rounded-lg hover:bg-gray-200 transition-colors text-gray-500"
+                    >
+                        <ArrowLeft className="w-5 h-5" />
+                    </button>
+                    <div>
+                        <h1 className="text-2xl font-black text-gray-900">
+                            {user?.role === 'service_provider' ? 'Service Profile' : 'Shop Profile'}
+                        </h1>
+                        <p className="text-sm text-gray-500 mt-0.5">Manage your public profile and details</p>
+                    </div>
+                </div>
+            </div>
+
             <form onSubmit={handleSave}>
                 <div className="space-y-5 max-w-3xl">
 
@@ -167,7 +185,7 @@ export default function SellerShopProfile() {
                                 onClick={ev => { ev.stopPropagation(); document.getElementById('logo-input').click(); }}>
                                 {logo ? <img src={logo} className="w-full h-full object-cover" /> :
                                     <div className="w-full h-full flex items-center justify-center text-xl font-black text-white">
-                                        {(form.shopName || user?.businessName || 'S').charAt(0).toUpperCase()}
+                                        {(form.shopName || user?.fullName || user?.businessName || 'S').charAt(0).toUpperCase()}
                                     </div>
                                 }
                                 <input id="logo-input" type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files[0]; if (f) handleUpload(f, 'logo'); }} />
@@ -175,11 +193,11 @@ export default function SellerShopProfile() {
                         </div>
                         <div className="px-6 pt-12 pb-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <Field label="Shop Name *">
-                                    <Input value={form.shopName} onChange={F('shopName')} placeholder="Your Shop Name" required />
+                                <Field label={user?.role === 'service_provider' ? "Service Name *" : "Shop Name *"}>
+                                    <Input value={form.shopName} onChange={F('shopName')} placeholder={user?.role === 'service_provider' ? "Your Service / Professional Name" : "Your Shop Name"} required />
                                 </Field>
                                 <Field label="Tagline">
-                                    <Input value={form.tagline} onChange={F('tagline')} placeholder="e.g. Quality products, fast delivery" />
+                                    <Input value={form.tagline} onChange={F('tagline')} placeholder={user?.role === 'service_provider' ? "e.g. Professional home services, repair specialists" : "e.g. Quality products, fast delivery"} />
                                 </Field>
                             </div>
                         </div>
@@ -202,10 +220,10 @@ export default function SellerShopProfile() {
                                 <Input value={form.gst} onChange={F('gst')} placeholder="22AAAAA0000A1Z5" />
                             </Field>
                             <Field label="Contact Email *">
-                                <Input type="email" value={form.email} onChange={F('email')} placeholder="shop@example.com" />
+                                <Input type="email" value={form.email} onChange={F('email')} placeholder={user?.role === 'service_provider' ? "service@example.com" : "shop@example.com"} />
                             </Field>
                             <Field label="Contact Phone">
-                                <Input type="tel" value={form.phone} onChange={F('phone')} placeholder="+91 98765 43210" />
+                                <Input type="tel" value={form.phone} onChange={F('phone')} placeholder="+91 XXXXX XXXXX" />
                             </Field>
                             <div className="md:col-span-2">
                                 <Field label="Business Address">

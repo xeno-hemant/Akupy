@@ -26,7 +26,7 @@ const NAV_SECTIONS = [
     {
         label: 'STORE',
         items: [
-            { label: 'Shop Profile', icon: Store, path: '/seller/shop' },
+            { label: user?.role === 'service_provider' ? 'Service Profile' : 'Shop Profile', icon: Store, path: '/seller/shop' },
             { label: 'Coupons & Offers', icon: Gift, path: '/seller/coupons' },
             { label: 'Reviews', icon: Star, path: '/seller/reviews' },
             { label: 'Customers', icon: Users, path: '/seller/customers' },

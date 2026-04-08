@@ -88,7 +88,7 @@ export default function SellerLayout({ children }) {
                             minHeight: '100vh',
                         }}
                     >
-                        <div className="p-4 md:p-6 max-w-[1600px] mx-auto">
+                        <div className="p-4 md:p-6 max-w-[1200px] mx-auto">
                             {children}
                         </div>
                     </main>
