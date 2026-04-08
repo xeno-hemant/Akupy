@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bug, Filter, CheckCircle2, AlertTriangle, AlertCircle, RefreshCw, XCircle, Bot, Code, LogOut } from 'lucide-react';
-import api from '../utils/apiHelper';
+import axios from 'axios';
 import API from '../config/apiRoutes';
 
 const STATUS_COLORS = {
@@ -37,7 +37,8 @@ export default function AdminBugs() {
   const fetchBugs = async () => {
     setLoading(true);
     try {
-      const res = await api.get(API.ADMIN_BUGS);
+      const token = localStorage.getItem('adminToken');
+      const res = await axios.get(API.ADMIN_BUGS, { headers: { Authorization: `Bearer ${token}` } });
       setBugs(res.data.bugs || []);
     } catch (err) {
       console.error(err);
@@ -52,7 +53,8 @@ export default function AdminBugs() {
 
   const updateStatus = async (id, status) => {
     try {
-      await api.patch(API.ADMIN_BUG_STATUS(id), { status });
+      const token = localStorage.getItem('adminToken');
+      await axios.patch(API.ADMIN_BUG_STATUS(id), { status }, { headers: { Authorization: `Bearer ${token}` } });
       fetchBugs();
     } catch (err) {
       alert('Failed to update status');

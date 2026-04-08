@@ -12,7 +12,7 @@ export default function LoginCard() {
 
   // Step: 'phone' | 'otp'
   const [step, setStep] = useState('phone');
-  const [phone, setPhone] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [referral, setReferral] = useState('');
   const [showReferral, setShowReferral] = useState(false);
@@ -36,23 +36,21 @@ export default function LoginCard() {
     return () => clearTimeout(t);
   }, [resendTimer]);
 
-  const handlePhoneChange = (e) => {
-    const val = e.target.value.replace(/\D/g, '').slice(0, 10);
-    setPhone(val);
+  const handleIdentifierChange = (e) => {
+    setIdentifier(e.target.value.trim());
     setError('');
   };
 
   const handleSendOtp = async () => {
-    if (phone.length !== 10) {
-      setError('Please enter a valid 10-digit phone number');
+    if (!identifier) {
+      setError('Please enter a valid email or phone number');
       return;
     }
     setLoading(true);
     setError('');
     try {
-      // Try phone OTP endpoint; fall back gracefully
       const res = await api.post(API.SEND_OTP || '/api/auth/send-otp', {
-        phone: `+91${phone}`,
+        identifier,
       });
       if (res.data) {
         setStep('otp');
@@ -116,9 +114,9 @@ export default function LoginCard() {
     setError('');
     try {
       const res = await api.post(API.VERIFY_OTP || '/api/auth/verify-otp', {
-        phone: `+91${phone}`,
+        identifier,
         otp: otpStr,
-        referralCode: referral.trim() || undefined,
+        referralCode: referral || undefined,
       });
       if (res.data?.success || res.data?.token) {
         const { user: userData, token } = res.data;
@@ -139,7 +137,7 @@ export default function LoginCard() {
     setLoading(true);
     setError('');
     try {
-      await api.post(API.SEND_OTP || '/api/auth/send-otp', { phone: `+91${phone}` });
+      await api.post(API.SEND_OTP || '/api/auth/send-otp', { identifier });
       setResendTimer(30);
       setOtp(['', '', '', '', '', '']);
       otpRefs.current[0]?.focus();
@@ -162,35 +160,28 @@ export default function LoginCard() {
         {/* Title */}
         <div className="login-title-wrap">
           <h1 className="login-title">
-            {step === 'phone' ? 'Welcome back' : 'Verify your number'}
+            {step === 'phone' ? 'Welcome back' : 'Verify your login'}
           </h1>
           <p className="login-subtitle">
             {step === 'phone'
-              ? 'Enter your phone number to continue'
-              : `OTP sent to +91 ${phone}`}
+              ? 'Enter email or phone number to continue'
+              : `OTP sent to ${identifier}`}
           </p>
         </div>
 
-        {/* STEP: Phone Input */}
+        {/* STEP: Identifier Input */}
         {step === 'phone' && (
           <div className="login-form">
             <div className="login-phone-field">
-              <div className="login-phone-prefix">
-                <span className="login-phone-flag">🇮🇳</span>
-                <span className="login-phone-code">+91</span>
-              </div>
-              <div className="login-phone-divider" />
               <input
-                id="login-phone"
-                type="tel"
-                inputMode="numeric"
-                placeholder="Enter 10-digit number"
-                value={phone}
-                onChange={handlePhoneChange}
+                id="login-identifier"
+                type="text"
+                placeholder="Email Address or 10-digit phone"
+                value={identifier}
+                onChange={handleIdentifierChange}
                 onKeyDown={(e) => e.key === 'Enter' && handleSendOtp()}
                 className="login-phone-input"
                 autoFocus
-                maxLength={10}
               />
             </div>
 
