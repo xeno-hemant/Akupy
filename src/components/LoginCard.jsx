@@ -59,6 +59,7 @@ export default function LoginCard() {
         setStep('otp');
         setResendTimer(30);
         if (res.data.devOtp) {
+          setError(`OTP for Demo: ${res.data.devOtp}`);
           const digits = String(res.data.devOtp).split('');
           setOtp(digits.concat(Array(6 - digits.length).fill('')));
         }
