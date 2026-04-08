@@ -4,6 +4,7 @@ import { useNavigate, Navigate } from 'react-router-dom';
 import useAuthStore from '../store/useAuthStore';
 import API from '../config/apiRoutes';
 import api from '../utils/apiHelper';
+import useTranslation from '../hooks/useTranslation';
 
 const QuickAction = ({ icon, label, onClick, color }) => (
   <button
@@ -42,10 +43,11 @@ const ListItem = ({ icon, label, onClick }) => (
 );
 
 export default function Dashboard() {
-  const { user, token, logout } = useAuthStore();
+  const { user, token, logout, setAuth } = useAuthStore();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saveStatus, setSaveStatus] = useState('idle');
+  const { t, lang, setLang } = useTranslation();
 
   // Form State
   const [formData, setFormData] = useState({
@@ -155,8 +157,10 @@ export default function Dashboard() {
       
       if (isAvatar) {
         setFormData(prev => ({ ...prev, avatarUrl: fullUrl }));
-        // Auto-save avatar for shopper
+        // Auto-save avatar for shopper and update auth store
         await api.put(API.UPDATE_PROFILE, { ...formData, avatarUrl: fullUrl });
+        // Update Navbar avatar immediately
+        if (user) setAuth({ ...user, avatarUrl: fullUrl }, token);
       } else {
         handleProductChange(index, 'imageUrl', fullUrl);
       }
@@ -557,13 +561,15 @@ export default function Dashboard() {
                       <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#22C55E]"></div>
                     </label>
                   </div>
-                  <div className="flex items-center justify-between h-11 px-3 last:border-0 group">
+                  <div className="flex items-center justify-between h-11 px-3 last:border-0 group cursor-pointer" onClick={() => setLang(lang === 'en' ? 'hi' : 'en')}>
                     <div className="flex items-center gap-3 text-gray-700">
                       <Globe className="w-[18px] h-[18px]" />
-                      <span className="text-[13px] font-semibold">Language</span>
+                      <span className="text-[13px] font-semibold">{t('language')}</span>
                     </div>
-                    <div className="flex items-center gap-1 text-gray-400 font-medium text-xs">
-                      English <ChevronRight className="w-3.5 h-3.5" />
+                    <div className="flex items-center gap-2">
+                       <span className={`text-[12px] font-semibold ${lang === 'en' ? 'text-green-600' : 'text-gray-400'}`}>EN</span>
+                       <span className="text-gray-300">|</span>
+                       <span className={`text-[12px] font-semibold ${lang === 'hi' ? 'text-green-600' : 'text-gray-400'}`}>HI</span>
                     </div>
                   </div>
                 </Section>
@@ -575,7 +581,7 @@ export default function Dashboard() {
                     className="w-full h-11 rounded-xl font-bold text-[14px] transition-all active:scale-[0.98] border border-[#FEE2E2] bg-[#FFF5F5]"
                     style={{ color: '#EF4444' }}
                   >
-                    Logout
+                    {t('logout')}
                   </button>
                 </div>
               </div>

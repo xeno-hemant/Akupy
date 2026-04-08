@@ -47,10 +47,17 @@ import SellerShopProfile from './seller/pages/SellerShopProfile';
 import SellerCoupons from './seller/pages/SellerCoupons';
 import SellerReviews from './seller/pages/SellerReviews';
 import SellerNotifications from './seller/pages/SellerNotifications';
+import SellerServices from './seller/pages/SellerServices';
+import ServiceDetail from './pages/ServiceDetail';
+import AdminLogin from './admin/AdminLogin';
+import AdminBugs from './admin/AdminBugs';
 
 gsap.registerPlugin(ScrollTrigger);
 
 import useAuthStore from './store/useAuthStore';
+import useWishlistStore from './store/useWishlistStore';
+import useLocationStore from './store/useLocationStore';
+import { LanguageProvider } from './context/LanguageContext';
 import { trackPageView } from './utils/analytics';
 
 function useIsSeller() {
@@ -66,12 +73,26 @@ function RootRedirect() {
 }
 
 function AppInner({ subdomainShopId }) {
-  const { user } = useAuthStore();
+  const { user, token, logout: authLogout } = useAuthStore();
   const { isIncognitoActive } = useFeatureStore();
+  const { fetchWishlist, clear: clearWishlist } = useWishlistStore();
   const [toastMessage, setToastMessage] = useState('');
   const isSeller = useIsSeller();
   const location = useLocation();
   const [isAiHelpOpen, setIsAiHelpOpen] = useState(false);
+
+  // Fetch wishlist whenever the token changes (login / page reload)
+  useEffect(() => {
+    if (token) {
+      fetchWishlist(token);
+    } else {
+      clearWishlist();
+    }
+  }, [token]);
+
+  // Detect location on first mount
+  const { detect } = useLocationStore();
+  useEffect(() => { detect(); }, []);
 
   const isSellerRoute = location.pathname.startsWith('/seller');
   const isAuthRoute = location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register';
@@ -188,6 +209,14 @@ function AppInner({ subdomainShopId }) {
           <Route path="/seller/customers" element={<ProtectedSellerRoute><SellerOrders /></ProtectedSellerRoute>} />
           <Route path="/seller/settings" element={<ProtectedSellerRoute><SellerShopProfile /></ProtectedSellerRoute>} />
           <Route path="/seller/help" element={<ProtectedSellerRoute><SellerNotifications /></ProtectedSellerRoute>} />
+          <Route path="/seller/services" element={<ProtectedSellerRoute><SellerServices /></ProtectedSellerRoute>} />
+
+          {/* Service detail (public) */}
+          <Route path="/service/:serviceId" element={<ServiceDetail />} />
+
+          {/* Admin Dashboard */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/bugs" element={<AdminBugs />} />
 
           {/* Legal & Support Pages */}
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
@@ -233,10 +262,12 @@ function App() {
   }, []);
 
   return (
-    <Router>
-      <CustomCursor />
-      <AppInner subdomainShopId={subdomainShopId} />
-    </Router>
+    <LanguageProvider>
+      <Router>
+        <CustomCursor />
+        <AppInner subdomainShopId={subdomainShopId} />
+      </Router>
+    </LanguageProvider>
   );
 }
 

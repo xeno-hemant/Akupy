@@ -2,29 +2,53 @@ import { useState } from 'react';
 import { Bug, X, Send, CheckCircle2 } from 'lucide-react';
 import API from '../config/apiRoutes';
 import api from '../utils/apiHelper';
+import useAuthStore from '../store/useAuthStore';
 
 export default function BugReportButton() {
   const [isOpen, setIsOpen] = useState(false);
+  const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const { user } = useAuthStore();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!message.trim()) {
-      setError('Please describe the bug.');
+    if (!title.trim() || !message.trim()) {
+      setError('Please provide a title and describe the bug.');
       return;
     }
     setLoading(true);
     setError('');
+    
+    // Get basic device/browser info
+    const ua = navigator.userAgent;
+    let browser = 'Unknown';
+    if (ua.includes('Firefox')) browser = 'Firefox';
+    else if (ua.includes('SamsungBrowser')) browser = 'Samsung Internet';
+    else if (ua.includes('Opera') || ua.includes('OPR')) browser = 'Opera';
+    else if (ua.includes('Trident')) browser = 'IE';
+    else if (ua.includes('Edge')) browser = 'Edge';
+    else if (ua.includes('Chrome')) browser = 'Chrome';
+    else if (ua.includes('Safari')) browser = 'Safari';
+
+    let device = 'Desktop';
+    if (/Mobi|Android/i.test(ua)) device = 'Mobile';
+    else if (/Tablet|iPad/i.test(ua)) device = 'Tablet';
+
     try {
-      const res = await api.post(API.SUPPORT_BUG, {
-        message: message.trim(),
+      const res = await api.post(API.BUG_REPORT, {
+        title: title.trim(),
+        description: message.trim(),
         pageUrl: window.location.href,
+        userId: user?._id || 'anonymous',
+        browser,
+        device
       });
       if (res.data?.success) {
         setSubmitted(true);
+        setTitle('');
         setMessage('');
         setTimeout(() => {
           setSubmitted(false);
@@ -40,6 +64,7 @@ export default function BugReportButton() {
 
   const close = () => {
     setIsOpen(false);
+    setTitle('');
     setMessage('');
     setError('');
     setSubmitted(false);
@@ -131,7 +156,22 @@ export default function BugReportButton() {
 
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#8E867B' }}>
-                      Describe the bug *
+                      Bug Title *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Short summary of the bug"
+                      value={title}
+                      onChange={e => setTitle(e.target.value)}
+                      required
+                      className="w-full rounded-xl p-3 text-sm font-body outline-none transition-colors mb-4"
+                      style={{ border: '2px solid #D9D5D2', background: '#FAFAFA', color: '#3d3830' }}
+                      onFocus={e => e.target.style.borderColor = '#3d3830'}
+                      onBlur={e => e.target.style.borderColor = '#D9D5D2'}
+                    />
+
+                    <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#8E867B' }}>
+                      Description *
                     </label>
                     <textarea
                       id="bug-description"

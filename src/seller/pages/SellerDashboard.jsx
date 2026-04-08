@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
     DollarSign, ShoppingCart, Package, Star, TrendingUp,
     Plus, Gift, ExternalLink, AlertTriangle, MessageSquare,
-    ArrowUpRight, ArrowRight
+    ArrowUpRight, ArrowRight, Wrench
 } from 'lucide-react';
 import SellerLayout from '../layout/SellerLayout';
 import StatCard from '../components/StatCard';
@@ -357,6 +357,7 @@ export default function SellerDashboard() {
                             {[
                                 { label: 'Create Coupon', to: '/seller/coupons', icon: Gift },
                                 { label: 'View Pending Orders', to: '/seller/orders?status=pending', icon: Package },
+                                { label: 'Manage Services', to: '/seller/services', icon: Wrench },
                             ].map(({ label, to, icon: Icon }) => (
                                 <Link key={to} to={to}
                                     className="flex items-center gap-3 w-full px-4 py-3 rounded-xl font-semibold text-sm border-2 transition-all"

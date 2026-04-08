@@ -1,17 +1,96 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, ShoppingCart, User, Globe, Shield } from 'lucide-react';
+import { Search, ShoppingCart, User, Globe, Shield, MapPin, ChevronDown } from 'lucide-react';
 import useAuthStore from '../store/useAuthStore';
 import useCartStore from '../store/useCartStore';
 import useFeatureStore from '../store/useFeatureStore';
+import useLocationStore, { INDIAN_CITIES } from '../store/useLocationStore';
 import GlobeShopOverlay from './GlobeShopOverlay';
 
 const CATEGORIES = ['Fashion', 'Electronics', 'Food', 'Services', 'Beauty', 'Home', 'Mobiles'];
+
+// ─── City Pill & Selector ────────────────────────────────────────────────────
+function CityPill({ city, locLoading, locError, showCityPicker, setShowCityPicker, setCity, detect, citySearch, setCitySearch, cityPickerRef }) {
+  const filteredCities = INDIAN_CITIES.filter(c =>
+    c.toLowerCase().includes((citySearch || '').toLowerCase())
+  );
+
+  return (
+    <div className="relative" ref={cityPickerRef}>
+      <button
+        onClick={() => setShowCityPicker(p => !p)}
+        className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full transition-all"
+        style={{ background: city ? '#DCFCE7' : '#F3F4F6', color: city ? '#16A34A' : '#6B7280' }}
+      >
+        {locLoading ? (
+          <span className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin inline-block" />
+        ) : (
+          <MapPin className="w-3 h-3 flex-shrink-0" />
+        )}
+        <span>{locLoading ? 'Detecting...' : city ? `Showing near ${city}` : 'Set your city'}</span>
+        <ChevronDown className="w-3 h-3 opacity-60" />
+      </button>
+
+      {/* Dropdown */}
+      {showCityPicker && (
+        <div
+          className="absolute top-full left-0 mt-1 z-[200] w-64 rounded-2xl shadow-xl border overflow-hidden"
+          style={{ background: '#FFFFFF', borderColor: '#E5E7EB' }}
+        >
+          {locError === 'denied' && (
+            <p className="text-[11px] font-semibold text-amber-600 px-3 pt-3 pb-0">
+              📍 Location access denied. Pick a city below:
+            </p>
+          )}
+          {locError !== 'denied' && !city && (
+            <button
+              onClick={() => { detect(); setShowCityPicker(false); }}
+              className="w-full flex items-center gap-2 text-[12px] font-bold px-4 py-3 border-b border-gray-100 hover:bg-green-50 transition-colors text-green-700"
+            >
+              <MapPin className="w-3.5 h-3.5" /> Use my location
+            </button>
+          )}
+          <div className="px-3 py-2 border-b border-gray-50">
+            <input
+              type="text"
+              placeholder="Search cities..."
+              value={citySearch}
+              onChange={e => setCitySearch(e.target.value)}
+              className="w-full text-xs px-3 py-2 rounded-xl border border-gray-200 outline-none focus:border-green-400"
+              autoFocus
+            />
+          </div>
+          <div className="max-h-48 overflow-y-auto">
+            {filteredCities.map(c => (
+              <button
+                key={c}
+                onClick={() => { setCity(c); setShowCityPicker(false); setCitySearch(''); }}
+                className="w-full text-left text-[13px] font-medium px-4 py-2.5 hover:bg-green-50 hover:text-green-700 transition-colors"
+                style={{ color: city === c ? '#16A34A' : '#1A1A1A', fontWeight: city === c ? 700 : 500 }}
+              >
+                {city === c ? '✓ ' : ''}{c}
+              </button>
+            ))}
+          </div>
+          {city && (
+            <button
+              onClick={() => { setCity(''); setShowCityPicker(false); }}
+              className="w-full text-[12px] font-semibold text-gray-400 hover:text-red-500 px-4 py-2.5 border-t border-gray-50 transition-colors text-center"
+            >
+              × Clear city filter
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 // AkupyLogo SVG
 export function AkupyLogo({ size = 'md', dark = false }) {
   const textColor = dark ? '#FFFFFF' : '#1A1A1A';
   const h = size === 'sm' ? 'h-6' : size === 'lg' ? 'h-12' : 'h-8';
+
   return (
     <svg viewBox="0 0 380 100" className={`${h} w-auto`} style={{ display: 'block' }}>
       {/* Speed lines */}
@@ -31,16 +110,54 @@ export function AkupyLogo({ size = 'md', dark = false }) {
   );
 }
 
+
 export default function Navbar() {
   const [isGlobeMapOpen, setIsGlobeMapOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('');
+  const [catVisible, setCatVisible] = useState(true);
+  const lastScrollY = useRef(0);
+
 
   const { user, logout } = useAuthStore();
   const { getTotalItems } = useCartStore();
   const { isIncognitoActive, setIncognito } = useFeatureStore();
+  const { city, error: locError, loading: locLoading, setCity, detect } = useLocationStore();
+  const [showCityPicker, setShowCityPicker] = useState(false);
+  const [citySearch, setCitySearch] = useState('');
+  const cityPickerRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Close city picker on outside click
+  useEffect(() => {
+    const handler = (e) => {
+      if (cityPickerRef.current && !cityPickerRef.current.contains(e.target)) {
+        setShowCityPicker(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  // Scroll direction detection for category row
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentY = window.scrollY;
+      if (currentY < 20) {
+        setCatVisible(true);
+      } else if (currentY > lastScrollY.current) {
+        // Scrolling DOWN — hide categories
+        setCatVisible(false);
+      } else {
+        // Scrolling UP — show categories
+        setCatVisible(true);
+      }
+      lastScrollY.current = currentY;
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -92,14 +209,14 @@ export default function Navbar() {
             <AkupyLogo size="sm" dark={isIncognitoActive} />
           </Link>
 
-          {/* Desktop Search Bar */}
+          {/* Desktop Search Bar + City Pill */}
           {!isMinimal && (
-            <div className="hidden md:flex flex-grow max-w-2xl mx-8">
+            <div className="hidden md:flex flex-col flex-grow max-w-2xl mx-8 gap-1">
               <form onSubmit={handleSearch} className="relative w-full">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#6B7280' }} />
                 <input
                   type="text"
-                  placeholder="Search products..."
+                  placeholder="Search products, shops..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full h-11 pl-11 pr-12 rounded-full text-sm font-medium outline-none border-2 transition-all"
@@ -121,6 +238,8 @@ export default function Navbar() {
                   <Globe className="w-4 h-4" />
                 </button>
               </form>
+              {/* City pill below search */}
+              <CityPill city={city} locLoading={locLoading} locError={locError} showCityPicker={showCityPicker} setShowCityPicker={setShowCityPicker} setCity={setCity} detect={detect} citySearch={citySearch} setCitySearch={setCitySearch} cityPickerRef={cityPickerRef} />
             </div>
           )}
 
@@ -144,11 +263,15 @@ export default function Navbar() {
             {user ? (
               <Link
                 to={user?.role === 'seller' ? '/seller/dashboard' : '/dashboard'}
-                className="flex items-center gap-2 p-2 rounded-full transition-colors group"
+                className="flex items-center gap-2 p-1 rounded-full transition-colors group"
                 style={{ color: '#6B7280' }}
               >
-                <div className="p-1.5 rounded-full bg-gray-100 group-hover:bg-[#22C55E]/10 transition-colors">
-                  <User className="w-5 h-5 group-hover:text-[#22C55E]" />
+                <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center font-bold text-sm text-white flex-shrink-0 transition-all group-hover:ring-2 group-hover:ring-[#22C55E] group-hover:ring-offset-1"
+                  style={{ background: user.avatarUrl ? 'transparent' : '#22C55E' }}>
+                  {user.avatarUrl
+                    ? <img src={user.avatarUrl} alt="avatar" className="w-full h-full object-cover" />
+                    : (user.fullName?.[0] || user.email?.[0] || 'U').toUpperCase()
+                  }
                 </div>
                 <span className="hidden lg:inline text-sm font-bold group-hover:text-[#22C55E]">Dashboard</span>
               </Link>
@@ -215,14 +338,26 @@ export default function Navbar() {
                 <Globe className="w-4 h-4" />
               </button>
             </form>
+            {/* City pill on mobile */}
+            <div className="mt-1.5">
+              <CityPill city={city} locLoading={locLoading} locError={locError} showCityPicker={showCityPicker} setShowCityPicker={setShowCityPicker} setCity={setCity} detect={detect} citySearch={citySearch} setCitySearch={setCitySearch} cityPickerRef={cityPickerRef} />
+            </div>
           </div>
         )}
 
-        {/* CATEGORY CHIPS */}
+        {/* CATEGORY CHIPS — slides up on scroll down, down on scroll up */}
         {!isMinimal && (
           <div
             className="px-4 pb-2.5 overflow-x-auto hide-scrollbar"
-            style={{ borderTop: `1px solid ${navBorder}` }}
+            style={{
+              borderTop: `1px solid ${navBorder}`,
+              transition: 'max-height 0.3s ease, opacity 0.3s ease, transform 0.3s ease',
+              maxHeight: catVisible ? '56px' : '0px',
+              opacity: catVisible ? 1 : 0,
+              transform: catVisible ? 'translateY(0)' : 'translateY(-100%)',
+              overflow: catVisible ? 'visible' : 'hidden',
+              pointerEvents: catVisible ? 'auto' : 'none',
+            }}
           >
             <div className="flex items-center gap-2 pt-2 max-w-[1400px] mx-auto">
               {CATEGORIES.map(cat => (
@@ -259,8 +394,14 @@ export default function Navbar() {
         )}
       </nav>
 
-      {/* Spacer: Mobile ~160px (60px top + 44px search + 42px chips), Desktop ~112px */}
-      <div className={isMinimal ? 'h-[60px]' : 'h-[160px] md:h-[112px]'}></div>
+      {/* Spacer: adjusts smoothly since category row transitions */}
+      <div
+        style={{
+          height: isMinimal ? '60px' : undefined,
+          transition: 'height 0.3s ease',
+        }}
+        className={isMinimal ? '' : 'h-[160px] md:h-[112px]'}
+      />
 
       {isGlobeMapOpen && <GlobeShopOverlay onClose={() => setIsGlobeMapOpen(false)} />}
     </>

@@ -4,6 +4,7 @@ import { Home, Grid3x3, ShoppingCart, User, Plus, Shirt, Shield, Bot } from 'luc
 import useAuthStore from '../store/useAuthStore';
 import useCartStore from '../store/useCartStore';
 import useFeatureStore from '../store/useFeatureStore';
+import useTranslation from '../hooks/useTranslation';
 
 const NAV_ITEMS = [
     { id: 'home', label: 'Home', icon: Home, path: '/shop' },
@@ -20,6 +21,7 @@ export default function BottomNav() {
     const { getTotalItems } = useCartStore();
     const { isIncognitoActive } = useFeatureStore();
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+    const { t } = useTranslation();
 
     // Dynamically adjust profile path
     const items = NAV_ITEMS.map(item =>
@@ -140,7 +142,7 @@ export default function BottomNav() {
                                         </span>
                                     )}
                                 </div>
-                                <span className="text-[10px] md:text-xs font-semibold">{item.label}</span>
+                                <span className="text-[10px] md:text-xs font-semibold">{t(item.id) || item.label}</span>
                                 {active && (
                                     <span
                                         className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"

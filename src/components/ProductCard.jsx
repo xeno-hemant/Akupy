@@ -1,15 +1,29 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, ShoppingCart, Star } from 'lucide-react';
+import { Heart, ShoppingCart, Star, Share2, Check } from 'lucide-react';
 import useCartStore from '../store/useCartStore';
 import useFeatureStore from '../store/useFeatureStore';
+import useWishlistStore from '../store/useWishlistStore';
+import useAuthStore from '../store/useAuthStore';
+import useShareProduct from '../hooks/useShareProduct';
 
 export default function ProductCard({ product }) {
     const navigate = useNavigate();
     const addToCart = useCartStore((state) => state.addToCart);
     const { isIncognitoActive } = useFeatureStore();
+    const { token } = useAuthStore();
+    const { isWishlisted, toggleItem } = useWishlistStore();
     const [added, setAdded] = useState(false);
-    const [wishlisted, setWishlisted] = useState(false);
+    const [wishlistLoading, setWishlistLoading] = useState(false);
+    const productId = product._id || product.id;
+    const wishlisted = isWishlisted(productId);
+    const { share, copied } = useShareProduct();
+
+    const handleShare = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        share({ productId, productName: product.name });
+    };
 
     const handleAddToCart = (e) => {
         e.preventDefault();
@@ -19,10 +33,17 @@ export default function ProductCard({ product }) {
         setTimeout(() => setAdded(false), 2000);
     };
 
-    const handleWishlist = (e) => {
+    const handleWishlist = async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        setWishlisted(prev => !prev);
+        if (!token) {
+            navigate('/login');
+            return;
+        }
+        if (wishlistLoading) return;
+        setWishlistLoading(true);
+        await toggleItem(productId, token);
+        setWishlistLoading(false);
     };
 
     const hasDiscount = product.discountPercent && product.discountPercent > 0;
@@ -113,6 +134,14 @@ export default function ProductCard({ product }) {
                             onClick={handleAddToCart}
                         >
                             {added ? '✓ Added!' : 'Add to Cart'}
+                        </button>
+                        <button
+                            className="w-8 h-8 rounded-xl flex items-center justify-center transition-all"
+                            style={{ background: copied ? '#22C55E' : 'rgba(255,255,255,0.85)', color: copied ? '#fff' : '#6B7280' }}
+                            onClick={handleShare}
+                            title="Share"
+                        >
+                            {copied ? <Check className="w-3.5 h-3.5" /> : <Share2 className="w-3.5 h-3.5" />}
                         </button>
                     </div>
                 </div>

@@ -1,19 +1,24 @@
 import React from 'react';
 import { Package, Ticket, MapPin, Smartphone, User, Star, Heart, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import WishlistPage from './WishlistPage';
+import EditProfilePage from './EditProfilePage';
 
 const CONFIG = {
     orders: { title: 'My Orders', icon: Package, emptyMsg: 'You haven\'t placed any orders yet.' },
     coupons: { title: 'Available Coupons', icon: Ticket, emptyMsg: 'No active coupons available right now.' },
     addresses: { title: 'Delivery Addresses', icon: MapPin, emptyMsg: 'No addresses saved yet.' },
     devices: { title: 'Manage Devices', icon: Smartphone, emptyMsg: 'Only this device is currently logged in.' },
-    'edit-profile': { title: 'Edit Profile', icon: User, emptyMsg: 'Profile editing is currently being optimized.' },
     reviews: { title: 'Reviews & Ratings', icon: Star, emptyMsg: 'You haven\'t reviewed any products yet.' },
-    wishlist: { title: 'My Wishlist', icon: Heart, emptyMsg: 'Your wishlist is empty.' },
 };
 
 export default function ProfileSubPages({ type }) {
     const navigate = useNavigate();
+
+    // Route to real pages
+    if (type === 'wishlist') return <WishlistPage />;
+    if (type === 'edit-profile') return <EditProfilePage />;
+
     const config = CONFIG[type] || CONFIG.orders;
     const Icon = config.icon;
 
@@ -45,3 +50,4 @@ export default function ProfileSubPages({ type }) {
         </div>
     );
 }
+

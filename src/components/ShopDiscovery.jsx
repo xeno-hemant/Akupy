@@ -52,7 +52,7 @@ export default function ShopDiscovery() {
             <div className="flex overflow-x-auto hide-scrollbar gap-4 md:gap-6 pb-4 -mx-4 px-4 md:mx-0 md:px-0">
                 {loading ? (
                     Array.from({ length: 4 }).map((_, i) => (
-                        <div key={i} className="min-w-[200px] md:min-w-[240px] h-[300px] rounded-2xl animate-pulse" style={{ background: '#F0EADD', border: '1px solid #D9D5D2' }}></div>
+                        <div key={i} className="skeleton-shop-card" />
                     ))
                 ) : (
                     shops.map((shop) => (

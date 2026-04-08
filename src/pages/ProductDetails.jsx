@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { 
-    ChevronRight, ChevronDown, Star, Heart, Share2, 
+    ChevronRight, ChevronDown, Star, Heart, Share2, Check,
     MapPin, Truck, ShieldCheck, ShoppingCart 
 } from 'lucide-react';
 import useCartStore from '../store/useCartStore';
 import useTryOnStore from '../store/useTryOnStore';
 import useFeatureStore from '../store/useFeatureStore';
+import useAuthStore from '../store/useAuthStore';
+import useWishlistStore from '../store/useWishlistStore';
 import API from '../config/apiRoutes';
 import api from '../utils/apiHelper';
 import useSEO from '../hooks/useSEO';
 import { trackProductView, trackAddToCart } from '../utils/analytics';
+import ProductReviews from '../components/ProductReviews';
+import useShareProduct from '../hooks/useShareProduct';
 
 // Hidden Hues tokens
 const HH = {
@@ -40,6 +44,24 @@ export default function ProductDetails() {
     const addToCart = useCartStore((state) => state.addToCart);
     const { openTryOnForProduct } = useTryOnStore();
     const { isIncognitoActive } = useFeatureStore();
+    const { token } = useAuthStore();
+    const { isWishlisted, toggleItem } = useWishlistStore();
+    const [wishlistLoading, setWishlistLoading] = useState(false);
+    const { share, copied } = useShareProduct();
+
+    const handleShare = () => {
+        if (!product) return;
+        share({ productId: product._id, productName: product.name });
+    };
+
+    const handleWishlist = async (e) => {
+        e?.preventDefault?.(); e?.stopPropagation?.();
+        if (!token) { navigate('/login'); return; }
+        if (wishlistLoading || !product) return;
+        setWishlistLoading(true);
+        await toggleItem(product._id, token);
+        setWishlistLoading(false);
+    };
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -194,17 +216,19 @@ export default function ProductDetails() {
                             <div className="absolute top-4 right-4 flex flex-col gap-2">
                                 <button
                                     className="w-10 h-10 rounded-full backdrop-blur-sm shadow-md flex items-center justify-center transition-all hover:scale-110 active:scale-95"
-                                    style={{ background: 'rgba(240,234,221,0.85)', color: HH.muted, border: `1px solid ${HH.silver}` }}
-                                    onMouseEnter={e => e.currentTarget.style.color = HH.terra}
-                                    onMouseLeave={e => e.currentTarget.style.color = HH.muted}
+                                    style={{ background: 'rgba(240,234,221,0.85)', color: isWishlisted(product._id) ? '#EF4444' : HH.muted, border: `1px solid ${HH.silver}` }}
+                                    onClick={handleWishlist}
+                                    disabled={wishlistLoading}
                                 >
-                                    <Heart className="w-5 h-5" />
+                                    <Heart className="w-5 h-5" style={{ fill: isWishlisted(product._id) ? '#EF4444' : 'none' }} />
                                 </button>
                                 <button
                                     className="w-10 h-10 rounded-full backdrop-blur-sm shadow-md flex items-center justify-center transition-all hover:scale-110"
-                                    style={{ background: 'rgba(240,234,221,0.85)', color: HH.taupe, border: `1px solid ${HH.silver}` }}
+                                    style={{ background: copied ? '#22C55E' : 'rgba(240,234,221,0.85)', color: copied ? '#fff' : HH.taupe, border: `1px solid ${HH.silver}` }}
+                                    onClick={handleShare}
+                                    title="Share product"
                                 >
-                                    <Share2 className="w-4 h-4" />
+                                    {copied ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
                                 </button>
                             </div>
 
@@ -442,6 +466,11 @@ export default function ProductDetails() {
                 </div>
             </div>
 
+            {/* REVIEWS SECTION */}
+            <div className="max-w-[1200px] mx-auto px-4 md:px-6 pb-16">
+                <ProductReviews productId={productId} />
+            </div>
+
             {/* BOTTOM FIXED BAR */}
             <div
                 className="fixed bottom-0 left-0 right-0 z-40 p-3 md:p-4 md:px-6 backdrop-blur-xl"
@@ -463,11 +492,12 @@ export default function ProductDetails() {
                         </div>
                     </div>
 
-                    <button className="p-3 rounded-full border hidden sm:flex transition-colors" style={{ borderColor: border, color: HH.taupe }}
-                        onMouseEnter={e => e.currentTarget.style.background = HH.linen}
-                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    <button className="p-3 rounded-full border hidden sm:flex transition-colors" 
+                        style={{ borderColor: isWishlisted(product._id) ? '#EF4444' : border, color: isWishlisted(product._id) ? '#EF4444' : HH.taupe }}
+                        onClick={handleWishlist}
+                        disabled={wishlistLoading}
                     >
-                        <Heart className="w-5 h-5" />
+                        <Heart className="w-5 h-5" style={{ fill: isWishlisted(product._id) ? '#EF4444' : 'none' }} />
                     </button>
 
                     {product.garmentType && product.garmentType !== 'none' && (

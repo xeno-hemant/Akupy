@@ -1,18 +1,22 @@
 import React from 'react';
-import FinalCta from '../components/FinalCta';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import LoginCard from '../components/LoginCard';
+import { AkupyLogo } from '../components/Navbar';
+import { Link } from 'react-router-dom';
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#F5F0E8' }}>
-      <Navbar />
-      <div className="flex-grow flex items-center justify-center py-20 px-4">
-        <div className="w-full max-w-6xl">
-           <FinalCta />
-        </div>
-      </div>
-      <Footer />
+    <div className="login-page">
+      {/* Minimal top bar */}
+      <header className="login-page-header">
+        <Link to="/shop">
+          <AkupyLogo size="sm" dark={false} />
+        </Link>
+      </header>
+
+      {/* Centered Card */}
+      <main className="login-page-main">
+        <LoginCard />
+      </main>
     </div>
   );
 }

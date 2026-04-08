@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const getHeaders = (isMultipart = false) => {
-  const token = localStorage.getItem('akupy_token'); // useAuthStore saves it here
+  const token = localStorage.getItem('adminToken') || localStorage.getItem('akupy_token');
+
   return {
     'Authorization': `Bearer ${token}`,
     'Content-Type': isMultipart 
