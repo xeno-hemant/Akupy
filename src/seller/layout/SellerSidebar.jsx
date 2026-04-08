@@ -3,7 +3,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
     LayoutDashboard, Tag, Warehouse, Store, Gift, Star, Users,
     DollarSign, Landmark, Receipt, Settings, Bell, Headphones, ChevronRight,
-    LogOut, X, BarChart2, Package
+    LogOut, X, BarChart2, Package, Wrench
 } from 'lucide-react';
 import useAuthStore from '../../store/useAuthStore';
 

@@ -1,5 +1,9 @@
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import API from '../config/apiRoutes';
 import api from '../utils/apiHelper';
+import useCartStore from '../store/useCartStore';
+import useFeatureStore from '../store/useFeatureStore';
 
 export default function ShopSubdomain({ shopId: propShopId }) {
   const { shopId: paramShopId } = useParams();

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import useAuthStore from '../store/useAuthStore';
 
@@ -6,6 +6,14 @@ import useAuthStore from '../store/useAuthStore';
 export const ProtectedSellerRoute = ({ children }) => {
     const { user, isLoading } = useAuthStore();
     const location = useLocation();
+
+    useEffect(() => {
+        if (!isLoading && user && (user.role !== 'seller' && user.role !== 'service_provider')) {
+            window.dispatchEvent(new CustomEvent('incognito-toast', {
+                detail: { message: "Seller portal is for sellers only" }
+            }));
+        }
+    }, [user, isLoading]);
 
     if (isLoading) {
         return (
@@ -20,9 +28,6 @@ export const ProtectedSellerRoute = ({ children }) => {
     }
 
     if (user.role !== 'seller' && user.role !== 'service_provider') {
-        window.dispatchEvent(new CustomEvent('incognito-toast', {
-            detail: { message: "Seller portal is for sellers only" }
-        }));
         return <Navigate to="/shop" replace />;
     }
 
@@ -36,7 +41,7 @@ export const ProtectedShopperRoute = ({ children }) => {
 
     if (isLoading) return null;
 
-    if (user?.role === 'seller' && location.pathname === '/dashboard') {
+    if ((user?.role === 'seller' || user?.role === 'service_provider') && location.pathname === '/dashboard') {
         // Sellers should go to seller portal when clicking "Dashboard"
         return <Navigate to="/seller/dashboard" replace />;
     }

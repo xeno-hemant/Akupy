@@ -27,7 +27,7 @@ export default function LoginCard() {
   // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      navigate(user.role === 'seller' ? '/seller/dashboard' : '/shop');
+      navigate((user.role === 'seller' || user.role === 'service_provider') ? '/seller/dashboard' : '/shop');
     }
   }, [user, navigate]);
 
@@ -125,7 +125,7 @@ export default function LoginCard() {
       if (res.data?.success || res.data?.token) {
         const { user: userData, token } = res.data;
         useAuthStore.getState().setAuth(userData, token);
-        navigate(userData?.role === 'seller' ? '/seller/dashboard' : '/shop');
+        navigate((userData?.role === 'seller' || userData?.role === 'service_provider') ? '/seller/dashboard' : '/shop');
       } else {
         setError(res.data?.message || 'Invalid OTP. Please try again.');
       }
