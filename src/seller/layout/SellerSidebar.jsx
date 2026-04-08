@@ -60,7 +60,7 @@ export default function SellerSidebar({ isOpen, onClose, collapsed }) {
         navigate('/');
     };
 
-    const shopName = user?.businessName || user?.name || 'My Shop';
+    const shopName = user?.fullName || user?.businessName || user?.name || (user?.role === 'service_provider' ? 'Service Profile' : 'My Shop');
     const shopInitial = shopName.charAt(0).toUpperCase();
 
     const SidebarContent = () => (

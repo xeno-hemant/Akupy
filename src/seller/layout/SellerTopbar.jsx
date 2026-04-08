@@ -10,12 +10,12 @@ const PAGE_TITLES = {
     '/seller/products/new': 'Add New Product',
     '/seller/inventory': 'Inventory',
     '/seller/earnings': 'Earnings & Finance',
-    '/seller/shop': 'Shop Profile',
+    '/seller/shop': 'Service Profile',
     '/seller/coupons': 'Coupons & Offers',
     '/seller/reviews': 'Reviews',
     '/seller/customers': 'Customers',
     '/seller/notifications': 'Notifications',
-    '/seller/settings': 'Store Settings',
+    '/seller/settings': 'Portal Settings',
     '/seller/help': 'Help & Support',
 };
 
@@ -25,7 +25,7 @@ export default function SellerTopbar({ onMenuClick, sidebarWidth = 240 }) {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [searchValue, setSearchValue] = useState('');
 
-    const title = PAGE_TITLES[location.pathname] || 'Seller Portal';
+    const title = PAGE_TITLES[location.pathname] || (user?.role === 'service_provider' ? 'Service Portal' : 'Seller Portal');
     const notifications = 0; // Reset dummy data
 
     return (
@@ -131,7 +131,7 @@ export default function SellerTopbar({ onMenuClick, sidebarWidth = 240 }) {
                             style={{ background: '#22C55E', color: '#fff' }}>
                             {(user?.name || user?.email || 'S').charAt(0).toUpperCase()}
                         </div>
-                        <span className="hidden md:block text-sm font-semibold">{user?.name || 'Seller'}</span>
+                        <span className="hidden md:block text-sm font-semibold">{user?.fullName || user?.name || (user?.role === 'service_provider' ? 'Service Person' : 'Seller')}</span>
                         <ChevronDown className="w-3.5 h-3.5 hidden md:block" style={{ color: '#94A3B8' }} />
                     </button>
 
@@ -141,7 +141,7 @@ export default function SellerTopbar({ onMenuClick, sidebarWidth = 240 }) {
                             <div className="absolute right-0 top-full mt-1 w-52 rounded-xl shadow-xl z-50 overflow-hidden"
                                 style={{ background: '#fff', border: '1px solid #F1F5F9' }}>
                                 <div className="px-4 py-3" style={{ borderBottom: '1px solid #F1F5F9' }}>
-                                    <div className="text-sm font-bold" style={{ color: '#0F172A' }}>{user?.name || 'Seller'}</div>
+                                    <div className="text-sm font-bold" style={{ color: '#0F172A' }}>{user?.fullName || user?.name || (user?.role === 'service_provider' ? 'Service Person' : 'Seller')}</div>
                                     <div className="text-xs mt-0.5" style={{ color: '#64748B' }}>{user?.email || ''}</div>
                                 </div>
                                 <button className="w-full text-left px-4 py-2.5 text-sm font-medium transition-colors" style={{ color: '#EF4444' }}

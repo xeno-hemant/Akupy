@@ -195,7 +195,7 @@ export default function SellerDashboard() {
     const { user } = useAuthStore();
     const [loading, setLoading] = useState(true);
     const [period, setPeriod] = useState('Month');
-    const shopName = user?.businessName || user?.name || 'Shop';
+    const shopName = user?.fullName || user?.businessName || user?.name || (user?.role === 'service_provider' ? 'Service Person' : 'Shop');
 
     useEffect(() => {
         const t = setTimeout(() => setLoading(false), 900);

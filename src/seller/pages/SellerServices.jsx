@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, MapPin, Clock, Tag, IndianRupee, Loader, AlertCircle, CheckCircle, Upload, X, Wrench } from 'lucide-react';
+import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, MapPin, Clock, Tag, IndianRupee, Loader, AlertCircle, CheckCircle, Upload, X, Wrench, ArrowLeft } from 'lucide-react';
 import api from '../../utils/apiHelper';
 import API from '../../config/apiRoutes';
 
@@ -159,8 +159,19 @@ export default function SellerServices() {
 
             {/* Form */}
             {showForm && (
-                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                    <h2 className="font-black text-lg text-gray-900 mb-5">{editingId ? 'Edit Service' : 'New Service'}</h2>
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                    <div className="px-6 py-4 bg-gray-50/50 border-b border-gray-100 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <button 
+                                onClick={() => setShowForm(false)}
+                                className="p-2 rounded-lg hover:bg-gray-200/50 transition-colors text-gray-500"
+                            >
+                                <ArrowLeft className="w-5 h-5" />
+                            </button>
+                            <h2 className="font-black text-lg text-gray-900">{editingId ? 'Edit Service' : 'New Service'}</h2>
+                        </div>
+                    </div>
+                    <div className="p-6">
                     <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Service Name */}
                         <div className="md:col-span-2">
@@ -282,6 +293,7 @@ export default function SellerServices() {
                             </button>
                         </div>
                     </form>
+                    </div>
                 </div>
             )}
 
