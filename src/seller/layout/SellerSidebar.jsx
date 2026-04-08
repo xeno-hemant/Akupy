@@ -12,7 +12,7 @@ const GREEN = '#22C55E';
 const TEXT = '#E2E8F0';
 const MUTED = '#94A3B8';
 
-const NAV_SECTIONS = [
+const getNavSections = (user) => [
     {
         label: 'MAIN',
         items: [
@@ -62,6 +62,8 @@ export default function SellerSidebar({ isOpen, onClose, collapsed }) {
 
     const shopName = user?.fullName || user?.businessName || user?.name || (user?.role === 'service_provider' ? 'Service Profile' : 'My Shop');
     const shopInitial = shopName.charAt(0).toUpperCase();
+
+    const sections = getNavSections(user);
 
     const SidebarContent = () => (
         <div className="flex flex-col h-full overflow-hidden" style={{ background: NAVY }}>
@@ -113,9 +115,9 @@ export default function SellerSidebar({ isOpen, onClose, collapsed }) {
                 </div>
             )}
 
-            {/* Nav Sections */}
-            <nav className="flex-1 overflow-y-auto py-2 px-2 hide-scrollbar">
-                {NAV_SECTIONS.map((section) => (
+            {/* Nav */}
+            <div className="flex-1 overflow-y-auto py-4 custom-scrollbar">
+                {sections.map((section, idx) => (
                     <div key={section.label} className="mb-1">
                         {!collapsed && (
                             <div className="px-3 pt-4 pb-1.5 text-[10px] font-black uppercase tracking-[0.15em]" style={{ color: '#475569' }}>
@@ -154,7 +156,7 @@ export default function SellerSidebar({ isOpen, onClose, collapsed }) {
                         })}
                     </div>
                 ))}
-            </nav>
+            </div>
 
             {/* Bottom: user + logout */}
             <div className="px-3 py-4" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
