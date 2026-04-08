@@ -10,9 +10,10 @@ export default function LoginCard() {
   const navigate = useNavigate();
   const { user, setAuth } = useAuthStore();
 
-  // Step: 'phone' | 'otp'
-  const [step, setStep] = useState('phone');
-  const [identifier, setIdentifier] = useState('');
+  // Step: 'phone' (email for now) | 'otp'
+  const [step, setStep] = useState('email');
+  const [role, setRole] = useState('shopper'); // shopper, seller, service
+  const [email, setEmail] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [referral, setReferral] = useState('');
   const [showReferral, setShowReferral] = useState(false);
@@ -36,21 +37,22 @@ export default function LoginCard() {
     return () => clearTimeout(t);
   }, [resendTimer]);
 
-  const handleIdentifierChange = (e) => {
-    setIdentifier(e.target.value.trim());
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value.trim());
     setError('');
   };
 
   const handleSendOtp = async () => {
-    if (!identifier) {
-      setError('Please enter a valid email or phone number');
+    if (!email || !email.includes('@')) {
+      setError('Please enter a valid email address');
       return;
     }
     setLoading(true);
     setError('');
     try {
       const res = await api.post(API.SEND_OTP || '/api/auth/send-otp', {
-        identifier,
+        identifier: email,
+        role: role === 'service' ? 'seller' : role, // Treat service as seller internally or pass role directly
       });
       if (res.data) {
         setStep('otp');
@@ -114,9 +116,10 @@ export default function LoginCard() {
     setError('');
     try {
       const res = await api.post(API.VERIFY_OTP || '/api/auth/verify-otp', {
-        identifier,
+        identifier: email,
         otp: otpStr,
         referralCode: referral || undefined,
+        role: role === 'service' ? 'seller' : role,
       });
       if (res.data?.success || res.data?.token) {
         const { user: userData, token } = res.data;
@@ -137,7 +140,7 @@ export default function LoginCard() {
     setLoading(true);
     setError('');
     try {
-      await api.post(API.SEND_OTP || '/api/auth/send-otp', { identifier });
+      await api.post(API.SEND_OTP || '/api/auth/send-otp', { identifier: email });
       setResendTimer(30);
       setOtp(['', '', '', '', '', '']);
       otpRefs.current[0]?.focus();
@@ -157,30 +160,69 @@ export default function LoginCard() {
           <AkupyLogo size="md" dark={false} />
         </div>
 
+        {/* Role Selector Tabs */}
+        {step === 'email' && (
+          <div className="flex bg-slate-100 p-1 rounded-full mb-6 relative">
+            <button
+              onClick={() => setRole('shopper')}
+              className={`flex-1 text-xs font-bold py-2 rounded-full transition-colors z-10 ${role === 'shopper' ? 'text-white' : 'text-slate-500 hover:text-slate-800'}`}
+            >
+              Shopper
+            </button>
+            <button
+              onClick={() => setRole('seller')}
+              className={`flex-1 text-xs font-bold py-2 rounded-full transition-colors z-10 ${role === 'seller' ? 'text-white' : 'text-slate-500 hover:text-slate-800'}`}
+            >
+              Seller
+            </button>
+            <button
+              onClick={() => setRole('service')}
+              className={`flex-1 text-xs font-bold py-2 rounded-full transition-colors z-10 ${role === 'service' ? 'text-white' : 'text-slate-500 hover:text-slate-800'}`}
+            >
+              Services
+            </button>
+            <button
+              onClick={() => navigate('/admin/login')}
+              className="flex-1 text-xs font-bold py-2 rounded-full transition-colors z-10 text-slate-500 hover:text-slate-800"
+            >
+              Admin
+            </button>
+            
+            {/* Active Pill background */}
+            <div 
+              className="absolute top-1 bottom-1 w-1/4 rounded-full transition-transform duration-300 pointer-events-none" 
+              style={{ 
+                background: '#22C55E',
+                transform: `translateX(${role === 'shopper' ? '0%' : role === 'seller' ? '100%' : '200%'})`
+              }} 
+            />
+          </div>
+        )}
+
         {/* Title */}
         <div className="login-title-wrap">
           <h1 className="login-title">
-            {step === 'phone' ? 'Welcome back' : 'Verify your login'}
+            {step === 'email' ? 'Welcome back' : 'Verify your login'}
           </h1>
           <p className="login-subtitle">
-            {step === 'phone'
-              ? 'Enter email or phone number to continue'
-              : `OTP sent to ${identifier}`}
+            {step === 'email'
+              ? 'Enter your email address to continue'
+              : `OTP sent to ${email}`}
           </p>
         </div>
 
-        {/* STEP: Identifier Input */}
-        {step === 'phone' && (
+        {/* STEP: Email Input */}
+        {step === 'email' && (
           <div className="login-form">
             <div className="login-phone-field">
               <input
-                id="login-identifier"
-                type="text"
-                placeholder="Email Address or 10-digit phone"
-                value={identifier}
-                onChange={handleIdentifierChange}
+                id="login-email"
+                type="email"
+                placeholder="Enter email address"
+                value={email}
+                onChange={handleEmailChange}
                 onKeyDown={(e) => e.key === 'Enter' && handleSendOtp()}
-                className="login-phone-input"
+                className="w-full h-12 px-4 rounded-xl text-sm font-medium outline-none border-2 transition-colors border-gray-200 focus:border-green-500"
                 autoFocus
               />
             </div>
@@ -279,9 +321,9 @@ export default function LoginCard() {
               <button
                 type="button"
                 className="login-text-link"
-                onClick={() => { setStep('phone'); setOtp(['', '', '', '', '', '']); setError(''); }}
+                onClick={() => { setStep('email'); setOtp(['', '', '', '', '', '']); setError(''); }}
               >
-                ← Change number
+                ← Change email
               </button>
               <button
                 type="button"

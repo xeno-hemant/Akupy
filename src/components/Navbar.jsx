@@ -238,8 +238,6 @@ export default function Navbar() {
                   <Globe className="w-4 h-4" />
                 </button>
               </form>
-              {/* City pill below search */}
-              <CityPill city={city} locLoading={locLoading} locError={locError} showCityPicker={showCityPicker} setShowCityPicker={setShowCityPicker} setCity={setCity} detect={detect} citySearch={citySearch} setCitySearch={setCitySearch} cityPickerRef={cityPickerRef} />
             </div>
           )}
 
@@ -338,10 +336,6 @@ export default function Navbar() {
                 <Globe className="w-4 h-4" />
               </button>
             </form>
-            {/* City pill on mobile */}
-            <div className="mt-1.5">
-              <CityPill city={city} locLoading={locLoading} locError={locError} showCityPicker={showCityPicker} setShowCityPicker={setShowCityPicker} setCity={setCity} detect={detect} citySearch={citySearch} setCitySearch={setCitySearch} cityPickerRef={cityPickerRef} />
-            </div>
           </div>
         )}
 

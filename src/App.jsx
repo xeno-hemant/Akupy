@@ -95,6 +95,7 @@ function AppInner({ subdomainShopId }) {
   useEffect(() => { detect(); }, []);
 
   const isSellerRoute = location.pathname.startsWith('/seller');
+  const isAdminRoute = location.pathname.startsWith('/admin');
   const isAuthRoute = location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register';
 
   const { setIncognito } = useFeatureStore();
@@ -154,8 +155,8 @@ function AppInner({ subdomainShopId }) {
         </div>
       )}
 
-      {!isSellerRoute && !isAuthRoute && <Navbar />}
-      {!isSellerRoute && !isAuthRoute && <BottomNav />}
+      {!isSellerRoute && !isAuthRoute && !isAdminRoute && <Navbar />}
+      {!isSellerRoute && !isAuthRoute && !isAdminRoute && <BottomNav />}
       <TryOnModal />
       <AiAssistantDrawer />
       {isAiHelpOpen && <AiHelpAgent onClose={() => setIsAiHelpOpen(false)} />}
