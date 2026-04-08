@@ -221,22 +221,22 @@ export default function SellerDashboard() {
                         </p>
                     </div>
                     <Link
-                        to="/seller/shop"
+                        to={user?.role === 'service_provider' ? '/seller/services' : '/seller/shop'}
                         className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm border-2 transition-all"
                         style={{ borderColor: '#22C55E', color: '#22C55E' }}
                         onMouseEnter={e => { e.currentTarget.style.background = '#22C55E'; e.currentTarget.style.color = '#fff'; }}
                         onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#22C55E'; }}
                     >
-                        <ExternalLink className="w-4 h-4" />
-                        View Store
+                        {user?.role === 'service_provider' ? <Wrench className="w-4 h-4" /> : <ExternalLink className="w-4 h-4" />}
+                        {user?.role === 'service_provider' ? 'My Services' : 'View Store'}
                     </Link>
                 </div>
 
                 {/* ── Stat Cards ── */}
                 <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
                     <StatCard loading={loading} title="Total Revenue" value="₹0" subtext="No sales yet" icon={DollarSign} accentColor="#F59E0B" />
-                    <StatCard loading={loading} title="Total Orders" value="0" subtext="No orders yet" icon={ShoppingCart} accentColor="#3B82F6" />
-                    <StatCard loading={loading} title="Products Listed" value="0" subtext="Add your first product" icon={Package} accentColor="#8B5CF6" />
+                    <StatCard loading={loading} title={user?.role === 'service_provider' ? "Total Bookings" : "Total Orders"} value="0" subtext="No activity yet" icon={user?.role === 'service_provider' ? Wrench : ShoppingCart} accentColor="#3B82F6" />
+                    <StatCard loading={loading} title={user?.role === 'service_provider' ? "Services Listed" : "Products Listed"} value="0" subtext="Initial setup" icon={Package} accentColor="#8B5CF6" />
                     <StatCard loading={loading} title="Avg. Rating" value="0 ★" subtext="No reviews yet" icon={Star} accentColor="#22C55E" />
                 </div>
 
@@ -249,7 +249,7 @@ export default function SellerDashboard() {
 
                     {/* Order Status Donut (40%) */}
                     <div className="xl:col-span-2 rounded-xl p-5" style={{ background: '#fff', border: '1px solid #F1F5F9', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-                        <h3 className="text-base font-black mb-4" style={{ color: '#0F172A' }}>Order Status</h3>
+                        <h3 className="text-base font-black mb-4" style={{ color: '#0F172A' }}>{user?.role === 'service_provider' ? 'Booking Status' : 'Order Status'}</h3>
                         <DonutChart data={ORDER_DONUT_DATA} />
                     </div>
                 </div>
@@ -259,7 +259,7 @@ export default function SellerDashboard() {
                     {/* Recent Orders (55%) */}
                     <div className="xl:col-span-6 rounded-xl" style={{ background: '#fff', border: '1px solid #F1F5F9', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
                         <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #F8F9FA' }}>
-                            <h3 className="text-base font-black" style={{ color: '#0F172A' }}>Recent Orders</h3>
+                            <h3 className="text-base font-black" style={{ color: '#0F172A' }}>{user?.role === 'service_provider' ? 'Recent Bookings' : 'Recent Orders'}</h3>
                             <Link to="/seller/orders" className="text-xs font-bold flex items-center gap-1" style={{ color: '#22C55E' }}>
                                 View All <ArrowRight className="w-3 h-3" />
                             </Link>
@@ -268,7 +268,7 @@ export default function SellerDashboard() {
                             <table className="w-full min-w-[500px]">
                                 <thead>
                                     <tr style={{ borderBottom: '1px solid #F8F9FA' }}>
-                                        {['Order ID', 'Customer', 'Product', 'Amount', 'Status', 'Date'].map(h => (
+                                        {[user?.role === 'service_provider' ? 'Booking ID' : 'Order ID', 'Customer', user?.role === 'service_provider' ? 'Service' : 'Product', 'Amount', 'Status', 'Date'].map(h => (
                                             <th key={h} className="px-4 py-2.5 text-left text-xs font-bold" style={{ color: '#94A3B8' }}>{h}</th>
                                         ))}
                                     </tr>

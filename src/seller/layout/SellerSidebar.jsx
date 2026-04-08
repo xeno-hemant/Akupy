@@ -17,9 +17,10 @@ const NAV_SECTIONS = [
         label: 'MAIN',
         items: [
             { label: 'Dashboard', icon: LayoutDashboard, path: '/seller/dashboard' },
-            { label: 'Orders', icon: Package, path: '/seller/orders', badge: 'pendingOrders' },
-            { label: 'Products', icon: Tag, path: '/seller/products' },
-            { label: 'Inventory', icon: Warehouse, path: '/seller/inventory' },
+            { label: 'Orders & Bookings', icon: Package, path: '/seller/orders', badge: 'pendingOrders' },
+            { label: 'My Products', icon: Tag, path: '/seller/products', role: 'seller' },
+            { label: 'My Services', icon: Wrench, path: '/seller/services', role: 'service_provider' },
+            { label: 'Inventory', icon: Warehouse, path: '/seller/inventory', role: 'seller' },
         ]
     },
     {
@@ -81,7 +82,7 @@ export default function SellerSidebar({ isOpen, onClose, collapsed }) {
                             akupy<span style={{ color: GREEN }}>.</span>
                         </div>
                         <div className="text-[10px] font-semibold uppercase tracking-widest mt-0.5" style={{ color: MUTED }}>
-                            Seller Portal
+                            {user?.role === 'service_provider' ? 'Service Portal' : 'Seller Portal'}
                         </div>
                     </div>
                 )}
@@ -106,7 +107,7 @@ export default function SellerSidebar({ isOpen, onClose, collapsed }) {
                     <div className="min-w-0 flex-1">
                         <div className="text-sm font-bold truncate" style={{ color: TEXT }}>{shopName}</div>
                         <div className="text-[11px] font-semibold flex items-center gap-1 mt-0.5" style={{ color: GREEN }}>
-                            View Store <ChevronRight className="w-3 h-3" />
+                            {user?.role === 'service_provider' ? 'View Services' : 'View Store'} <ChevronRight className="w-3 h-3" />
                         </div>
                     </div>
                 </div>
@@ -122,6 +123,7 @@ export default function SellerSidebar({ isOpen, onClose, collapsed }) {
                             </div>
                         )}
                         {section.items.map((item) => {
+                            if (item.role && item.role !== user?.role) return null;
                             const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
                             const Icon = item.icon;
                             return (

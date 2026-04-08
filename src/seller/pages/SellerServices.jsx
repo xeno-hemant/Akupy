@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, MapPin, Clock, Tag, IndianRupee, Loader, AlertCircle, CheckCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, MapPin, Clock, Tag, IndianRupee, Loader, AlertCircle, CheckCircle, Upload, X } from 'lucide-react';
 import api from '../../utils/apiHelper';
 import API from '../../config/apiRoutes';
 
@@ -27,6 +27,9 @@ export default function SellerServices() {
     const [saving, setSaving] = useState(false);
     const [toast, setToast] = useState(null);
     const [deleting, setDeleting] = useState(null);
+    const [images, setImages] = useState([]); // Previews (blob/http)
+    const [imageFiles, setImageFiles] = useState([]); // Actual File objects
+    const fileRef = useRef();
 
     const showToast = (type, msg) => { setToast({ type, msg }); setTimeout(() => setToast(null), 3500); };
 
@@ -40,7 +43,7 @@ export default function SellerServices() {
 
     useEffect(() => { fetchServices(); }, []);
 
-    const openAdd = () => { setForm(EMPTY_FORM); setEditingId(null); setShowForm(true); };
+    const openAdd = () => { setForm(EMPTY_FORM); setEditingId(null); setImages([]); setImageFiles([]); setShowForm(true); };
     const openEdit = (svc) => {
         setForm({
             serviceName: svc.serviceName || '',
@@ -54,22 +57,61 @@ export default function SellerServices() {
             contactPhone: svc.contactPhone || '',
             contactWhatsApp: svc.contactWhatsApp || '',
         });
+        setImages(svc.images || []);
+        setImageFiles([]);
         setEditingId(svc._id);
         setShowForm(true);
     };
 
     const handleChange = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
 
+    const handleImageDrop = (e) => {
+        e.preventDefault();
+        const files = Array.from(e.dataTransfer?.files || e.target.files || []);
+        const urls = files.map(f => URL.createObjectURL(f));
+        setImages(prev => [...prev, ...urls]);
+        setImageFiles(prev => [...prev, ...files]);
+    };
+
+    const removeImage = (index) => {
+        const item = images[index];
+        if (item.startsWith('blob:')) {
+            const fileIndex = images.slice(0, index).filter(u => u.startsWith('blob:')).length;
+            setImageFiles(prev => prev.filter((_, i) => i !== fileIndex));
+        }
+        setImages(prev => prev.filter((_, i) => i !== index));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!form.serviceName.trim() || !form.price) { showToast('error', 'Service name and price are required'); return; }
         setSaving(true);
         try {
+            // Upload images first
+            const finalImages = [];
+            for (let i = 0; i < images.length; i++) {
+                const img = images[i];
+                if (img.startsWith('http')) {
+                    finalImages.push(img);
+                } else if (img.startsWith('blob:')) {
+                    const fileIndex = images.slice(0, i).filter(u => u.startsWith('blob:')).length;
+                    const file = imageFiles[fileIndex];
+                    if (file) {
+                        const data = new FormData();
+                        data.append('image', file);
+                        const uploadRes = await api.post(API.UPLOAD, data, true);
+                        finalImages.push(uploadRes.data.imageUrl);
+                    }
+                }
+            }
+
+            const body = { ...form, images: finalImages };
+
             if (editingId) {
-                await api.put(API.SERVICE_DETAIL(editingId), form);
+                await api.put(API.SERVICE_DETAIL(editingId), body);
                 showToast('success', 'Service updated!');
             } else {
-                await api.post(API.SERVICES, form);
+                await api.post(API.SERVICES, body);
                 showToast('success', 'Service listed!');
             }
             setShowForm(false);
@@ -199,6 +241,33 @@ export default function SellerServices() {
                                 className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-800 outline-none focus:border-green-400 transition-colors resize-none" />
                         </div>
 
+                        {/* Media / Images */}
+                        <div className="md:col-span-2">
+                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2">Service Images</label>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3">
+                                <div
+                                    onClick={() => fileRef.current?.click()}
+                                    className="aspect-square rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-green-400 hover:bg-green-50 transition-all"
+                                >
+                                    <Upload className="w-5 h-5 text-gray-400" />
+                                    <span className="text-[10px] font-bold text-gray-400">Add Photo</span>
+                                    <input ref={fileRef} type="file" multiple accept="image/*" className="hidden" onChange={handleImageDrop} />
+                                </div>
+                                {images.map((src, i) => (
+                                    <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-gray-100">
+                                        <img src={src} alt="" className="w-full h-full object-cover" />
+                                        <button
+                                            type="button"
+                                            onClick={() => removeImage(i)}
+                                            className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 flex items-center justify-center text-white"
+                                        >
+                                            <X className="w-3 h-3" />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
                         {/* Buttons */}
                         <div className="md:col-span-2 flex gap-3 pt-2">
                             <button type="submit" disabled={saving}
@@ -236,7 +305,22 @@ export default function SellerServices() {
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                     {services.map(svc => (
                         <div key={svc._id} className={`bg-white rounded-2xl border shadow-sm overflow-hidden transition-all ${svc.isActive ? 'border-gray-100' : 'border-gray-200 opacity-60'}`}>
-                            <div className="p-5">
+                            {/* Service Image Preview */}
+                            <div className="h-40 relative bg-gray-100">
+                                {svc.images?.[0] ? (
+                                    <img src={svc.images[0]} alt={svc.serviceName} className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                        <Wrench className="w-10 h-10 text-gray-300" />
+                                    </div>
+                                )}
+                                {!svc.isActive && (
+                                    <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px] flex items-center justify-center">
+                                        <span className="px-3 py-1 bg-gray-900 text-white text-[10px] font-bold rounded-lg uppercase tracking-wider">Inactive</span>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="p-5 pt-4">
                                 <div className="flex items-start justify-between gap-3 mb-3">
                                     <div className="flex-1 min-w-0">
                                         <h3 className="font-black text-[15px] text-gray-900 line-clamp-1">{svc.serviceName}</h3>

@@ -68,7 +68,7 @@ function useIsSeller() {
 function RootRedirect() {
   const { user } = useAuthStore();
   if (!user) return <Navigate to="/login" replace />;
-  if (user.role === 'seller') return <Navigate to="/seller/dashboard" replace />;
+  if (user.role === 'seller' || user.role === 'service_provider') return <Navigate to="/seller/dashboard" replace />;
   return <Navigate to="/shop" replace />;
 }
 

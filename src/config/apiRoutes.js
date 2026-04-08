@@ -13,6 +13,8 @@ export const API = {
   UPDATE_PROFILE: `${BASE}/api/v1/auth/update-profile`,
   SEND_OTP: `${BASE}/api/v1/auth/send-otp`,
   VERIFY_OTP: `${BASE}/api/v1/auth/verify-otp`,
+  ADMIN_LOGIN: `${BASE}/api/v1/admin/login`,
+  ADMIN_VERIFY: `${BASE}/api/v1/admin/verify`,
   FORGOT_PASSWORD: `${BASE}/api/v1/auth/forgot-password`,
   VERIFY_RESET_OTP: `${BASE}/api/v1/auth/verify-reset-otp`,
   RESET_PASSWORD: `${BASE}/api/v1/auth/reset-password`,

@@ -10,8 +10,9 @@ export default function LoginCard() {
   const navigate = useNavigate();
   const { user, setAuth } = useAuthStore();
 
-  // Step: 'phone' (email for now) | 'otp'
+  // Step: 'email' | 'otp'
   const [step, setStep] = useState('email');
+  const [mode, setMode] = useState('login'); // 'login' or 'register'
   const [role, setRole] = useState('shopper'); // shopper, seller, service
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -52,7 +53,7 @@ export default function LoginCard() {
     try {
       const res = await api.post(API.SEND_OTP || '/api/auth/send-otp', {
         identifier: email,
-        role: role === 'service' ? 'seller' : role, // Treat service as seller internally or pass role directly
+        role: role === 'service' ? 'service_provider' : role,
       });
       if (res.data) {
         setStep('otp');
@@ -119,7 +120,7 @@ export default function LoginCard() {
         identifier: email,
         otp: otpStr,
         referralCode: referral || undefined,
-        role: role === 'service' ? 'seller' : role,
+        role: role === 'service' ? 'service_provider' : role,
       });
       if (res.data?.success || res.data?.token) {
         const { user: userData, token } = res.data;
@@ -199,14 +200,36 @@ export default function LoginCard() {
           </div>
         )}
 
+        {/* Mode Selector (Login/Register) */}
+        {step === 'email' && (
+          <div className="flex border-b border-gray-100 mb-6">
+            <button 
+              onClick={() => setMode('login')}
+              className={`flex-1 py-3 text-sm font-bold transition-all relative ${mode === 'login' ? 'text-green-600' : 'text-gray-400'}`}
+            >
+              Log In
+              {mode === 'login' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-green-500" />}
+            </button>
+            <button 
+              onClick={() => setMode('register')}
+              className={`flex-1 py-3 text-sm font-bold transition-all relative ${mode === 'register' ? 'text-green-600' : 'text-gray-400'}`}
+            >
+              Sign Up
+              {mode === 'register' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-green-500" />}
+            </button>
+          </div>
+        )}
+
         {/* Title */}
         <div className="login-title-wrap">
           <h1 className="login-title">
-            {step === 'email' ? 'Welcome back' : 'Verify your login'}
+            {step === 'email' 
+              ? (mode === 'login' ? 'Welcome Back' : 'Join Akupy') 
+              : 'Verify your account'}
           </h1>
           <p className="login-subtitle">
             {step === 'email'
-              ? 'Enter your email address to continue'
+              ? (mode === 'login' ? 'Enter your email to access your account' : "New here? Enter your email and we'll set you up!")
               : `OTP sent to ${email}`}
           </p>
         </div>

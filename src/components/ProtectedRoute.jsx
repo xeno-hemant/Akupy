@@ -19,7 +19,7 @@ export const ProtectedSellerRoute = ({ children }) => {
         return <Navigate to="/" state={{ from: location }} replace />;
     }
 
-    if (user.role !== 'seller') {
+    if (user.role !== 'seller' && user.role !== 'service_provider') {
         window.dispatchEvent(new CustomEvent('incognito-toast', {
             detail: { message: "Seller portal is for sellers only" }
         }));
