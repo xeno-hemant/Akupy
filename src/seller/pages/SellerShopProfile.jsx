@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { Upload, Save, Instagram, Globe, Facebook, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import SellerLayout from '../layout/SellerLayout';
