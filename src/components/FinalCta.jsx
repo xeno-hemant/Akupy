@@ -22,8 +22,6 @@ export default function FinalCta() {
   const [role, setRole] = useState(location.pathname === '/sell' ? 'seller' : 'user');
   const [authMode, setAuthMode] = useState('register'); // 'login', 'register', or 'forgot'
   const [status, setStatus] = useState('idle'); // idle, loading, error
-
-  const [status, setStatus] = useState('idle'); // idle, loading, error
   const [showPricingModal, setShowPricingModal] = useState(false);
   const [showOtpField, setShowOtpField] = useState(false);
   const [otp, setOtp] = useState('');
@@ -501,7 +499,6 @@ export default function FinalCta() {
       </div>
 
       {/* Pricing Modal removed: All sellers now follow the automatic 10% platform fee model */}
-    </section>
     </section>
   );
 }
