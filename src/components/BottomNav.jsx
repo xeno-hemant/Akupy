@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, MessageCircle, ShoppingCart, User, Plus, Shirt, Shield, Bot } from 'lucide-react';
+import { Home, Compass, ShoppingCart, User, Plus, Shirt, Shield, Bot } from 'lucide-react';
 import useAuthStore from '../store/useAuthStore';
 import useCartStore from '../store/useCartStore';
 import useFeatureStore from '../store/useFeatureStore';
@@ -10,7 +10,7 @@ import ComingSoonModal from './ComingSoonModal';
 
 const NAV_ITEMS = [
     { id: 'home', label: 'Home', icon: Home, path: '/shop' },
-    { id: 'chat', label: 'Chat', icon: MessageCircle, path: '/chat' },
+    { id: 'discover', label: 'Discover', icon: Compass, path: '#', comingSoon: true },
     { id: 'fab', label: '', icon: Plus, isFab: true },
     { id: 'cart', label: 'Cart', icon: ShoppingCart, path: '/cart' },
     { id: 'profile', label: 'Profile', icon: User, path: '/dashboard' },
@@ -32,9 +32,6 @@ export default function BottomNav() {
     const items = NAV_ITEMS.map(item => {
         if (item.id === 'profile') {
             return { ...item, path: (user?.role === 'seller' || user?.role === 'service_provider') ? '/seller/dashboard' : '/dashboard' };
-        }
-        if (item.id === 'chat') {
-            return { ...item, path: (user?.role === 'seller' || user?.role === 'service_provider') ? '/seller/messages' : '/chat' };
         }
         return item;
     });
@@ -137,7 +134,10 @@ export default function BottomNav() {
                         return (
                             <button
                                 key={item.id}
-                                onClick={() => item.path && navigate(item.path)}
+                                onClick={() => {
+                                    if (item.comingSoon) setComingSoon({ open: true, feature: item.id });
+                                    else if (item.path && item.path !== '#') navigate(item.path);
+                                }}
                                 className="flex flex-col items-center justify-center gap-0.5 transition-all relative"
                                 style={{ color: active ? '#22C55E' : '#6B7280', minWidth: 44, minHeight: 44 }}
                             >

@@ -25,6 +25,11 @@ export default function ComingSoonModal({ isOpen, onClose, feature }) {
   if (!isOpen) return null;
 
   const contentMap = {
+    discover: {
+      icon: <Globe className="w-12 h-12 text-[#22C55E]" />,
+      title: "Discover Nearby",
+      description: "Explore local shops and service providers around you with our interactive discovery system."
+    },
     globe: {
       icon: <Globe className="w-12 h-12 text-[#22C55E]" />,
       title: "Globe Shop",

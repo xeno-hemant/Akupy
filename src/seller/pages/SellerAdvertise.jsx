@@ -43,7 +43,7 @@ export default function SellerAdvertise() {
         setLoading(true);
         try {
             // 1. Create Order
-            const { data } = await api.post('/api/v1/seller/shop/advertise', { plan: plan.id });
+            const { data } = await api.post(`${API.SELLER_SHOP}/advertise`, { plan: plan.id });
             
             if (!data.success) throw new Error(data.message);
 
@@ -56,7 +56,7 @@ export default function SellerAdvertise() {
                 order_id: data.order.id,
                 handler: async (response) => {
                     try {
-                        const verifyRes = await api.post('/api/v1/seller/shop/advertise/verify', {
+                        const verifyRes = await api.post(`${API.SELLER_SHOP}/advertise/verify`, {
                             ...response,
                             plan: plan.id
                         });

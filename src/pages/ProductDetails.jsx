@@ -441,15 +441,24 @@ export default function ProductDetails() {
                                         <span>•</span><span>98% Positive</span>
                                     </div>
                                 </div>
-                                <button
-                                    onClick={() => navigate(`/business/${product.shopId?._id || product.shopId?.id || product.shopId}`)}
-                                    className="px-4 py-2 rounded-full text-xs font-bold transition-colors hidden sm:block"
-                                    style={{ background: HH.linen, color: HH.taupe, border: `1px solid ${HH.silver}` }}
-                                    onMouseEnter={e => e.currentTarget.style.background = HH.silver}
-                                    onMouseLeave={e => e.currentTarget.style.background = HH.linen}
-                                >
-                                    Visit Shop
-                                </button>
+                                <div className="flex flex-col gap-2">
+                                    <button
+                                        onClick={() => navigate(`/business/${product.shopId?._id || product.shopId?.id || product.shopId}`)}
+                                        className="px-4 py-2 rounded-full text-xs font-bold transition-colors hidden sm:block whitespace-nowrap"
+                                        style={{ background: HH.linen, color: HH.taupe, border: `1px solid ${HH.silver}` }}
+                                        onMouseEnter={e => e.currentTarget.style.background = HH.silver}
+                                        onMouseLeave={e => e.currentTarget.style.background = HH.linen}
+                                    >
+                                        Visit Shop
+                                    </button>
+                                    <button
+                                        onClick={handleChat}
+                                        className="px-4 py-2 rounded-full text-xs font-bold transition-colors hidden sm:block whitespace-nowrap"
+                                        style={{ background: '#c4a882', color: '#fff', border: '1px solid #c4a882' }}
+                                    >
+                                        Chat with Seller
+                                    </button>
+                                </div>
                             </div>
                         )}
 
@@ -519,7 +528,7 @@ export default function ProductDetails() {
 
                     {product.garmentType && product.garmentType !== 'none' && (
                         <button
-                            onClick={() => openTryOnForProduct(product)}
+                            onClick={() => window.dispatchEvent(new CustomEvent('toast', { detail: { message: 'Try-On feature is currently on hold.' } }))}
                             className="flex-shrink-0 flex items-center gap-2 px-4 md:px-6 py-3.5 rounded-full font-bold border transition-colors shadow-sm"
                             style={{ background: '#4fc3f7', borderColor: '#29b6f6', color: '#fff' }}
                             onMouseEnter={e => e.currentTarget.style.background = '#29b6f6'}

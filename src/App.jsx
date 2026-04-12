@@ -157,7 +157,7 @@ function AppInner({ subdomainShopId }) {
           style={{ boxShadow: 'inset 0 0 150px rgba(44,42,39,0.5)' }}></div>
       )}
 
-      {!isSeller && <TryOnOnboardingModal />}
+      {/* {!isSeller && <TryOnOnboardingModal />} */}
 
       {toastMessage && (
         <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[10000] bg-[#2C2A27]/95 text-white px-6 py-3 rounded-full text-sm font-semibold border border-white/10 shadow-lg animate-fade-in flex items-center gap-3 backdrop-blur-md">
@@ -190,7 +190,7 @@ function AppInner({ subdomainShopId }) {
           } />
           <Route path="/cart" element={<ProtectedShopperRoute><CartPage /></ProtectedShopperRoute>} />
           <Route path="/checkout" element={<ProtectedShopperRoute><CheckoutPage /></ProtectedShopperRoute>} />
-          <Route path="/wardrobe" element={<ProtectedShopperRoute><TryOnGalleryPage /></ProtectedShopperRoute>} />
+          {/* <Route path="/wardrobe" element={<ProtectedShopperRoute><TryOnGalleryPage /></ProtectedShopperRoute>} /> */}
           <Route path="/product/:productId" element={<ProductDetails />} />
           <Route path="/chat/:conversationId" element={<ProtectedShopperRoute><ChatPage /></ProtectedShopperRoute>} />
           <Route path="/chat" element={<ProtectedShopperRoute><ChatPage /></ProtectedShopperRoute>} />
