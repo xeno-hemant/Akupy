@@ -179,6 +179,7 @@ export default function Dashboard() {
     <div className="min-h-screen pt-4 md:py-10 page-bottom-padding" style={{ background: '#F5F5F7' }}>
       <div className={`max-w-xl mx-auto ${user.role !== 'seller' ? 'shadow-sm border border-gray-100 min-h-[calc(100vh-160px)] pb-20' : 'p-5 md:p-12 rounded-[2rem] md:rounded-[2.5rem] border shadow-sm'}`} style={{ background: '#FFFFFF', borderColor: '#F3F4F6' }}>
         {user.role === 'seller' && (
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 pb-10 border-b border-gray-100">
             <div className="flex flex-col gap-2">
               <h1 className="text-2xl md:text-4xl font-heading font-bold" style={{ color: '#1A1A1A' }}>Business Dashboard</h1>
               <div className="flex items-center gap-3 mt-1">
