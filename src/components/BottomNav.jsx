@@ -1,14 +1,16 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, Grid3x3, ShoppingCart, User, Plus, Shirt, Shield, Bot } from 'lucide-react';
+import { Home, MessageCircle, ShoppingCart, User, Plus, Shirt, Shield, Bot } from 'lucide-react';
 import useAuthStore from '../store/useAuthStore';
 import useCartStore from '../store/useCartStore';
 import useFeatureStore from '../store/useFeatureStore';
+import useChatStore from '../store/useChatStore';
 import useTranslation from '../hooks/useTranslation';
+import ComingSoonModal from './ComingSoonModal';
 
 const NAV_ITEMS = [
     { id: 'home', label: 'Home', icon: Home, path: '/shop' },
-    { id: 'categories', label: 'Categories', icon: Grid3x3, path: '/discover' },
+    { id: 'chat', label: 'Chat', icon: MessageCircle, path: '/chat' },
     { id: 'fab', label: '', icon: Plus, isFab: true },
     { id: 'cart', label: 'Cart', icon: ShoppingCart, path: '/cart' },
     { id: 'profile', label: 'Profile', icon: User, path: '/dashboard' },
@@ -21,23 +23,28 @@ export default function BottomNav() {
     const { getTotalItems } = useCartStore();
     const { isIncognitoActive } = useFeatureStore();
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+    const [comingSoon, setComingSoon] = React.useState({ open: false, feature: '' });
     const { t } = useTranslation();
 
-    // Dynamically adjust profile path
-    const items = NAV_ITEMS.map(item =>
-        item.id === 'profile'
-            ? { ...item, path: (user?.role === 'seller') ? '/seller/dashboard' : '/dashboard' }
-            : item
-    );
+    const { unreadTotal } = useChatStore();
+
+    // Dynamically adjust paths
+    const items = NAV_ITEMS.map(item => {
+        if (item.id === 'profile') {
+            return { ...item, path: (user?.role === 'seller' || user?.role === 'service_provider') ? '/seller/dashboard' : '/dashboard' };
+        }
+        if (item.id === 'chat') {
+            return { ...item, path: (user?.role === 'seller' || user?.role === 'service_provider') ? '/seller/messages' : '/chat' };
+        }
+        return item;
+    });
 
     const isActive = (path) => path && location.pathname === path;
 
     const handleAction = (id) => {
         setIsMenuOpen(false);
-        if (id === 'tryon') window.dispatchEvent(new CustomEvent('open-tryon-modal'));
-        if (id === 'incognito') {
-            window.dispatchEvent(new CustomEvent('toggle-incognito'));
-        }
+        if (id === 'tryon') setComingSoon({ open: true, feature: 'tryon' });
+        if (id === 'incognito') setComingSoon({ open: true, feature: 'incognito' });
         if (id === 'ai') window.dispatchEvent(new CustomEvent('open-ai-chat'));
     };
 
@@ -141,6 +148,11 @@ export default function BottomNav() {
                                             {getTotalItems()}
                                         </span>
                                     )}
+                                    {item.id === 'chat' && unreadTotal > 0 && (
+                                        <span className="absolute -top-1.5 -right-1.5 w-4 h-4 flex items-center justify-center text-[9px] font-bold rounded-full bg-red-500 text-white">
+                                            {unreadTotal}
+                                        </span>
+                                    )}
                                 </div>
                                 <span className="text-[10px] md:text-xs font-semibold">{t(item.id) || item.label}</span>
                                 {active && (
@@ -154,6 +166,12 @@ export default function BottomNav() {
                     })}
                 </div>
             </nav>
+
+            <ComingSoonModal 
+                isOpen={comingSoon.open} 
+                onClose={() => setComingSoon({ open: false, feature: '' })} 
+                feature={comingSoon.feature} 
+            />
         </>
     );
 }

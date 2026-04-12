@@ -25,9 +25,12 @@ export default function ProductCard({ product }) {
         share({ productId, productName: product.name });
     };
 
+    const isShopClosed = product.shopId?.shopStatus === 'closed';
+
     const handleAddToCart = (e) => {
         e.preventDefault();
         e.stopPropagation();
+        if (isShopClosed) return;
         addToCart(product);
         setAdded(true);
         setTimeout(() => setAdded(false), 2000);
@@ -109,16 +112,31 @@ export default function ProductCard({ product }) {
                     </div>
                 )}
 
+                {/* Shop Closed Overlay */}
+                {isShopClosed && (
+                    <div className="absolute inset-0 z-20 flex items-center justify-center p-4">
+                        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+                        <div className="relative bg-white/90 backdrop-blur-md px-4 py-2 rounded-full border border-white/50 shadow-xl">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-red-600 flex items-center gap-1.5">
+                                <div className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse" />
+                                Shop Closed
+                            </span>
+                        </div>
+                    </div>
+                )}
+
                 {/* Desktop/Tablet hover: Add to Cart overlay */}
                 <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 md:group-hover:translate-y-0 transition-transform duration-300 pointer-events-none group-hover:pointer-events-auto p-2 hidden md:block">
                     <div style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.5), transparent)' }} className="absolute inset-0 rounded-b-2xl" />
                     <div className="relative flex gap-1">
                         {hasTryOn && (
                             <button
-                                className="flex-1 py-2 rounded-xl text-xs font-bold transition-colors"
+                                className="flex-1 py-2 rounded-xl text-xs font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 style={{ background: '#3B82F6', color: '#fff' }}
+                                disabled={isShopClosed}
                                 onClick={(e) => {
                                     e.preventDefault(); e.stopPropagation();
+                                    if (isShopClosed) return;
                                     navigate(`/product/${product._id || product.id}?tryon=true`);
                                 }}
                             >
@@ -126,11 +144,12 @@ export default function ProductCard({ product }) {
                             </button>
                         )}
                         <button
-                            className="flex-1 py-2 rounded-xl text-xs font-bold transition-all"
+                            className="flex-1 py-2 rounded-xl text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             style={added
                                 ? { background: '#22C55E', color: '#fff' }
                                 : { background: 'rgba(255,255,255,0.9)', color: '#1A1A1A' }
                             }
+                            disabled={isShopClosed}
                             onClick={handleAddToCart}
                         >
                             {added ? '✓ Added!' : 'Add to Cart'}
@@ -199,11 +218,12 @@ export default function ProductCard({ product }) {
 
                     {/* Mobile quick add */}
                     <button
-                        className="md:hidden w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90"
+                        className="md:hidden w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90 disabled:opacity-50"
                         style={added
                             ? { background: '#22C55E', color: '#fff' }
                             : { background: '#F0FDF4', color: '#22C55E', border: '1.5px solid #DCFCE7' }
                         }
+                        disabled={isShopClosed}
                         onClick={handleAddToCart}
                     >
                         <ShoppingCart className="w-4 h-4" />

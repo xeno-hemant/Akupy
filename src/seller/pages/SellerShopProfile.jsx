@@ -157,122 +157,98 @@ export default function SellerShopProfile() {
                     </button>
                     <div>
                         <h1 className="text-2xl font-black text-gray-900">
-                            {user?.role === 'service_provider' ? 'Service Profile' : 'Shop Profile'}
+                            {user?.role === 'service_provider' ? 'Settings' : 'Shop Settings'}
                         </h1>
-                        <p className="text-sm text-gray-500 mt-0.5">Manage your public profile and details</p>
+                        <p className="text-sm text-gray-500 mt-0.5">Manage your public presence</p>
                     </div>
                 </div>
             </div>
 
-            <form onSubmit={handleSave}>
-                <div className="space-y-5 max-w-3xl">
+            <form onSubmit={handleSave} className="max-w-xl">
+                <div className="space-y-6">
 
-                    {/* Banner Upload */}
-                    <div className="rounded-xl overflow-hidden" style={{ background: '#fff', border: '1px solid #F1F5F9', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-                        {/* Banner area */}
-                        <div className="relative w-full h-36 cursor-pointer group" style={{ background: banner ? undefined : 'linear-gradient(135deg, #1A1A2E, #16213E)' }}
-                            onClick={() => document.getElementById('banner-input').click()}>
-                            {banner && <img src={banner} alt="banner" className="w-full h-full object-cover" />}
-                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: 'rgba(0,0,0,0.5)' }}>
-                                <div className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold text-white" style={{ background: 'rgba(255,255,255,0.15)' }}>
-                                    <Upload className="w-4 h-4" /> Upload Banner (1200×300)
-                                </div>
-                            </div>
-                             <input id="banner-input" type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files[0]; if (f) handleUpload(f, 'banner'); }} />
-
-                            {/* Shop logo */}
-                            <div className="absolute -bottom-8 left-6 w-16 h-16 rounded-full border-4 border-white shadow-lg cursor-pointer overflow-hidden"
-                                style={{ background: logo ? undefined : GREEN }}
-                                onClick={ev => { ev.stopPropagation(); document.getElementById('logo-input').click(); }}>
-                                {logo ? <img src={logo} className="w-full h-full object-cover" /> :
-                                    <div className="w-full h-full flex items-center justify-center text-xl font-black text-white">
-                                        {(form.shopName || user?.fullName || user?.businessName || 'S').charAt(0).toUpperCase()}
+                    {/* Logo & Status */}
+                    <div className="rounded-2xl p-6 bg-white border border-gray-100 shadow-sm">
+                        <div className="flex items-center gap-6 mb-6">
+                            <div className="relative w-20 h-20 rounded-full bg-gray-50 border-2 border-dashed border-gray-200 flex items-center justify-center cursor-pointer group overflow-hidden"
+                                onClick={() => document.getElementById('logo-input').click()}>
+                                {logo ? (
+                                    <img src={logo} className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="text-center">
+                                        <Upload className="w-5 h-5 mx-auto text-gray-400 group-hover:text-green-500" />
+                                        <span className="text-[10px] font-bold text-gray-400">Logo</span>
                                     </div>
-                                }
+                                )}
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                    <span className="text-[10px] text-white font-bold">Change</span>
+                                </div>
                                 <input id="logo-input" type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files[0]; if (f) handleUpload(f, 'logo'); }} />
                             </div>
-                        </div>
-                        <div className="px-6 pt-12 pb-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <Field label={user?.role === 'service_provider' ? "Service Name *" : "Shop Name *"}>
-                                    <Input value={form.shopName} onChange={F('shopName')} placeholder={user?.role === 'service_provider' ? "Your Service / Professional Name" : "Your Shop Name"} required />
-                                </Field>
-                                <Field label="Tagline">
-                                    <Input value={form.tagline} onChange={F('tagline')} placeholder={user?.role === 'service_provider' ? "e.g. Professional home services, repair specialists" : "e.g. Quality products, fast delivery"} />
-                                </Field>
-                            </div>
-                        </div>
-                    </div>
 
-                    {/* Business Details */}
-                    <div className="rounded-xl p-5" style={{ background: '#fff', border: '1px solid #F1F5F9', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-                        <h3 className="text-sm font-black mb-4" style={{ color: '#0F172A' }}>Business Details</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <Field label="Business Type">
-                                <select value={form.businessType} onChange={F('businessType')}
-                                    className="w-full h-10 px-3 text-sm rounded-lg border-2 outline-none font-medium"
-                                    style={{ background: '#F8FAFC', borderColor: '#E2E8F0', color: '#374151' }}>
-                                    <option value="individual">Individual / Sole Proprietor</option>
-                                    <option value="company">Private Limited Company</option>
-                                    <option value="partnership">Partnership</option>
-                                </select>
-                            </Field>
-                            <Field label="GST Number" hint="Optional but recommended">
-                                <Input value={form.gst} onChange={F('gst')} placeholder="22AAAAA0000A1Z5" />
-                            </Field>
-                            <Field label="Contact Email *">
-                                <Input type="email" value={form.email} onChange={F('email')} placeholder={user?.role === 'service_provider' ? "service@example.com" : "shop@example.com"} />
-                            </Field>
-                            <Field label="Contact Phone">
-                                <Input type="tel" value={form.phone} onChange={F('phone')} placeholder="+91 XXXXX XXXXX" />
-                            </Field>
-                            <div className="md:col-span-2">
-                                <Field label="Business Address">
-                                    <Textarea rows={2} value={form.address} onChange={F('address')} placeholder="Full address including city, state, pincode" />
-                                </Field>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Policies */}
-                    <div className="rounded-xl p-5" style={{ background: '#fff', border: '1px solid #F1F5F9', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-                        <h3 className="text-sm font-black mb-4" style={{ color: '#0F172A' }}>Policies</h3>
-                        <div className="space-y-4">
-                            <Field label="Return Policy">
-                                <Textarea rows={3} value={form.returnPolicy} onChange={F('returnPolicy')} />
-                            </Field>
-                            <Field label="Shipping Policy">
-                                <Textarea rows={3} value={form.shippingPolicy} onChange={F('shippingPolicy')} />
-                            </Field>
-                        </div>
-                    </div>
-
-                    {/* Social Links */}
-                    <div className="rounded-xl p-5" style={{ background: '#fff', border: '1px solid #F1F5F9', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-                        <h3 className="text-sm font-black mb-4" style={{ color: '#0F172A' }}>Social Links</h3>
-                        <div className="space-y-3">
-                            {[
-                                { key: 'instagram', Icon: Instagram, placeholder: 'instagram.com/yourshop', color: '#E1306C' },
-                                { key: 'facebook', Icon: Facebook, placeholder: 'facebook.com/yourshop', color: '#1877F2' },
-                                { key: 'website', Icon: Globe, placeholder: 'yourwebsite.com', color: '#64748B' },
-                            ].map(({ key, Icon, placeholder, color }) => (
-                                <div key={key} className="relative">
-                                    <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color }} />
-                                    <Input style={{ paddingLeft: 36 }} value={form[key]} onChange={F(key)} placeholder={placeholder} />
+                            <div className="flex-1">
+                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Shop Status</label>
+                                <div className="flex items-center gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const newStatus = (form.shopStatus || 'open') === 'open' ? 'closed' : 'open';
+                                            setForm(p => ({ ...p, shopStatus: newStatus }));
+                                        }}
+                                        className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
+                                            (form.shopStatus || 'open') === 'open' 
+                                                ? 'bg-green-100 text-green-600 ring-1 ring-green-200' 
+                                                : 'bg-red-100 text-red-600 ring-1 ring-red-200'
+                                        }`}
+                                    >
+                                        {(form.shopStatus || 'open') === 'open' ? '🟢 Open Now' : '🔴 Closed'}
+                                    </button>
+                                    <span className="text-[11px] text-gray-400 font-medium">Click to toggle availability</span>
                                 </div>
-                            ))}
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <Field label={user?.role === 'service_provider' ? "Professional Name *" : "Shop Name *"}>
+                                <Input value={form.shopName} onChange={F('shopName')} placeholder="e.g. Akupy Store" required />
+                            </Field>
+                            <Field label="City *">
+                                <Input value={form.address} onChange={F('address')} placeholder="e.g. Mumbai, Maharashtra" required />
+                            </Field>
+                        </div>
+                    </div>
+
+                    {/* Description */}
+                    <div className="rounded-2xl p-6 bg-white border border-gray-100 shadow-sm">
+                        <Field label="Description">
+                            <Textarea rows={4} value={form.tagline} onChange={F('tagline')} placeholder="A brief about what you do..." />
+                        </Field>
+                    </div>
+
+                    {/* Banner (Small Preview) */}
+                    <div className="rounded-2xl p-6 bg-white border border-gray-100 shadow-sm">
+                        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Shop Banner</label>
+                        <div className="relative w-full h-24 rounded-xl bg-gray-50 border-2 border-dashed border-gray-200 flex items-center justify-center cursor-pointer group overflow-hidden"
+                            onClick={() => document.getElementById('banner-input').click()}>
+                            {banner ? (
+                                <img src={banner} className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="text-center">
+                                    <Upload className="w-4 h-4 mx-auto text-gray-400 group-hover:text-green-500" />
+                                    <span className="text-[10px] font-bold text-gray-400">Upload Banner</span>
+                                </div>
+                            )}
+                            <input id="banner-input" type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files[0]; if (f) handleUpload(f, 'banner'); }} />
                         </div>
                     </div>
 
                     {/* Save Button */}
-                    <div className="sticky bottom-4">
+                    <div className="pt-4">
                         <button type="submit" disabled={saving}
-                            className="w-full sm:w-auto px-8 py-3 rounded-xl font-black text-white transition-all active:scale-95 shadow-lg flex items-center gap-2 justify-center"
-                            style={{ background: saved ? '#16A34A' : GREEN }}
-                            onMouseEnter={e => { if (!saving) e.currentTarget.style.background = '#16A34A'; }}
-                            onMouseLeave={e => { if (!saving && !saved) e.currentTarget.style.background = GREEN; }}>
+                            className="w-full py-4 rounded-2xl font-black text-sm text-white transition-all active:scale-95 shadow-xl flex items-center gap-2 justify-center"
+                            style={{ background: saved ? '#16A34A' : GREEN }}>
                             <Save className="w-4 h-4" />
-                            {saving ? 'Saving...' : saved ? '✓ Changes Saved!' : 'Save Changes'}
+                            {saving ? 'Saving...' : saved ? '✓ Settings Saved' : 'Save All Changes'}
                         </button>
                     </div>
                 </div>

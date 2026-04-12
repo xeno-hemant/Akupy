@@ -114,7 +114,15 @@ export default function SellerOrders() {
 
     return (
         <SellerLayout>
-            <div className="space-y-5">
+            <div className="space-y-6">
+                <div>
+                    <h1 className="text-2xl font-black text-gray-900">
+                        {user?.role === 'service_provider' ? 'My Bookings' : 'Incoming Orders'}
+                    </h1>
+                    <p className="text-sm text-gray-500 mt-1">
+                        {user?.role === 'service_provider' ? 'Manage your service appointments' : 'Track and fulfill your product orders'}
+                    </p>
+                </div>
 
                 {!isCustomersView && (
                     <div className="flex gap-1 flex-wrap">
@@ -227,7 +235,22 @@ export default function SellerOrders() {
                                                 <td className="px-4 py-3 text-xs font-black" style={{ color: '#22C55E' }}>#{o.orderNumber || o._id.slice(-6)}</td>
                                                 <td className="px-4 py-3 text-sm font-semibold" style={{ color: '#0F172A' }}>{o.userId?.fullName || 'Guest Customer'}</td>
                                                 <td className="px-4 py-3 text-sm truncate max-w-[150px]" style={{ color: '#64748B' }}>{o.items?.[0]?.productTitle || 'Product'}</td>
-                                                <td className="px-4 py-3 text-sm font-bold" style={{ color: '#0F172A' }}>₹{o.total?.toLocaleString() || '0'}</td>
+                                                <td className="px-4 py-3 text-sm">
+                                                    <div className="flex flex-col gap-0.5">
+                                                        <div className="flex justify-between gap-4 text-gray-500 text-[10px]">
+                                                            <span>Sale:</span>
+                                                            <span>₹{o.total?.toLocaleString()}</span>
+                                                        </div>
+                                                        <div className="flex justify-between gap-4 text-red-400 text-[10px]">
+                                                            <span>Fee (10%):</span>
+                                                            <span>-₹{(o.platformFee || (o.total * 0.1)).toLocaleString()}</span>
+                                                        </div>
+                                                        <div className="flex justify-between gap-4 font-black text-[#0F172A] border-t border-dashed border-gray-100 pt-0.5 mt-0.5">
+                                                            <span>Earning:</span>
+                                                            <span>₹{(o.sellerEarnings || (o.total * 0.9)).toLocaleString()}</span>
+                                                        </div>
+                                                    </div>
+                                                </td>
                                                 <td className="px-4 py-3 text-sm">{PAYMENT_ICONS[o.paymentMethod] || '💰'} {(o.paymentMethod || 'COD').toUpperCase()}</td>
                                                 <td className="px-4 py-3 text-xs" style={{ color: '#94A3B8' }}>{new Date(o.createdAt).toLocaleDateString()}</td>
                                                 <td className="px-4 py-3"><StatusBadge status={o.status} /></td>

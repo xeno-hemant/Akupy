@@ -1,19 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import API from '../config/apiRoutes';
 import api from '../utils/apiHelper';
 import useCartStore from '../store/useCartStore';
 import useFeatureStore from '../store/useFeatureStore';
+import useChatStore from '../store/useChatStore';
+import useAuthStore from '../store/useAuthStore';
 
 export default function ShopSubdomain({ shopId: propShopId }) {
   const { shopId: paramShopId } = useParams();
   const shopId = propShopId || paramShopId;
+  const navigate = useNavigate();
 
   const [business, setBusiness] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const { addToCart } = useCartStore();
   const { isIncognitoActive } = useFeatureStore();
+  const { startChatWithSeller } = useChatStore();
+  const { token } = useAuthStore();
+
+  const handleChat = async () => {
+    if (!token) { navigate('/login'); return; }
+    const sellerId = business.userId?._id || business.userId || business.sellerId;
+    const conversationId = await startChatWithSeller(sellerId);
+    if (conversationId) navigate(`/chat/${conversationId}`);
+  };
 
   useEffect(() => {
     const fetchBusiness = async () => {
@@ -59,11 +71,36 @@ export default function ShopSubdomain({ shopId: propShopId }) {
             ? 'Store details are hidden while browsing in Incognito mode.'
             : (business.description || 'Welcome to our official Akupy store.')}
         </p>
+
+        {!isIncognitoActive && (
+          <div className="mt-4 flex flex-col items-center gap-2">
+            <div className="flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border"
+              style={{ 
+                background: business.shopStatus === 'closed' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)',
+                borderColor: business.shopStatus === 'closed' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(34, 197, 94, 0.2)',
+                color: business.shopStatus === 'closed' ? '#EF4444' : '#22C55E'
+              }}
+            >
+              <div className={`w-1.5 h-1.5 rounded-full ${business.shopStatus === 'closed' ? 'bg-[#EF4444]' : 'bg-[#22C55E]'} animate-pulse`} />
+              {business.shopStatus === 'closed' ? 'Closed' : 'Open'}
+            </div>
+          </div>
+        )}
         {!isIncognitoActive && business.category && (
           <span className="inline-block mt-4 px-3 py-1 bg-white/10 rounded-full text-xs font-medium uppercase tracking-wider">
             {business.category}
           </span>
         )}
+
+        {/* Chat Button */}
+        <div className="mt-6">
+            <button
+                onClick={handleChat}
+                className="px-6 py-2.5 rounded-full font-bold text-sm bg-white text-[#3d3830] transition-transform active:scale-95 shadow-lg flex items-center gap-2 mx-auto"
+            >
+                💬 Message Shop
+            </button>
+        </div>
       </header>
 
       {/* Catalog Render */}

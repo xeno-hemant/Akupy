@@ -26,6 +26,7 @@ import CheckoutPage from './pages/CheckoutPage';
 import TryOnGalleryPage from './pages/TryOnGalleryPage';
 import ProductDetails from './pages/ProductDetails';
 import LoginPage from './pages/LoginPage';
+import ChatPage from './pages/ChatPage';
 
 // Legal & Support Pages
 import PrivacyPolicy from './pages/PrivacyPolicy';
@@ -48,7 +49,9 @@ import SellerCoupons from './seller/pages/SellerCoupons';
 import SellerReviews from './seller/pages/SellerReviews';
 import SellerNotifications from './seller/pages/SellerNotifications';
 import SellerServices from './seller/pages/SellerServices';
+import SellerAdvertise from './seller/pages/SellerAdvertise';
 import ServiceDetail from './pages/ServiceDetail';
+import SellerMessages from './seller/pages/SellerMessages';
 import AdminLogin from './admin/AdminLogin';
 import AdminBugs from './admin/AdminBugs';
 
@@ -126,15 +129,22 @@ function AppInner({ subdomainShopId }) {
       // Logic for main assistant handled in AiAssistantDrawer
     };
 
+    const handleChatNotification = (e) => {
+      setToastMessage(`💬 New message from ${e.detail.from}`);
+      setTimeout(() => setToastMessage(''), 4000);
+    };
+
     window.addEventListener('incognito-toast', handleToast);
     window.addEventListener('toggle-incognito', handleToggleIncognito);
     window.addEventListener('open-ai-help', handleOpenAiHelp);
     window.addEventListener('open-ai-chat', handleOpenAiAssistant);
+    window.addEventListener('chat-notification', handleChatNotification);
     return () => {
       window.removeEventListener('incognito-toast', handleToast);
       window.removeEventListener('toggle-incognito', handleToggleIncognito);
       window.removeEventListener('open-ai-help', handleOpenAiHelp);
       window.removeEventListener('open-ai-chat', handleOpenAiAssistant);
+      window.removeEventListener('chat-notification', handleChatNotification);
     };
   }, [isIncognitoActive, setIncognito]);
 
@@ -182,6 +192,8 @@ function AppInner({ subdomainShopId }) {
           <Route path="/checkout" element={<ProtectedShopperRoute><CheckoutPage /></ProtectedShopperRoute>} />
           <Route path="/wardrobe" element={<ProtectedShopperRoute><TryOnGalleryPage /></ProtectedShopperRoute>} />
           <Route path="/product/:productId" element={<ProductDetails />} />
+          <Route path="/chat/:conversationId" element={<ProtectedShopperRoute><ChatPage /></ProtectedShopperRoute>} />
+          <Route path="/chat" element={<ProtectedShopperRoute><ChatPage /></ProtectedShopperRoute>} />
 
           {/* Shopper Profile Sub-Pages */}
           <Route path="/orders" element={<ProtectedShopperRoute><ProfileSubPages type="orders" /></ProtectedShopperRoute>} />
@@ -211,6 +223,9 @@ function AppInner({ subdomainShopId }) {
           <Route path="/seller/settings" element={<ProtectedSellerRoute><SellerShopProfile /></ProtectedSellerRoute>} />
           <Route path="/seller/help" element={<ProtectedSellerRoute><SellerNotifications /></ProtectedSellerRoute>} />
           <Route path="/seller/services" element={<ProtectedSellerRoute><SellerServices /></ProtectedSellerRoute>} />
+          <Route path="/seller/advertise" element={<ProtectedSellerRoute><SellerAdvertise /></ProtectedSellerRoute>} />
+          <Route path="/seller/messages" element={<ProtectedSellerRoute><SellerMessages /></ProtectedSellerRoute>} />
+          <Route path="/seller/messages/:conversationId" element={<ProtectedSellerRoute><SellerMessages /></ProtectedSellerRoute>} />
 
           {/* Service detail (public) */}
           <Route path="/service/:serviceId" element={<ServiceDetail />} />

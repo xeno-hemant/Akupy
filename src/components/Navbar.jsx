@@ -6,6 +6,7 @@ import useCartStore from '../store/useCartStore';
 import useFeatureStore from '../store/useFeatureStore';
 import useLocationStore, { INDIAN_CITIES } from '../store/useLocationStore';
 import GlobeShopOverlay from './GlobeShopOverlay';
+import ComingSoonModal from './ComingSoonModal';
 
 const CATEGORIES = ['Fashion', 'Electronics', 'Food', 'Services', 'Beauty', 'Home', 'Mobiles'];
 
@@ -125,6 +126,7 @@ export default function Navbar() {
   const { city, error: locError, loading: locLoading, setCity, detect } = useLocationStore();
   const [showCityPicker, setShowCityPicker] = useState(false);
   const [citySearch, setCitySearch] = useState('');
+  const [comingSoon, setComingSoon] = useState({ open: false, feature: '' });
   const cityPickerRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -172,11 +174,7 @@ export default function Navbar() {
   };
 
   const handleIncognitoToggle = () => {
-    const newState = !isIncognitoActive;
-    setIncognito(newState);
-    window.dispatchEvent(new CustomEvent('incognito-toast', {
-      detail: { message: newState ? 'Incognito Mode Active — Identity hidden from sellers' : 'Incognito session ended.' }
-    }));
+    setComingSoon({ open: true, feature: 'incognito' });
   };
 
   const isMinimal = location.pathname === '/login';
@@ -230,7 +228,7 @@ export default function Navbar() {
                 />
                 <button
                   type="button"
-                  onClick={() => setIsGlobeMapOpen(true)}
+                  onClick={() => setComingSoon({ open: true, feature: 'globe' })}
                   className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full transition-colors"
                   style={{ color: '#22C55E' }}
                   title="Globe Shop"
@@ -329,7 +327,7 @@ export default function Navbar() {
               />
               <button
                 type="button"
-                onClick={() => setIsGlobeMapOpen(true)}
+                onClick={() => setComingSoon({ open: true, feature: 'globe' })}
                 className="absolute right-4 top-1/2 -translate-y-1/2"
                 style={{ color: '#22C55E' }}
               >
@@ -398,6 +396,11 @@ export default function Navbar() {
       />
 
       {isGlobeMapOpen && <GlobeShopOverlay onClose={() => setIsGlobeMapOpen(false)} />}
+      <ComingSoonModal 
+        isOpen={comingSoon.open} 
+        onClose={() => setComingSoon({ open: false, feature: '' })} 
+        feature={comingSoon.feature} 
+      />
     </>
   );
 }

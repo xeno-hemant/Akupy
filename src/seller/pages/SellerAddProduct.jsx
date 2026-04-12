@@ -205,284 +205,147 @@ export default function SellerAddProduct() {
                 )}
             </div>
 
-            <div className="flex flex-col xl:flex-row gap-6">
+            <div className="flex flex-col gap-6 max-w-4xl mx-auto">
 
-                {/* LEFT COLUMN */}
-                <div className="flex-1 space-y-5 min-w-0">
+                {/* Main Form Area */}
+                <div className="space-y-5 min-w-0">
 
-                    {/* Basic Info */}
-                    <SectionCard title="Basic Information">
+                    {/* REQUIRED FIELDS */}
+                    <SectionCard title="Required Details">
                         <div className="space-y-4">
+                            {/* Product Name */}
                             <div>
-                                <label className="block text-xs font-bold mb-1" style={{ color: '#374151' }}>Product Title *</label>
+                                <label className="block text-xs font-bold mb-1" style={{ color: '#374151' }}>Product Name *</label>
                                 <input type="text" placeholder="e.g. Acid Wash Oversized Tee" value={form.name} onChange={F('name')}
                                     className="w-full h-11 px-3 text-base rounded-lg border-2 outline-none font-bold"
                                     style={{ background: '#F8FAFC', borderColor: '#E2E8F0', color: '#0F172A' }}
                                     onFocus={e => e.target.style.borderColor = GREEN} onBlur={e => e.target.style.borderColor = '#E2E8F0'} />
                             </div>
-                            <TextareaField label="Description" rows={5} placeholder="Describe your product..." value={form.description} onChange={F('description')} />
+
                             <div className="grid grid-cols-2 gap-4">
+                                {/* Price */}
                                 <div>
-                                    <label className="block text-xs font-bold mb-1" style={{ color: '#374151' }}>Category</label>
+                                    <label className="block text-xs font-bold mb-1" style={{ color: '#374151' }}>Price (₹) *</label>
+                                    <div className="relative">
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-sm" style={{ color: '#94A3B8' }}>₹</span>
+                                        <input type="number" placeholder="0.00" value={form.price} onChange={F('price')}
+                                            className="w-full h-10 pl-7 pr-3 text-sm rounded-lg border-2 outline-none font-bold"
+                                            style={{ background: '#F8FAFC', borderColor: '#E2E8F0', color: '#0F172A' }}
+                                            onFocus={e => e.target.style.borderColor = GREEN} onBlur={e => e.target.style.borderColor = '#E2E8F0'} />
+                                    </div>
+                                </div>
+                                {/* Category */}
+                                <div>
+                                    <label className="block text-xs font-bold mb-1" style={{ color: '#374151' }}>Category *</label>
                                     <select value={form.category} onChange={F('category')} className="w-full h-10 px-3 text-sm rounded-lg border-2 outline-none font-medium"
                                         style={{ background: '#F8FAFC', borderColor: '#E2E8F0', color: '#1E293B' }}>
                                         <option value="">Select category</option>
-                                        {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                                        {['Fashion', 'Electronics', 'Food', 'Home', 'Beauty', 'Gadgets', 'Other'].map(c => <option key={c} value={c}>{c}</option>)}
                                     </select>
                                 </div>
-                                <InputField label="Sub-category" placeholder="e.g. T-Shirts" value={form.subcat} onChange={F('subcat')} />
                             </div>
-                        </div>
-                    </SectionCard>
 
-                    {/* Media */}
-                    <SectionCard title="Media">
-                        <div
-                            className="border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors"
-                            style={{ borderColor: images.length ? GREEN : '#CBD5E1', background: images.length ? '#F0FDF4' : '#F8FAFC' }}
-                            onDrop={handleImageDrop} onDragOver={e => e.preventDefault()}
-                            onClick={() => fileRef.current?.click()}>
-                            <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleImageDrop} />
-                            <Upload className="w-8 h-8 mx-auto mb-2" style={{ color: images.length ? GREEN : '#94A3B8' }} />
-                            <p className="text-sm font-bold" style={{ color: images.length ? GREEN : '#64748B' }}>
-                                {images.length ? `${images.length} image(s) uploaded` : 'Drag images here or click to upload'}
-                            </p>
-                            <p className="text-xs mt-1" style={{ color: '#94A3B8' }}>JPG, PNG, WEBP — Max 5MB each</p>
-                        </div>
-                        {images.length > 0 && (
-                            <div className="grid grid-cols-4 gap-3 mt-4">
-                                {images.map((src, i) => (
-                                    <div key={i} className="relative aspect-square rounded-xl overflow-hidden" style={{ background: '#F8F9FA' }}>
-                                        <img src={src} alt="" className="w-full h-full object-cover" />
-                                        <button className="absolute top-1 right-1 w-6 h-6 rounded-full flex items-center justify-center text-white"
-                                            style={{ background: 'rgba(0,0,0,0.5)' }} onClick={() => setImages(prev => prev.filter((_, j) => j !== i))}>
-                                            <X className="w-3 h-3" />
-                                        </button>
-                                        {i === 0 && <span className="absolute bottom-1 left-1 text-[10px] font-black px-1.5 py-0.5 rounded" style={{ background: GREEN, color: '#fff' }}>Main</span>}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </SectionCard>
-
-                    {/* Pricing */}
-                    <SectionCard title="Pricing">
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            {/* Images */}
                             <div>
-                                <label className="block text-xs font-bold mb-1" style={{ color: '#374151' }}>Price (₹) *</label>
-                                <div className="relative">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-sm" style={{ color: '#94A3B8' }}>₹</span>
-                                    <input type="number" placeholder="0.00" value={form.price} onChange={F('price')}
-                                        className="w-full h-10 pl-7 pr-3 text-sm rounded-lg border-2 outline-none font-bold"
-                                        style={{ background: '#F8FAFC', borderColor: '#E2E8F0', color: '#0F172A' }}
-                                        onFocus={e => e.target.style.borderColor = GREEN} onBlur={e => e.target.style.borderColor = '#E2E8F0'} />
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold mb-1" style={{ color: '#374151' }}>MRP / Compare-at (₹)</label>
-                                <div className="relative">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-sm" style={{ color: '#94A3B8' }}>₹</span>
-                                    <input type="number" placeholder="0.00" value={form.mrp} onChange={F('mrp')}
-                                        className="w-full h-10 pl-7 pr-3 text-sm rounded-lg border-2 outline-none"
-                                        style={{ background: '#F8FAFC', borderColor: '#E2E8F0', color: '#64748B' }}
-                                        onFocus={e => e.target.style.borderColor = GREEN} onBlur={e => e.target.style.borderColor = '#E2E8F0'} />
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold mb-1" style={{ color: '#374151' }}>Cost per Item (₹)</label>
-                                <div className="relative">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-sm" style={{ color: '#94A3B8' }}>₹</span>
-                                    <input type="number" placeholder="0.00" value={form.cost} onChange={F('cost')}
-                                        className="w-full h-10 pl-7 pr-3 text-sm rounded-lg border-2 outline-none"
-                                        style={{ background: '#F8FAFC', borderColor: '#E2E8F0', color: '#64748B' }}
-                                        onFocus={e => e.target.style.borderColor = GREEN} onBlur={e => e.target.style.borderColor = '#E2E8F0'} />
-                                </div>
-                            </div>
-                        </div>
-                        {margin !== null && (
-                            <div className="mt-3 flex items-center gap-2 text-sm">
-                                <span style={{ color: '#64748B' }}>Estimated Margin:</span>
-                                <span className="font-black" style={{ color: margin > 30 ? GREEN : margin > 10 ? '#F59E0B' : '#EF4444' }}>{margin}%</span>
-                            </div>
-                        )}
-                        <label className="flex items-center gap-3 mt-4 cursor-pointer">
-                            <div className="relative w-9 h-5">
-                                <input type="checkbox" className="sr-only peer" checked={chargeTax} onChange={e => setChargeTax(e.target.checked)} />
-                                <div className="w-9 h-5 rounded-full transition-colors" style={{ background: chargeTax ? GREEN : '#CBD5E1' }} />
-                                <div className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform" style={{ transform: chargeTax ? 'translateX(16px)' : 'translateX(0)' }} />
-                            </div>
-                            <span className="text-sm font-medium" style={{ color: '#374151' }}>Charge tax on this product</span>
-                        </label>
-                    </SectionCard>
-
-                    {/* Inventory */}
-                    <SectionCard title="Inventory">
-                        <div className="grid grid-cols-2 gap-4">
-                            <InputField label="SKU" placeholder="e.g. SKU-1001" value={form.sku} onChange={F('sku')} />
-                            <InputField label="Barcode" placeholder="ISBN, UPC, etc." value={form.barcode} onChange={F('barcode')} />
-                        </div>
-                        <label className="flex items-center gap-3 mt-4 cursor-pointer">
-                            <div className="relative w-9 h-5">
-                                <input type="checkbox" className="sr-only peer" checked={trackQty} onChange={e => setTrackQty(e.target.checked)} />
-                                <div className="w-9 h-5 rounded-full transition-colors" style={{ background: trackQty ? GREEN : '#CBD5E1' }} />
-                                <div className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform" style={{ transform: trackQty ? 'translateX(16px)' : 'translateX(0)' }} />
-                            </div>
-                            <span className="text-sm font-medium" style={{ color: '#374151' }}>Track quantity</span>
-                        </label>
-                        {trackQty && (
-                            <div className="mt-4">
-                                <InputField label="Quantity" type="number" placeholder="0" value={form.quantity} onChange={F('quantity')} />
-                            </div>
-                        )}
-                    </SectionCard>
-
-                    {/* Variants */}
-                    <SectionCard title="Variants">
-                        <label className="flex items-center gap-3 cursor-pointer mb-4">
-                            <div className="relative w-9 h-5">
-                                <input type="checkbox" className="sr-only" checked={hasVariants} onChange={e => setHasVariants(e.target.checked)} />
-                                <div className="w-9 h-5 rounded-full transition-colors" style={{ background: hasVariants ? GREEN : '#CBD5E1' }} />
-                                <div className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform" style={{ transform: hasVariants ? 'translateX(16px)' : 'translateX(0)' }} />
-                            </div>
-                            <span className="text-sm font-medium" style={{ color: '#374151' }}>This product has variants</span>
-                        </label>
-
-                        {hasVariants && (
-                            <div>
-                                <label className="block text-xs font-bold mb-2" style={{ color: '#374151' }}>Sizes</label>
-                                <div className="flex flex-wrap gap-2">
-                                    {SIZE_OPTIONS.map(s => (
-                                        <button key={s} onClick={() => toggleSize(s)}
-                                            className="px-3 py-1.5 rounded-lg text-sm font-bold border-2 transition-all"
-                                            style={selectedSizes.includes(s)
-                                                ? { background: GREEN, borderColor: GREEN, color: '#fff' }
-                                                : { background: '#F8FAFC', borderColor: '#E2E8F0', color: '#64748B' }}>
-                                            {s}
-                                        </button>
+                                <label className="block text-xs font-bold mb-2" style={{ color: '#374151' }}>Product Images (Max 4) *</label>
+                                <div className="grid grid-cols-4 gap-3">
+                                    {images.slice(0, 4).map((src, i) => (
+                                        <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-gray-100 shadow-sm">
+                                            <img src={src} alt="" className="w-full h-full object-cover" />
+                                            <button className="absolute top-1 right-1 w-6 h-6 rounded-full flex items-center justify-center text-white shadow-lg"
+                                                style={{ background: 'rgba(0,0,0,0.5)' }} onClick={() => setImages(prev => prev.filter((_, j) => j !== i))}>
+                                                <X className="w-3 h-3" />
+                                            </button>
+                                        </div>
                                     ))}
+                                    {images.length < 4 && (
+                                        <div
+                                            className="aspect-square border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all hover:bg-green-50 hover:border-green-400 group"
+                                            style={{ borderColor: '#CBD5E1', background: '#F8FAFC' }}
+                                            onClick={() => fileRef.current?.click()}
+                                        >
+                                            <Upload className="w-5 h-5 text-gray-400 group-hover:text-green-500" />
+                                            <span className="text-[10px] font-bold text-gray-400 mt-1">Upload</span>
+                                            <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleImageDrop} />
+                                        </div>
+                                    )}
                                 </div>
-                                {selectedSizes.length > 0 && (
-                                    <div className="mt-4 rounded-xl overflow-hidden" style={{ border: '1px solid #F1F5F9' }}>
-                                        <table className="w-full text-sm">
-                                            <thead style={{ background: '#F8F9FA' }}>
-                                                <tr>{['Variant', 'Price', 'Stock', 'SKU'].map(h => (
-                                                    <th key={h} className="px-3 py-2 text-left text-xs font-black" style={{ color: '#94A3B8' }}>{h}</th>
-                                                ))}</tr>
-                                            </thead>
-                                            <tbody>
-                                                {selectedSizes.map(s => (
-                                                    <tr key={s} style={{ borderTop: '1px solid #F1F5F9' }}>
-                                                        <td className="px-3 py-2 font-bold" style={{ color: '#0F172A' }}>{s}</td>
-                                                        <td className="px-3 py-2"><input type="number" placeholder={form.price || '0'} className="w-20 h-8 px-2 text-sm rounded border outline-none" style={{ borderColor: '#E2E8F0' }} /></td>
-                                                        <td className="px-3 py-2"><input type="number" placeholder="0" className="w-20 h-8 px-2 text-sm rounded border outline-none" style={{ borderColor: '#E2E8F0' }} /></td>
-                                                        <td className="px-3 py-2"><input type="text" placeholder={`${form.sku || 'SKU'}-${s}`} className="w-28 h-8 px-2 text-sm rounded border outline-none" style={{ borderColor: '#E2E8F0' }} /></td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                )}
                             </div>
-                        )}
-                    </SectionCard>
 
-                    {/* Shipping */}
-                    <SectionCard title="Shipping">
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <InputField label="Weight (kg)" type="number" placeholder="0.0" value={form.weight} onChange={F('weight')} />
-                            <InputField label="Length (cm)" type="number" placeholder="0" />
-                            <InputField label="Width (cm)" type="number" placeholder="0" />
-                            <InputField label="Height (cm)" type="number" placeholder="0" />
-                        </div>
-                        <div className="mt-4">
-                            <InputField label="Estimated Delivery Time" placeholder="e.g. 3-5 business days" value={form.deliveryTime} onChange={F('deliveryTime')} />
-                        </div>
-                    </SectionCard>
-
-                    {/* SEO */}
-                    <SectionCard title="🔍 SEO" collapsible>
-                        <div className="space-y-4">
-                            <InputField label="SEO Title" placeholder="Page title for search engines" value={form.seoTitle} onChange={F('seoTitle')} />
-                            <TextareaField label="Meta Description" rows={3} placeholder="Brief description for search engines (max 160 chars)" value={form.seoDesc} onChange={F('seoDesc')} />
-                            <div className="p-4 rounded-xl" style={{ background: '#F8F9FA', border: '1px solid #E2E8F0' }}>
-                                <p className="text-[10px] uppercase font-bold mb-2" style={{ color: '#94A3B8' }}>Google Preview</p>
-                                <div className="text-blue-600 text-sm font-medium truncate">{form.seoTitle || form.name || 'Product Title — akupy'}</div>
-                                <div className="text-xs mt-0.5" style={{ color: '#64748B' }}>akupy.in/shop/{form.category?.toLowerCase() || 'category'}/...</div>
-                                <div className="text-xs mt-1 line-clamp-2" style={{ color: '#374151' }}>{form.seoDesc || form.description || 'Product description will appear here...'}</div>
-                            </div>
-                        </div>
-                    </SectionCard>
-                </div>
-
-                {/* RIGHT COLUMN */}
-                <div className="w-full xl:w-72 flex-shrink-0 space-y-4">
-
-                    {/* Publish Status */}
-                    <div className="rounded-xl p-4" style={{ background: '#fff', border: '1px solid #F1F5F9', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-                        <h3 className="text-sm font-black mb-3" style={{ color: '#0F172A' }}>Publish</h3>
-                        <select value={status} onChange={e => setStatus(e.target.value)}
-                            className="w-full h-10 px-3 text-sm rounded-lg border-2 outline-none font-semibold mb-4"
-                            style={{ background: '#F8FAFC', borderColor: '#E2E8F0', color: '#374151' }}>
-                            <option value="draft">Draft</option>
-                            <option value="active">Active</option>
-                        </select>
-                        <div className="space-y-2">
-                            <button className="w-full py-2.5 rounded-lg font-semibold text-sm border-2 transition-colors"
-                                style={{ borderColor: '#E2E8F0', color: '#374151' }}
-                                onClick={() => handleSave(false)} disabled={saving}>
-                                {saving ? 'Saving...' : 'Save Draft'}
-                            </button>
-                            <button className="w-full py-2.5 rounded-lg font-bold text-sm text-white transition-all active:scale-95"
-                                style={{ background: GREEN }}
-                                onMouseEnter={e => e.currentTarget.style.background = '#16A34A'}
-                                onMouseLeave={e => e.currentTarget.style.background = GREEN}
-                                onClick={() => handleSave(true)} disabled={saving}>
-                                {saving ? 'Publishing...' : 'Publish Product'}
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Organization */}
-                    <div className="rounded-xl p-4" style={{ background: '#fff', border: '1px solid #F1F5F9', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-                        <h3 className="text-sm font-black mb-3" style={{ color: '#0F172A' }}>Organization</h3>
-                        <div className="space-y-3">
-                            <InputField label="Brand" placeholder="e.g. Nike, Local Brand" />
+                            {/* Stock */}
                             <div>
-                                <label className="block text-xs font-bold mb-1" style={{ color: '#374151' }}>Tags</label>
-                                <div className="flex flex-wrap gap-1.5 mb-2">
-                                    {tags.map(t => (
-                                        <span key={t} className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold" style={{ background: '#F0FDF4', color: GREEN }}>
-                                            {t} <button onClick={() => setTags(prev => prev.filter(x => x !== t))}><X className="w-3 h-3" /></button>
-                                        </span>
-                                    ))}
-                                </div>
-                                <input type="text" placeholder="Add tag, press Enter" value={tagInput} onChange={e => setTagInput(e.target.value)} onKeyDown={addTag}
-                                    className="w-full h-9 px-3 text-sm rounded-lg border-2 outline-none"
+                                <label className="block text-xs font-bold mb-1" style={{ color: '#374151' }}>Stock Quantity *</label>
+                                <input type="number" placeholder="e.g. 50" value={form.quantity} onChange={F('quantity')}
+                                    className="w-full h-10 px-3 text-sm rounded-lg border-2 outline-none"
                                     style={{ background: '#F8FAFC', borderColor: '#E2E8F0', color: '#1E293B' }}
                                     onFocus={e => e.target.style.borderColor = GREEN} onBlur={e => e.target.style.borderColor = '#E2E8F0'} />
                             </div>
                         </div>
-                    </div>
+                    </SectionCard>
 
-                    {/* Sales Channels */}
-                    <div className="rounded-xl p-4" style={{ background: '#fff', border: '1px solid #F1F5F9', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-                        <h3 className="text-sm font-black mb-3" style={{ color: '#0F172A' }}>Sales Channels</h3>
-                        <ChannelToggle label="akupy Marketplace" defaultOn={true} />
-                        <ChannelToggle label="Featured on Homepage" defaultOn={false} />
-                        <ChannelToggle label="Include in Sale" defaultOn={false} />
-                    </div>
+                    {/* OPTIONAL FIELDS */}
+                    <SectionCard title="More Details ▼" collapsible>
+                        <div className="space-y-4">
+                            <TextareaField label="Description" rows={4} placeholder="Tell customers about your product..." value={form.description} onChange={F('description')} />
+                            
+                            <div>
+                                <label className="block text-xs font-bold mb-1" style={{ color: '#374151' }}>Discount %</label>
+                                <input type="number" placeholder="e.g. 10" value={form.discount} onChange={F('discount')}
+                                    className="w-full h-10 px-3 text-sm rounded-lg border-2 outline-none"
+                                    style={{ background: '#F8FAFC', borderColor: '#E2E8F0', color: '#1E293B' }}
+                                />
+                            </div>
 
-                    {/* Main Image Preview */}
-                    {images.length > 0 && (
-                        <div className="rounded-xl p-4" style={{ background: '#fff', border: '1px solid #F1F5F9', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-                            <h3 className="text-sm font-black mb-3" style={{ color: '#0F172A' }}>Thumbnail</h3>
-                            <img src={images[0]} alt="main" className="w-full aspect-square object-cover rounded-xl" />
-                            <button className="w-full mt-2 py-2 text-xs font-bold border-2 rounded-lg transition-colors"
-                                style={{ borderColor: '#E2E8F0', color: '#64748B' }} onClick={() => fileRef.current?.click()}>
-                                Change main image
-                            </button>
+                            {/* Sizes - Multi Select */}
+                            <div>
+                                <label className="block text-xs font-bold mb-2" style={{ color: '#374151' }}>Available Sizes</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map(s => (
+                                        <button key={s} onClick={() => toggleSize(s)}
+                                            className="px-4 py-2 rounded-lg text-sm font-black border-2 transition-all shadow-sm"
+                                            style={selectedSizes.includes(s)
+                                                ? { background: GREEN, borderColor: GREEN, color: '#fff', transform: 'scale(1.05)' }
+                                                : { background: '#fff', borderColor: '#E2E8F0', color: '#64748B' }}>
+                                            {s}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Colors - Max 5 */}
+                            <div>
+                                <label className="block text-xs font-bold mb-2" style={{ color: '#374151' }}>Available Colors (Max 5)</label>
+                                <div className="flex flex-wrap gap-2 items-center">
+                                    {(form.colors || []).map((c, i) => (
+                                        <div key={i} className="relative group">
+                                            <div className="w-9 h-9 rounded-full border-2 border-white shadow-md ring-1 ring-gray-100" style={{ background: c }} />
+                                            <button onClick={() => setForm(p => ({ ...p, colors: p.colors.filter((_, j) => j !== i) }))}
+                                                className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 shadow-lg">
+                                                <X className="w-2.5 h-2.5" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                    {(form.colors || []).length < 5 && (
+                                        <input type="color" className="w-9 h-9 rounded-full border-none cursor-pointer bg-transparent"
+                                            onChange={e => setForm(p => ({ ...p, colors: [...(p.colors || []), e.target.value] }))} />
+                                    )}
+                                </div>
+                            </div>
                         </div>
-                    )}
+                    </SectionCard>
+
+                    {/* ACTIONS */}
+                    <div className="flex items-center gap-3 pt-4">
+                        <button className="flex-1 py-3.5 rounded-xl font-black text-sm text-white transition-all active:scale-95 shadow-xl"
+                            style={{ background: GREEN }}
+                            onClick={() => handleSave(true)} disabled={saving}>
+                            {saving ? 'Saving...' : isEdit ? 'Update Product' : 'Publish Product'}
+                        </button>
+                        <button className="px-8 py-3.5 rounded-xl font-bold text-sm text-gray-400 border-2 transition-colors border-gray-100 hover:bg-gray-50"
+                            onClick={() => navigate('/seller/products')} disabled={saving}>
+                            Cancel
+                        </button>
+                    </div>
                 </div>
             </div>
         </SellerLayout>

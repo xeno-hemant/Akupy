@@ -7,6 +7,8 @@ import {
 import API from '../config/apiRoutes';
 import api from '../utils/apiHelper';
 import useShareProduct from '../hooks/useShareProduct';
+import useChatStore from '../store/useChatStore';
+import useAuthStore from '../store/useAuthStore';
 
 const CATEGORY_COLORS = {
     Tutor: '#3B82F6', Repair: '#F59E0B', Cleaning: '#10B981', Beauty: '#EC4899',
@@ -39,6 +41,16 @@ export default function ServiceDetail() {
 
     const handleCall = () => {
         window.location.href = `tel:${service.contactPhone}`;
+    };
+
+    const { startChatWithSeller } = useChatStore();
+    const { token } = useAuthStore();
+
+    const handleChat = async () => {
+        if (!token) { navigate('/login'); return; }
+        const sellerId = service.sellerId?._id || service.sellerId || service.shopId?.userId;
+        const conversationId = await startChatWithSeller(sellerId);
+        if (conversationId) navigate(`/chat/${conversationId}`);
     };
 
     const handleShare = () => {
@@ -186,6 +198,12 @@ export default function ServiceDetail() {
                         className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm text-white transition-all active:scale-95"
                         style={{ background: '#25D366' }}>
                         <MessageCircle className="w-4 h-4" /> Book via WhatsApp
+                    </button>
+
+                    {/* In-app Chat */}
+                    <button onClick={handleChat}
+                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm bg-gray-900 text-white transition-all active:scale-95">
+                        💬 Ask Provider
                     </button>
                 </div>
             </div>

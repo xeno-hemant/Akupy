@@ -179,8 +179,34 @@ export default function Dashboard() {
     <div className="min-h-screen pt-4 md:py-10 page-bottom-padding" style={{ background: '#F5F5F7' }}>
       <div className={`max-w-xl mx-auto ${user.role !== 'seller' ? 'shadow-sm border border-gray-100 min-h-[calc(100vh-160px)] pb-20' : 'p-5 md:p-12 rounded-[2rem] md:rounded-[2.5rem] border shadow-sm'}`} style={{ background: '#FFFFFF', borderColor: '#F3F4F6' }}>
         {user.role === 'seller' && (
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-6 mb-6 md:mb-12">
-            <h1 className="text-2xl md:text-4xl font-heading font-bold" style={{ color: '#1A1A1A' }}>Business Dashboard</h1>
+            <div className="flex flex-col gap-2">
+              <h1 className="text-2xl md:text-4xl font-heading font-bold" style={{ color: '#1A1A1A' }}>Business Dashboard</h1>
+              <div className="flex items-center gap-3 mt-1">
+                <span className="text-xs font-bold uppercase tracking-wider text-gray-500">Shop Status:</span>
+                <button 
+                  onClick={async () => {
+                    const newStatus = formData.shopStatus === 'open' ? 'closed' : 'open';
+                    try {
+                      const res = await api.patch(API.SELLER_SHOP + '/status', { shopStatus: newStatus });
+                      if (res.data?.success) {
+                        setFormData(prev => ({ ...prev, shopStatus: res.data.shopStatus }));
+                      }
+                    } catch (err) {
+                      console.error("Failed to toggle status", err);
+                    }
+                  }}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase transition-all shadow-sm border"
+                  style={{ 
+                    background: formData.shopStatus === 'open' ? '#F0FDF4' : '#FEF2F2',
+                    borderColor: formData.shopStatus === 'open' ? '#DCFCE7' : '#FEE2E2',
+                    color: formData.shopStatus === 'open' ? '#16A34A' : '#EF4444'
+                  }}
+                >
+                  <div className={`w-1.5 h-1.5 rounded-full ${formData.shopStatus === 'open' ? 'bg-[#16A34A]' : 'bg-[#EF4444]'} animate-pulse`} />
+                  {formData.shopStatus === 'open' ? '🟢 Open' : '🔴 Closed'}
+                </button>
+              </div>
+            </div>
             <button
               onClick={logout}
               className="px-6 py-2.5 md:py-3 rounded-full border-2 font-semibold w-full md:w-auto text-sm md:text-base transition-colors"
@@ -199,6 +225,17 @@ export default function Dashboard() {
             <div className="py-12 text-center text-gray-500">Loading profile data...</div>
           ) : (
             <div className="space-y-12 animate-fade-in">
+              {/* Platform Fee Notice */}
+              <div className="bg-[#F0FDF4] border border-[#DCFCE7] rounded-2xl p-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#DCFCE7] flex items-center justify-center text-[#16A34A] flex-shrink-0">
+                  <DollarSign className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-[#16A34A]">Platform Fee: 10%</h4>
+                  <p className="text-xs text-[#16A34A] opacity-80">Deducted from every sale automatically by Akupy.</p>
+                </div>
+              </div>
+
               {/* Analytics Header */}
               <div>
                 <h2 className="text-2xl font-semibold mb-6 text-[#080808]">Business Overview</h2>

@@ -182,123 +182,115 @@ export default function SellerServices() {
                         </div>
                     </div>
                     <div className="p-6">
-                    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Service Name */}
-                        <div className="md:col-span-2">
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Service Name *</label>
-                            <input type="text" value={form.serviceName} onChange={e => handleChange('serviceName', e.target.value)}
-                                placeholder="e.g. Home Cleaning, AC Repair, Math Tuition..."
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm font-medium text-gray-800 outline-none focus:border-green-400 transition-colors" required />
-                        </div>
-
-                        {/* Category */}
-                        <div>
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Category</label>
-                            <select value={form.category} onChange={e => handleChange('category', e.target.value)}
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm font-medium text-gray-800 outline-none focus:border-green-400 transition-colors">
-                                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                            </select>
-                        </div>
-
-                        {/* Price Type + Price */}
-                        <div className="flex gap-3">
-                            <div className="w-36 flex-shrink-0">
-                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Price Type</label>
-                                <select value={form.priceType} onChange={e => handleChange('priceType', e.target.value)}
-                                    className="w-full px-3 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm font-medium text-gray-800 outline-none focus:border-green-400 transition-colors">
-                                    {PRICE_TYPES.map(p => <option key={p} value={p}>{p}</option>)}
-                                </select>
+                    <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto">
+                        {/* REQUIRED SECTION */}
+                        <div className="space-y-4">
+                            <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest">Required Information</h3>
+                            
+                            {/* Service Name */}
+                            <div>
+                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Service Name *</label>
+                                <input type="text" value={form.serviceName} onChange={e => handleChange('serviceName', e.target.value)}
+                                    placeholder="e.g. Home Cleaning, AC Repair, Math Tuition..."
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm font-black text-gray-800 outline-none focus:border-green-400 transition-colors" required />
                             </div>
-                            <div className="flex-1">
-                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Price (₹) *</label>
-                                <input type="number" value={form.price} onChange={e => handleChange('price', e.target.value)}
-                                    placeholder="0" min="0" step="1"
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm font-medium text-gray-800 outline-none focus:border-green-400 transition-colors" required />
-                            </div>
-                        </div>
 
-                        {/* City + State */}
-                        <div>
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">City</label>
-                            <input type="text" value={form.city} onChange={e => handleChange('city', e.target.value)}
-                                placeholder="Mumbai"
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm font-medium text-gray-800 outline-none focus:border-green-400 transition-colors" />
-                        </div>
-                        <div>
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">State</label>
-                            <input type="text" value={form.state} onChange={e => handleChange('state', e.target.value)}
-                                placeholder="Maharashtra"
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm font-medium text-gray-800 outline-none focus:border-green-400 transition-colors" />
-                        </div>
-
-                        {/* Availability */}
-                        <div className="md:col-span-2">
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Availability</label>
-                            <input type="text" value={form.availability} onChange={e => handleChange('availability', e.target.value)}
-                                placeholder="e.g. Mon-Sat, 9am-6pm | Weekends only"
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm font-medium text-gray-800 outline-none focus:border-green-400 transition-colors" />
-                        </div>
-
-                        {/* Contact */}
-                        <div>
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Contact Phone</label>
-                            <input type="tel" value={form.contactPhone} onChange={e => handleChange('contactPhone', e.target.value)}
-                                placeholder="+91 XXXXXXXXXX"
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm font-medium text-gray-800 outline-none focus:border-green-400 transition-colors" />
-                        </div>
-                        <div>
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">WhatsApp Number</label>
-                            <input type="tel" value={form.contactWhatsApp} onChange={e => handleChange('contactWhatsApp', e.target.value)}
-                                placeholder="+91 XXXXXXXXXX"
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm font-medium text-gray-800 outline-none focus:border-green-400 transition-colors" />
-                        </div>
-
-                        {/* Description */}
-                        <div className="md:col-span-2">
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Description</label>
-                            <textarea value={form.description} onChange={e => handleChange('description', e.target.value)}
-                                placeholder="Describe your service, experience, what's included..."
-                                rows={3}
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-800 outline-none focus:border-green-400 transition-colors resize-none" />
-                        </div>
-
-                        {/* Media / Images */}
-                        <div className="md:col-span-2">
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2">Service Images</label>
-                            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3">
-                                <div
-                                    onClick={() => fileRef.current?.click()}
-                                    className="aspect-square rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-green-400 hover:bg-green-50 transition-all"
-                                >
-                                    <Upload className="w-5 h-5 text-gray-400" />
-                                    <span className="text-[10px] font-bold text-gray-400">Add Photo</span>
-                                    <input ref={fileRef} type="file" multiple accept="image/*" className="hidden" onChange={handleImageDrop} />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Category */}
+                                <div>
+                                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Category *</label>
+                                    <select value={form.category} onChange={e => handleChange('category', e.target.value)}
+                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm font-medium text-gray-800 outline-none focus:border-green-400 transition-colors">
+                                        {['Tutor', 'Repair', 'Cleaning', 'Beauty', 'Delivery', 'Other'].map(c => <option key={c} value={c}>{c}</option>)}
+                                    </select>
                                 </div>
-                                {images.map((src, i) => (
-                                    <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-gray-100">
-                                        <img src={src} alt="" className="w-full h-full object-cover" />
-                                        <button
-                                            type="button"
-                                            onClick={() => removeImage(i)}
-                                            className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 flex items-center justify-center text-white"
-                                        >
-                                            <X className="w-3 h-3" />
-                                        </button>
-                                    </div>
-                                ))}
+
+                                {/* City */}
+                                <div>
+                                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">City *</label>
+                                    <input type="text" value={form.city} onChange={e => handleChange('city', e.target.value)}
+                                        placeholder="e.g. Mumbai, Delhi, Prayagraj"
+                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm font-medium text-gray-800 outline-none focus:border-green-400 transition-colors" required />
+                                </div>
                             </div>
+
+                            {/* Price Type + Price */}
+                            <div className="flex gap-3">
+                                <div className="w-36 flex-shrink-0">
+                                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Price Type *</label>
+                                    <select value={form.priceType} onChange={e => handleChange('priceType', e.target.value)}
+                                        className="w-full px-3 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm font-medium text-gray-800 outline-none focus:border-green-400 transition-colors">
+                                        {['Fixed', 'Per Hour'].map(p => <option key={p} value={p}>{p}</option>)}
+                                    </select>
+                                </div>
+                                <div className="flex-1">
+                                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Price (₹) *</label>
+                                    <input type="number" value={form.price} onChange={e => handleChange('price', e.target.value)}
+                                        placeholder="0" min="0" step="1"
+                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm font-black text-gray-800 outline-none focus:border-green-400 transition-colors" required />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* OPTIONAL SECTION (COLLAPSIBLE) */}
+                        <div className="pt-2">
+                            <details className="group border border-gray-100 rounded-2xl overflow-hidden bg-gray-50/30">
+                                <summary className="flex items-center justify-between px-5 py-4 cursor-pointer select-none bg-white border-b border-gray-50">
+                                    <span className="text-sm font-black text-gray-700">More Details ▼</span>
+                                    <ChevronDown className="w-4 h-4 text-gray-400 transition-transform group-open:rotate-180" />
+                                </summary>
+                                <div className="p-5 space-y-5">
+                                    {/* Description */}
+                                    <div>
+                                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Description</label>
+                                        <textarea value={form.description} onChange={e => handleChange('description', e.target.value)}
+                                            placeholder="Describe what you offer, your experience, what's included..."
+                                            rows={3}
+                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 outline-none focus:border-green-400 transition-colors resize-none" />
+                                    </div>
+
+                                    {/* Availability */}
+                                    <div>
+                                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Availability</label>
+                                        <input type="text" value={form.availability} onChange={e => handleChange('availability', e.target.value)}
+                                            placeholder="e.g. Mon-Sat, 9am-6pm | Weekends only"
+                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-800 outline-none focus:border-green-400 transition-colors" />
+                                    </div>
+
+                                    {/* Service Images */}
+                                    <div>
+                                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2">Service Images</label>
+                                        <div className="grid grid-cols-4 gap-3">
+                                            <div
+                                                onClick={() => fileRef.current?.click()}
+                                                className="aspect-square rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-green-400 hover:bg-green-50 transition-all"
+                                            >
+                                                <Upload className="w-5 h-5 text-gray-400" />
+                                                <span className="text-[10px] font-bold text-gray-400">Add</span>
+                                                <input ref={fileRef} type="file" multiple accept="image/*" className="hidden" onChange={handleImageDrop} />
+                                            </div>
+                                            {images.map((src, i) => (
+                                                <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-gray-100 shadow-sm">
+                                                    <img src={src} alt="" className="w-full h-full object-cover" />
+                                                    <button type="button" onClick={() => removeImage(i)} className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 flex items-center justify-center text-white"><X className="w-3 h-3" /></button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
                         </div>
 
                         {/* Buttons */}
-                        <div className="md:col-span-2 flex gap-3 pt-2">
+                        <div className="flex gap-3 pt-4">
                             <button type="submit" disabled={saving}
-                                className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm text-white disabled:opacity-60 transition-all active:scale-95"
+                                className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-black text-sm text-white disabled:opacity-60 transition-all active:scale-95 shadow-xl"
                                 style={{ background: '#22C55E' }}>
                                 {saving ? <Loader className="w-4 h-4 animate-spin" /> : null}
                                 {saving ? 'Saving...' : editingId ? 'Update Service' : 'List Service'}
                             </button>
                             <button type="button" onClick={() => setShowForm(false)}
-                                className="px-6 py-3 rounded-xl font-bold text-sm text-gray-500 border border-gray-200 hover:bg-gray-50 transition-colors">
+                                className="px-8 py-4 rounded-xl font-bold text-sm text-gray-400 border-2 border-gray-100 hover:bg-gray-50 transition-colors">
                                 Cancel
                             </button>
                         </div>

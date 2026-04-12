@@ -23,7 +23,7 @@ export default function FinalCta() {
   const [authMode, setAuthMode] = useState('register'); // 'login', 'register', or 'forgot'
   const [status, setStatus] = useState('idle'); // idle, loading, error
 
-  const [monetizationPlan, setMonetizationPlan] = useState(''); // 'commission' or 'subscription'
+  const [status, setStatus] = useState('idle'); // idle, loading, error
   const [showPricingModal, setShowPricingModal] = useState(false);
   const [showOtpField, setShowOtpField] = useState(false);
   const [otp, setOtp] = useState('');
@@ -57,8 +57,8 @@ export default function FinalCta() {
       return;
     }
 
-    if (authMode === 'register' && role === 'seller' && !monetizationPlan) {
-      setShowPricingModal(true);
+    if (authMode === 'register' && role === 'seller') {
+      await requestOtp();
       return;
     }
 
@@ -121,7 +121,6 @@ export default function FinalCta() {
       if (res.data) {
         setShowOtpField(true);
         setStatus('idle');
-        if (showPricingModal) setShowPricingModal(false);
         
         if (res.data.devOtp) {
           console.log('%c[AKUPY DEV MODE]', 'color: #22C55E; font-weight: bold; font-size: 14px;', `Your verification code is: ${res.data.devOtp}`);
@@ -210,9 +209,6 @@ export default function FinalCta() {
     setStatus('loading');
     try {
       const payload = { email, password, role };
-      if (role === 'seller' && monetizationPlan) {
-        payload.monetizationPlan = monetizationPlan;
-      }
       const otpRes = await requestWithWakeup(() => api.post(API.VERIFY_REGISTER, { ...payload, otp }));
       if (otpRes.data && otpRes.data.success) {
         // Registration successful! The backend already logged us in (returned token + user)
@@ -239,9 +235,6 @@ export default function FinalCta() {
     setStatus('loading');
     try {
       const payload = { email, password, role };
-      if (role === 'seller' && monetizationPlan) {
-        payload.monetizationPlan = monetizationPlan;
-      }
 
       const response = await requestWithWakeup(() => api.post(API.REGISTER, payload));
 
@@ -507,81 +500,8 @@ export default function FinalCta() {
         )}
       </div>
 
-      {/* Pricing Modal for Sellers */}
-      {showPricingModal && (
-        <div className="fixed inset-0 z-50 overflow-y-auto backdrop-blur-sm" style={{ background: 'rgba(0,0,0,0.7)' }}>
-          <div className="flex min-h-full items-center justify-center p-4 py-12 md:p-8 animate-fade-in">
-            <div className="rounded-3xl max-w-4xl w-full p-6 md:p-12 shadow-2xl relative text-left flex flex-col" style={{ background: '#3d3830', border: '1px solid rgba(142,134,123,0.25)' }}>
-              <button
-                onClick={() => setShowPricingModal(false)}
-                className="absolute top-4 right-4 md:top-6 md:right-6 text-[#8b8ba0] hover:text-white transition-colors"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-              </button>
-
-              <div className="text-center mb-6 md:mb-10 pt-4 md:pt-0">
-                <h3 className="text-2xl md:text-3xl font-heading font-bold text-white mb-2 md:mb-4">Choose Your Selling Plan</h3>
-                <p className="text-sm md:text-base text-[#8b8ba0] max-w-xl mx-auto">Select how you want to grow your business on Akupy. You can change this later in your dashboard.</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 flex-grow">
-                {/* Option 1: Commission */}
-                <div
-                  className="rounded-2xl p-6 md:p-8 cursor-pointer transition-all duration-300 relative group flex flex-col items-center text-center hover:-translate-y-1"
-                  style={{ background: 'rgba(61,56,48,0.12)', border: '1px solid rgba(142,134,123,0.2)' }}
-                  onMouseEnter={e => e.currentTarget.style.borderColor = '#8E867B'}
-                  onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(142,134,123,0.2)'}
-                  onClick={() => {
-                    setMonetizationPlan('commission');
-                    setTimeout(() => requestOtp(), 0);
-                  }}
-                >
-                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center mb-4 md:mb-6" style={{ background: 'rgba(142,134,123,0.12)', color: '#8E867B' }}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 18V6"></path></svg>
-                  </div>
-                  <h4 className="text-xl md:text-2xl font-heading font-bold mb-1 md:mb-2 text-white">Pay as you earn</h4>
-                  <div className="text-3xl md:text-4xl font-heading font-black text-white mb-2 md:mb-4">2% <span className="text-sm md:text-lg text-[#8b8ba0] font-medium">/ sale</span></div>
-                  <p className="text-[#8b8ba0] text-xs md:text-sm mb-4 md:mb-6 max-w-[250px] font-body">Perfect for small businesses or new sellers testing the waters.</p>
-                  <ul className="space-y-2 md:space-y-3 text-xs md:text-sm text-[#8b8ba0] w-full text-left pl-2 md:pl-4">
-                    <li className="flex items-center gap-2"><svg className="w-4 h-4 flex-shrink-0" style={{ color: '#8E867B' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> No upfront costs</li>
-                    <li className="flex items-center gap-2"><svg className="w-4 h-4 flex-shrink-0" style={{ color: '#8E867B' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> Unlimited product listings</li>
-                    <li className="flex items-center gap-2"><svg className="w-4 h-4 flex-shrink-0" style={{ color: '#8E867B' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> Basic analytics</li>
-                  </ul>
-                  <div className="mt-6 md:mt-8 w-full py-2 md:py-3 rounded-xl font-semibold opacity-0 group-hover:opacity-100 transition-opacity text-sm md:text-base" style={{ background: '#3d3830', color: '#F3F0E2' }}>
-                    {status === 'loading' ? 'Processing...' : 'Select Plan'}
-                  </div>
-                </div>
-
-                {/* Option 2: Subscription */}
-                <div
-                  className="rounded-2xl p-6 md:p-8 cursor-pointer transition-all duration-300 relative group flex flex-col items-center text-center mt-2 md:mt-0 hover:-translate-y-1"
-                  style={{ background: 'rgba(142,134,123,0.08)', border: '1.5px solid rgba(142,134,123,0.3)' }}
-                  onClick={() => {
-                    setMonetizationPlan('subscription');
-                    setTimeout(() => requestOtp(), 0);
-                  }}
-                >
-                  <div className="absolute -top-3 right-4 md:right-6 text-[10px] md:text-xs font-bold px-3 py-1 rounded-full" style={{ background: '#3d3830', color: '#F3F0E2' }}>RECOMMENDED</div>
-                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center mb-4 md:mb-6" style={{ background: 'rgba(142,134,123,0.18)', color: '#8E867B' }}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                  </div>
-                  <h4 className="text-xl md:text-2xl font-heading font-bold mb-1 md:mb-2 text-white">High Volume</h4>
-                  <div className="text-3xl md:text-4xl font-heading font-black text-white mb-2 md:mb-4">₹6,000 <span className="text-sm md:text-lg text-[#8b8ba0] font-medium">/ mo</span></div>
-                  <p className="text-[#8b8ba0] text-xs md:text-sm mb-4 md:mb-6 max-w-[250px] font-body">Keep 100% of your profits. Best for established stores making {'>'} ₹300k/mo.</p>
-                  <ul className="space-y-2 md:space-y-3 text-xs md:text-sm text-[#8b8ba0] w-full text-left pl-2 md:pl-4">
-                    <li className="flex items-center gap-2"><svg className="w-4 h-4 flex-shrink-0" style={{ color: '#8E867B' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> 0% transaction fees</li>
-                    <li className="flex items-center gap-2"><svg className="w-4 h-4 flex-shrink-0" style={{ color: '#8E867B' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> Priority placement ranking</li>
-                    <li className="flex items-center gap-2"><svg className="w-4 h-4 flex-shrink-0" style={{ color: '#8E867B' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> Advanced analytics & insights</li>
-                  </ul>
-                  <div className="mt-6 md:mt-8 w-full py-2 md:py-3 rounded-xl font-bold opacity-0 group-hover:opacity-100 transition-opacity text-sm md:text-base" style={{ background: '#3d3830', color: '#F3F0E2' }}>
-                    {status === 'loading' ? 'Processing...' : 'Select Priority Plan'}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Pricing Modal removed: All sellers now follow the automatic 10% platform fee model */}
+    </section>
     </section>
   );
 }

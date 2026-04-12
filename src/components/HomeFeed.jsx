@@ -7,6 +7,7 @@ import useLocationStore, { INDIAN_CITIES } from '../store/useLocationStore';
 import useTranslation from '../hooks/useTranslation';
 import API from '../config/apiRoutes';
 import api from '../utils/apiHelper';
+import TopShops from './TopShops';
 
 // ─── City Pill & Selector ────────────────────────────────────────────────────
 function CityPill({ city, locLoading, locError, showCityPicker, setShowCityPicker, setCity, detect, citySearch, setCitySearch, cityPickerRef }) {
@@ -499,6 +500,9 @@ export default function HomeFeed() {
     <section className="px-4 md:px-6 pb-24 xl:pb-6 max-w-[1400px] mx-auto">
       {/* Banner */}
       {!bannerLoaded ? <SkeletonBanner /> : <PromoBanner />}
+
+      {/* Top Shops Near You */}
+      <TopShops city={city} />
 
       {/* Better City Selection Native to Feed */}
       <CityPill 

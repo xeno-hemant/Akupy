@@ -3,7 +3,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
     LayoutDashboard, Tag, Warehouse, Store, Gift, Star, Users,
     DollarSign, Landmark, Receipt, Settings, Bell, Headphones, ChevronRight,
-    LogOut, X, BarChart2, Package, Wrench
+    LogOut, X, BarChart2, Package, Wrench, MessageCircle, Megaphone
 } from 'lucide-react';
 import useAuthStore from '../../store/useAuthStore';
 
@@ -12,43 +12,48 @@ const GREEN = '#22C55E';
 const TEXT = '#E2E8F0';
 const MUTED = '#94A3B8';
 
-const getNavSections = (user) => [
-    {
-        label: 'MAIN',
-        items: [
-            { label: 'Dashboard', icon: LayoutDashboard, path: '/seller/dashboard' },
-            { label: 'Orders & Bookings', icon: Package, path: '/seller/orders', badge: 'pendingOrders' },
-            { label: 'My Products', icon: Tag, path: '/seller/products', role: 'seller' },
-            { label: 'My Services', icon: Wrench, path: '/seller/services', role: 'service_provider' },
-            { label: 'Inventory', icon: Warehouse, path: '/seller/inventory', role: 'seller' },
-        ]
-    },
-    {
-        label: 'STORE',
-        items: [
-            { label: user?.role === 'service_provider' ? 'Service Profile' : 'Shop Profile', icon: Store, path: '/seller/shop' },
-            { label: 'Coupons & Offers', icon: Gift, path: '/seller/coupons' },
-            { label: 'Reviews', icon: Star, path: '/seller/reviews' },
-            { label: 'Customers', icon: Users, path: '/seller/customers' },
-        ]
-    },
-    {
-        label: 'FINANCE',
-        items: [
-            { label: 'Earnings', icon: DollarSign, path: '/seller/earnings' },
-            { label: 'Payouts', icon: Landmark, path: '/seller/payouts' },
-            { label: 'Transactions', icon: Receipt, path: '/seller/transactions' },
-        ]
-    },
-    {
-        label: 'SETTINGS',
-        items: [
-            { label: 'Store Settings', icon: Settings, path: '/seller/settings' },
-            { label: 'Notifications', icon: Bell, path: '/seller/notifications' },
-            { label: 'Help & Support', icon: Headphones, path: '/seller/help' },
-        ]
-    }
-];
+const getNavSections = (user) => {
+    const isSP = user?.role === 'service_provider';
+    
+    return [
+        {
+            label: 'MAIN',
+            items: [
+                { 
+                    label: isSP ? 'My Services' : 'Products', 
+                    icon: isSP ? Wrench : Tag, 
+                    path: isSP ? '/seller/services' : '/seller/products' 
+                },
+                { 
+                    label: isSP ? 'Bookings' : 'Orders', 
+                    icon: Package, 
+                    path: '/seller/orders', 
+                    badge: 'pendingOrders' 
+                },
+                { 
+                    label: 'Messages', 
+                    icon: MessageCircle, 
+                    path: '/seller/messages' 
+                },
+                { 
+                    label: 'Earnings', 
+                    icon: DollarSign, 
+                    path: '/seller/earnings' 
+                },
+                {
+                    label: 'Advertise',
+                    icon: Megaphone,
+                    path: '/seller/advertise'
+                },
+                { 
+                    label: isSP ? 'Settings' : 'Shop Settings', 
+                    icon: Settings, 
+                    path: '/seller/settings' 
+                },
+            ]
+        }
+    ];
+};
 
 export default function SellerSidebar({ isOpen, onClose, collapsed }) {
     const { user, logout } = useAuthStore();

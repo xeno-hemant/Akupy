@@ -9,6 +9,7 @@ import useTryOnStore from '../store/useTryOnStore';
 import useFeatureStore from '../store/useFeatureStore';
 import useAuthStore from '../store/useAuthStore';
 import useWishlistStore from '../store/useWishlistStore';
+import useChatStore from '../store/useChatStore';
 import API from '../config/apiRoutes';
 import api from '../utils/apiHelper';
 import useSEO from '../hooks/useSEO';
@@ -48,6 +49,14 @@ export default function ProductDetails() {
     const { isWishlisted, toggleItem } = useWishlistStore();
     const [wishlistLoading, setWishlistLoading] = useState(false);
     const { share, copied } = useShareProduct();
+    const { startChatWithSeller } = useChatStore();
+
+    const handleChat = async () => {
+        if (!token) { navigate('/login'); return; }
+        const sellerId = product.shopId?._id || product.shopId?.id || product.shopId;
+        const conversationId = await startChatWithSeller(sellerId);
+        if (conversationId) navigate(`/chat/${conversationId}`);
+    };
 
     const handleShare = () => {
         if (!product) return;
@@ -471,7 +480,6 @@ export default function ProductDetails() {
                 <ProductReviews productId={productId} />
             </div>
 
-            {/* BOTTOM FIXED BAR */}
             <div
                 className="fixed bottom-0 left-0 right-0 z-40 p-3 md:p-4 md:px-6 backdrop-blur-xl"
                 style={{
@@ -498,6 +506,15 @@ export default function ProductDetails() {
                         disabled={wishlistLoading}
                     >
                         <Heart className="w-5 h-5" style={{ fill: isWishlisted(product._id) ? '#EF4444' : 'none' }} />
+                    </button>
+
+                    <button
+                        onClick={handleChat}
+                        className="p-3 rounded-full border transition-colors flex items-center justify-center"
+                        style={{ borderColor: HH.taupe, color: HH.taupe, background: HH.linen }}
+                        title="Chat with Seller"
+                    >
+                        💬
                     </button>
 
                     {product.garmentType && product.garmentType !== 'none' && (
