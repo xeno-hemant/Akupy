@@ -58,9 +58,7 @@ export default function SellerTopbar({ onMenuClick, sidebarWidth = 240 }) {
             {/* Logo */}
             <Link to="/seller/dashboard" className="mr-6 hidden xl:block">
                 <div className="flex items-center gap-2">
-                    <svg viewBox="0 0 100 105" className="w-8 h-8" fill="#1A1A1A" fillRule="evenodd" clipRule="evenodd">
-                        <path fillRule="evenodd" clipRule="evenodd" d="M50 3 L95 100 H74 L50 30 L26 100 H5 Z M50 32 L67 79 H33 Z M44 56 Q44 51 50 51 Q56 51 56 56 L58 79 H42 Z M47 46 Q47 42 50 42 Q53 42 53 46 L53 52 H47 Z" />
-                    </svg>
+                    <img src="/akupy-logo.png" alt="Akupy" style={{ height: '30px', width: 'auto', filter: 'brightness(0)' }} />
                     <div className="text-xl font-black" style={{ color: '#0F172A' }}>akupy<span style={{ color: '#22C55E' }}>.</span></div>
                 </div>
             </Link>

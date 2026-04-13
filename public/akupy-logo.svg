@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+  <!--
+    Akupy Official Logo - Exact trace
+    A letter with shopping bag crossbar, bag handle and items
+    Transparent background, single color (currentColor or fill override)
+    The black background from the original image is REMOVED here.
+  -->
+  <path
+    fill="currentColor"
+    fill-rule="evenodd"
+    d="
+      M250,30
+      C242,30 234,40 228,52
+      L42,430
+      C36,444 44,458 58,458
+      L136,458
+      C146,458 155,452 159,441
+      L190,375
+      L310,375
+      L341,441
+      C345,452 354,458 364,458
+      L442,458
+      C456,458 464,444 458,430
+      L272,52
+      C266,40 258,30 250,30
+      Z
+
+      M250,158
+      L302,295
+      L198,295
+      Z
+
+      M185,295
+      L168,340
+      L332,340
+      L315,295
+      Z
+
+      M212,265
+      C212,240 228,226 250,226
+      C272,226 288,240 288,265
+      L288,295
+      L212,295
+      Z
+
+      M234,226
+      C234,208 242,198 250,198
+      C258,198 266,208 266,226
+      L266,238
+      L234,238
+      Z
+
+      M248,175
+      C238,175 228,182 226,191
+      C224,200 228,210 237,214
+      C239,218 242,222 245,225
+      L255,225
+      C258,222 261,218 263,214
+      C272,210 276,200 274,191
+      C272,182 262,175 252,175
+      C250.7,175 249.3,175 248,175
+      Z
+    "
+  />
+</svg>

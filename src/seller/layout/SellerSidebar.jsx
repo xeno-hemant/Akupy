@@ -75,9 +75,7 @@ export default function SellerSidebar({ isOpen, onClose, collapsed }) {
             {/* Logo + Portal label */}
             <div className="flex items-center gap-3 px-5 py-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                 {/* akupy logo */}
-                <svg viewBox="0 0 100 105" className="w-8 h-8 flex-shrink-0" fill="white" fillRule="evenodd" clipRule="evenodd">
-                    <path fillRule="evenodd" clipRule="evenodd" d="M50 3 L95 100 H74 L50 30 L26 100 H5 Z M50 32 L67 79 H33 Z M44 56 Q44 51 50 51 Q56 51 56 56 L58 79 H42 Z M47 46 Q47 42 50 42 Q53 42 53 46 L53 52 H47 Z" />
-                </svg>
+                <img src="/akupy-logo.png" alt="Akupy" className="w-8 h-8 flex-shrink-0" style={{ filter: 'brightness(0) invert(1)' }} />
                 {!collapsed && (
                     <div className="min-w-0">
                         <div className="font-black text-white text-lg leading-none tracking-tight">

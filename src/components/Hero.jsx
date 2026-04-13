@@ -57,9 +57,15 @@ export default function Hero() {
       <div className="relative z-20 w-full max-w-4xl mx-auto px-5 md:px-8 flex flex-col items-center text-center">
         {/* Logo */}
         <div className="hero-text flex items-center gap-3 mb-6">
-          <svg viewBox="0 0 100 105" className="h-12 md:h-16 w-auto" fill="#F3F0E2" fillRule="evenodd" clipRule="evenodd">
-            <path fillRule="evenodd" clipRule="evenodd" d="M50 3 L95 100 H74 L50 30 L26 100 H5 Z M50 32 L67 79 H33 Z M44 56 Q44 51 50 51 Q56 51 56 56 L58 79 H42 Z M47 46 Q47 42 50 42 Q53 42 53 46 L53 52 H47 Z" />
-          </svg>
+          <img
+            src="/akupy-logo.png"
+            alt="Akupy"
+            style={{
+              height: 'clamp(40px, 6vw, 60px)',
+              width: 'auto',
+              filter: 'brightness(0) invert(1)',
+            }}
+          />
           <span style={{
             fontFamily: "'Plus Jakarta Sans', sans-serif",
             fontWeight: 900,

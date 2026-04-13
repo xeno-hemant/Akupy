@@ -15,9 +15,7 @@ export default function SellerLayout({ children }) {
             <div className="min-h-screen flex items-center justify-center p-6" style={{ background: '#F8F9FA' }}>
                 <div className="text-center max-w-sm w-full">
                     <div className="flex items-center justify-center gap-2 mb-6">
-                        <svg viewBox="0 0 100 105" className="w-9 h-9" fill="#1A1A1A" fillRule="evenodd" clipRule="evenodd">
-                            <path fillRule="evenodd" clipRule="evenodd" d="M50 3 L95 100 H74 L50 30 L26 100 H5 Z M50 32 L67 79 H33 Z M44 56 Q44 51 50 51 Q56 51 56 56 L58 79 H42 Z M47 46 Q47 42 50 42 Q53 42 53 46 L53 52 H47 Z" />
-                        </svg>
+                        <img src="/akupy-logo.png" alt="Akupy" style={{ height: '36px', width: 'auto', filter: 'brightness(0)' }} />
                         <div className="text-2xl font-black" style={{ color: '#0F172A' }}>akupy<span style={{ color: '#22C55E' }}>.</span></div>
                     </div>
                     <div className="rounded-2xl p-8" style={{ background: '#fff', border: '1px solid #F1F5F9', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
