@@ -56,17 +56,21 @@ export default function Hero() {
       {/* Content */}
       <div className="relative z-20 w-full max-w-4xl mx-auto px-5 md:px-8 flex flex-col items-center text-center">
         {/* Logo */}
-        <svg viewBox="0 0 400 120" className="hero-text h-12 md:h-16 w-auto mb-6 -ml-2">
-          <line x1="10" y1="50" x2="40" y2="50" stroke="#55c567" strokeWidth="8" strokeLinecap="round" />
-          <line x1="0" y1="65" x2="35" y2="65" stroke="#55c567" strokeWidth="8" strokeLinecap="round" />
-          <line x1="20" y1="80" x2="40" y2="80" stroke="#55c567" strokeWidth="8" strokeLinecap="round" />
-          <path d="M 35 40 L 95 40 L 85 80 L 45 80 Z" fill="#55c567" />
-          <circle cx="50" cy="98" r="9" fill="#00a859" />
-          <circle cx="75" cy="98" r="9" fill="#00a859" />
-          <text x="115" y="85" fontFamily="sans-serif" fontWeight="900" fontSize="72" fill="#F3F0E2" letterSpacing="-2">
-            akupy<tspan fill="#55c567">.</tspan>
-          </text>
-        </svg>
+        <div className="hero-text flex items-center gap-3 mb-6">
+          <svg viewBox="0 0 100 105" className="h-12 md:h-16 w-auto" fill="#F3F0E2" fillRule="evenodd" clipRule="evenodd">
+            <path fillRule="evenodd" clipRule="evenodd" d="M50 3 L95 100 H74 L50 30 L26 100 H5 Z M50 32 L67 79 H33 Z M44 56 Q44 51 50 51 Q56 51 56 56 L58 79 H42 Z M47 46 Q47 42 50 42 Q53 42 53 46 L53 52 H47 Z" />
+          </svg>
+          <span style={{
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            fontWeight: 900,
+            fontSize: 'clamp(32px, 5vw, 56px)',
+            color: '#F3F0E2',
+            letterSpacing: '-1px',
+            lineHeight: 1,
+          }}>
+            akupy<span style={{ color: '#55c567' }}>.</span>
+          </span>
+        </div>
 
         {/* Headline */}
         <h1 className="hero-text font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.05] tracking-tight mb-4 md:mb-5">

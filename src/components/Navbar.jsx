@@ -87,35 +87,66 @@ function CityPill({ city, locLoading, locError, showCityPicker, setShowCityPicke
   );
 }
 
-// AkupyLogo SVG — New "A with shopping bag" logo
+// AkupyLogo — A with shopping bag, transparent bg, currentColor
 export function AkupyLogo({ size = 'md', dark = false }) {
   const textColor = dark ? '#FFFFFF' : '#1A1A1A';
-  const h = size === 'sm' ? 'h-7' : size === 'lg' ? 'h-14' : 'h-9';
-  const logoColor = dark ? '#FFFFFF' : '#1A1A1A';
+  const h = size === 'sm' ? '28px' : size === 'lg' ? '48px' : '36px';
 
   return (
-    <div className={`${h} flex items-center gap-2`} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-      {/* A with bag icon */}
-      <svg viewBox="0 0 40 40" className="h-full w-auto" style={{ display: 'block' }}>
-        {/* A shape */}
-        <path d="M20 3 L37 37 H28 L20 16 L12 37 H3 Z" fill={logoColor}/>
-        {/* White cutout triangle inside A */}
-        <path d="M20 3 L26 18 H14 Z" fill={dark ? '#2C2A27' : '#F5F0E8'}/>
-        {/* Shopping bag in center of A crossbar */}
-        <rect x="14.5" y="21" width="11" height="10" rx="1.5" fill="white"/>
-        <path d="M16.5 21 Q16.5 17.5 20 17.5 Q23.5 17.5 23.5 21" fill="none" stroke="white" strokeWidth="1.5"/>
-        <circle cx="17.5" cy="26" r="0.8" fill={logoColor}/>
-        <circle cx="22.5" cy="26" r="0.8" fill={logoColor}/>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', height: h }}>
+      {/* The A-with-bag mark — transparent bg, adapts via currentColor */}
+      <svg
+        viewBox="0 0 100 105"
+        style={{ height: '100%', width: 'auto', color: textColor, display: 'block', flexShrink: 0 }}
+        fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="
+            M50 3
+            L95 100
+            H74
+            L50 30
+            L26 100
+            H5
+            Z
+
+            M50 32
+            L67 79
+            H33
+            Z
+
+            M44 56
+            Q44 51 50 51
+            Q56 51 56 56
+            L58 79
+            H42
+            Z
+
+            M47 46
+            Q47 42 50 42
+            Q53 42 53 46
+            L53 52
+            H47
+            Z
+          "
+        />
       </svg>
-      {/* Text */}
-      <span style={{
-        fontFamily: "'Plus Jakarta Sans', sans-serif",
-        fontWeight: 900,
-        fontSize: size === 'sm' ? '18px' : size === 'lg' ? '28px' : '22px',
-        color: textColor,
-        letterSpacing: '-0.5px',
-        lineHeight: 1,
-      }}>
+
+      {/* Wordmark */}
+      <span
+        style={{
+          fontFamily: "'Plus Jakarta Sans', sans-serif",
+          fontWeight: 900,
+          fontSize: size === 'sm' ? '18px' : size === 'lg' ? '28px' : '22px',
+          color: textColor,
+          letterSpacing: '-0.5px',
+          lineHeight: 1,
+          userSelect: 'none',
+        }}
+      >
         akupy<span style={{ color: '#22C55E' }}>.</span>
       </span>
     </div>
