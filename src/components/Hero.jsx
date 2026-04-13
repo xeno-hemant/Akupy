@@ -58,7 +58,7 @@ export default function Hero() {
         {/* Logo */}
         <div className="hero-text flex items-center gap-3 mb-6">
           <img
-            src="/akupy-logo.png"
+            src="/akupy-logo.jpg"
             alt="Akupy"
             style={{
               height: 'clamp(40px, 6vw, 60px)',

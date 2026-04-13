@@ -75,7 +75,7 @@ export default function SellerSidebar({ isOpen, onClose, collapsed }) {
             {/* Logo + Portal label */}
             <div className="flex items-center gap-3 px-5 py-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                 {/* akupy logo */}
-                <img src="/akupy-logo.png" alt="Akupy" className="w-8 h-8 flex-shrink-0" style={{ filter: 'brightness(0) invert(1)' }} />
+                <img src="/akupy-logo.jpg" alt="Akupy" className="w-8 h-8 flex-shrink-0" style={{ filter: 'brightness(0) invert(1)' }} />
                 {!collapsed && (
                     <div className="min-w-0">
                         <div className="font-black text-white text-lg leading-none tracking-tight">

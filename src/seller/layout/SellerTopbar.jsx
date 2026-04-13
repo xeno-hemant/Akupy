@@ -58,7 +58,7 @@ export default function SellerTopbar({ onMenuClick, sidebarWidth = 240 }) {
             {/* Logo */}
             <Link to="/seller/dashboard" className="mr-6 hidden xl:block">
                 <div className="flex items-center gap-2">
-                    <img src="/akupy-logo.png" alt="Akupy" style={{ height: '30px', width: 'auto', filter: 'brightness(0)' }} />
+                    <img src="/akupy-logo.jpg" alt="Akupy" style={{ height: '30px', width: 'auto', filter: 'brightness(0)' }} />
                     <div className="text-xl font-black" style={{ color: '#0F172A' }}>akupy<span style={{ color: '#22C55E' }}>.</span></div>
                 </div>
             </Link>

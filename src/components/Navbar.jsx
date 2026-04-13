@@ -96,7 +96,7 @@ export function AkupyLogo({ size = 'md', dark = false }) {
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
       {/* Exact brand logo — your original PNG file */}
       <img
-        src="/akupy-logo.png"
+        src="/akupy-logo.jpg"
         alt="Akupy logo"
         style={{
           height: imgH,

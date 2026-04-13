@@ -15,7 +15,7 @@ export default function SellerLayout({ children }) {
             <div className="min-h-screen flex items-center justify-center p-6" style={{ background: '#F8F9FA' }}>
                 <div className="text-center max-w-sm w-full">
                     <div className="flex items-center justify-center gap-2 mb-6">
-                        <img src="/akupy-logo.png" alt="Akupy" style={{ height: '36px', width: 'auto', filter: 'brightness(0)' }} />
+                        <img src="/akupy-logo.jpg" alt="Akupy" style={{ height: '36px', width: 'auto', filter: 'brightness(0)' }} />
                         <div className="text-2xl font-black" style={{ color: '#0F172A' }}>akupy<span style={{ color: '#22C55E' }}>.</span></div>
                     </div>
                     <div className="rounded-2xl p-8" style={{ background: '#fff', border: '1px solid #F1F5F9', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
