@@ -51,6 +51,7 @@ export default function SellerShopProfile() {
     const [logo, setLogo] = useState(null);
     const [form, setForm] = useState({
         shopName: user?.businessName || '',
+        ownerName: user?.fullName || '',
         tagline: '',
         businessType: 'individual',
         gst: '',
@@ -72,6 +73,7 @@ export default function SellerShopProfile() {
                 const shop = d.shop || d; // Handle both direct and nested response
                 setForm({
                     shopName: shop.name || '',
+                    ownerName: shop.ownerName || user?.fullName || '',
                     tagline: shop.tagline || '',
                     businessType: shop.businessType || 'individual',
                     gst: shop.gst || '',
@@ -115,6 +117,7 @@ export default function SellerShopProfile() {
         try {
             const payload = {
                 name: form.shopName,
+                ownerName: form.ownerName,
                 tagline: form.tagline,
                 businessType: form.businessType,
                 gst: form.gst,
@@ -212,7 +215,13 @@ export default function SellerShopProfile() {
                             <Field label={user?.role === 'service_provider' ? "Professional Name *" : "Shop Name *"}>
                                 <Input value={form.shopName} onChange={F('shopName')} placeholder="e.g. Akupy Store" required />
                             </Field>
-                            <Field label="City *">
+                            <Field label="Owner / Contact Person Name *" hint="This name will appear when customers chat with you">
+                                <Input value={form.ownerName} onChange={F('ownerName')} placeholder="e.g. Rahul Sharma" />
+                            </Field>
+                            <Field label="Contact Phone">
+                                <Input value={form.phone} onChange={F('phone')} placeholder="e.g. +91 98765 43210" type="tel" />
+                            </Field>
+                            <Field label="City / Address *">
                                 <Input value={form.address} onChange={F('address')} placeholder="e.g. Mumbai, Maharashtra" required />
                             </Field>
                         </div>

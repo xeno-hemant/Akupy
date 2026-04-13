@@ -78,7 +78,8 @@ export default function SellerAdvertise() {
             rzp.open();
         } catch (err) {
             console.error('Ad creation error:', err);
-            alert(err.message || 'Something went wrong');
+            const msg = err.response?.data?.message || err.message || 'Something went wrong';
+            alert('❌ ' + msg);
         } finally {
             setLoading(false);
         }

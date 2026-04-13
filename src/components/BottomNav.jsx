@@ -10,7 +10,7 @@ import ComingSoonModal from './ComingSoonModal';
 
 const NAV_ITEMS = [
     { id: 'home', label: 'Home', icon: Home, path: '/shop' },
-    { id: 'discover', label: 'Discover', icon: Compass, path: '#', comingSoon: true },
+    { id: 'discover', label: 'Discover', icon: Compass, path: '/discover' },
     { id: 'fab', label: '', icon: Plus, isFab: true },
     { id: 'cart', label: 'Cart', icon: ShoppingCart, path: '/cart' },
     { id: 'profile', label: 'Profile', icon: User, path: '/dashboard' },

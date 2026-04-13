@@ -87,27 +87,38 @@ function CityPill({ city, locLoading, locError, showCityPicker, setShowCityPicke
   );
 }
 
-// AkupyLogo SVG
+// AkupyLogo SVG — New "A with shopping bag" logo
 export function AkupyLogo({ size = 'md', dark = false }) {
   const textColor = dark ? '#FFFFFF' : '#1A1A1A';
-  const h = size === 'sm' ? 'h-6' : size === 'lg' ? 'h-12' : 'h-8';
+  const h = size === 'sm' ? 'h-7' : size === 'lg' ? 'h-14' : 'h-9';
+  const logoColor = dark ? '#FFFFFF' : '#1A1A1A';
 
   return (
-    <svg viewBox="0 0 380 100" className={`${h} w-auto`} style={{ display: 'block' }}>
-      {/* Speed lines */}
-      <line x1="2" y1="38" x2="36" y2="38" stroke="#22C55E" strokeWidth="7" strokeLinecap="round" />
-      <line x1="0" y1="52" x2="30" y2="52" stroke="#22C55E" strokeWidth="7" strokeLinecap="round" />
-      <line x1="8" y1="66" x2="36" y2="66" stroke="#22C55E" strokeWidth="7" strokeLinecap="round" />
-      {/* Cart body */}
-      <path d="M 32 32 L 86 32 L 78 68 L 40 68 Z" fill="#22C55E" />
-      {/* Wheels */}
-      <circle cx="47" cy="80" r="8" fill="#16A34A" />
-      <circle cx="71" cy="80" r="8" fill="#16A34A" />
+    <div className={`${h} flex items-center gap-2`} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      {/* A with bag icon */}
+      <svg viewBox="0 0 40 40" className="h-full w-auto" style={{ display: 'block' }}>
+        {/* A shape */}
+        <path d="M20 3 L37 37 H28 L20 16 L12 37 H3 Z" fill={logoColor}/>
+        {/* White cutout triangle inside A */}
+        <path d="M20 3 L26 18 H14 Z" fill={dark ? '#2C2A27' : '#F5F0E8'}/>
+        {/* Shopping bag in center of A crossbar */}
+        <rect x="14.5" y="21" width="11" height="10" rx="1.5" fill="white"/>
+        <path d="M16.5 21 Q16.5 17.5 20 17.5 Q23.5 17.5 23.5 21" fill="none" stroke="white" strokeWidth="1.5"/>
+        <circle cx="17.5" cy="26" r="0.8" fill={logoColor}/>
+        <circle cx="22.5" cy="26" r="0.8" fill={logoColor}/>
+      </svg>
       {/* Text */}
-      <text x="100" y="72" fontFamily="'Plus Jakarta Sans', sans-serif" fontWeight="900" fontSize="62" fill={textColor} letterSpacing="-2">
-        akupy<tspan fill="#22C55E">.</tspan>
-      </text>
-    </svg>
+      <span style={{
+        fontFamily: "'Plus Jakarta Sans', sans-serif",
+        fontWeight: 900,
+        fontSize: size === 'sm' ? '18px' : size === 'lg' ? '28px' : '22px',
+        color: textColor,
+        letterSpacing: '-0.5px',
+        lineHeight: 1,
+      }}>
+        akupy<span style={{ color: '#22C55E' }}>.</span>
+      </span>
+    </div>
   );
 }
 

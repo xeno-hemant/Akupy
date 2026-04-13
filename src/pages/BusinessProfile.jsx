@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/useAuthStore';
 import useCartStore from '../store/useCartStore';
 import useFeatureStore from '../store/useFeatureStore';
 import useTryOnStore from '../store/useTryOnStore';
+import useChatStore from '../store/useChatStore';
 import API from '../config/apiRoutes';
 import api from '../utils/apiHelper';
 import { Star } from 'lucide-react';
@@ -11,10 +12,20 @@ import useSEO from '../hooks/useSEO';
 
 export default function BusinessProfile() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { user, token } = useAuthStore();
   const { addToCart } = useCartStore();
   const { isIncognitoActive } = useFeatureStore();
   const { openTryOnForProduct } = useTryOnStore();
+  const { startChatWithSeller } = useChatStore();
+
+  const handleChat = async () => {
+    if (!token) { navigate('/login'); return; }
+    const sellerId = business?.user?._id || business?.user || business?.userId;
+    if (!sellerId) return;
+    const conversationId = await startChatWithSeller(sellerId);
+    if (conversationId) navigate(`/chat/${conversationId}`);
+  };
 
   const [business, setBusiness] = useState(null);
   const [reviews, setReviews] = useState([]);
@@ -119,6 +130,15 @@ export default function BusinessProfile() {
               <div className="md:ml-auto">
                 <span className="block text-sm text-gray-400 font-medium mb-1">Contact</span>
                 <span className="text-[#080808] font-medium">{business.phone || business.email || 'No contact info provided'}</span>
+              </div>
+              <div>
+                <button
+                  onClick={handleChat}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm transition-all active:scale-95 shadow-sm"
+                  style={{ background: '#128C7E', color: '#fff' }}
+                >
+                  💬 Chat with Shop
+                </button>
               </div>
             </div>
           )}
